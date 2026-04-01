@@ -18,11 +18,11 @@ model User {
   email String @unique
   phone String
   password String
-  role String
+  role Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  donors Donors[]
+  donors Donors?
 }
 
 model Donors {
@@ -31,8 +31,14 @@ model Donors {
   lastDonation DateTime?
   latitude Float?
   longitude Float?
-  userId Int
+  userId Int @unique
   user User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  ADMIN
+  DONOR
+  REQUESTER
 }
