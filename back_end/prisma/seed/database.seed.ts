@@ -1,5 +1,5 @@
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient, Role } from '../../generated/prisma/client';
 
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST,
@@ -17,7 +17,7 @@ async function main() {
       email: 'alice@prisma.io',
       phone: '1234567890',
       password: 'securepassword',
-      role: 'donor',
+      role: Role.DONOR,
     },
     include: {
       donors: true,
