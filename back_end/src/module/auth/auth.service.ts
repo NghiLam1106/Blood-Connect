@@ -1,20 +1,24 @@
+import { InjectRedis } from '@nestjs-modules/ioredis';
+import { InjectQueue } from '@nestjs/bullmq';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/common/prisma/prisma.service';
-import { Role } from 'generated/prisma/enums';
+import { Queue } from 'bullmq';
+import { Redis } from 'ioredis';
 import { HttpRequestStatus } from 'src/enums/httpRequest.enum';
+import { UsersRepository } from '../users/repository/users.repository';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
 @Injectable()
 export class AuthService {
 
-  constructor(private prisma: PrismaService) {}
+  constructor(@InjectQueue('mail_queue') private mailQueue: Queue,
+    @InjectRedis() private readonly redis: Redis, private readonly usersRepository: UsersRepository) {}
 
-  async register(data: RegisterDto) {
-    const { name, email, phone, bloodType, password, role } = data;
+  async register(registerDto: RegisterDto) {
+    const { name, email, phone, bloodType, password, role } = registerDto;
 
-    // Kiểm tra email đã tồn tại chưa
-    const userExists = await this.prisma.user.findUnique({ where: { email } });
+    const userExists = await this.usersRepository.findByEmail(email);
 
     if (userExists) {
       throw new BadRequestException('Email này đã được sử dụng!');
@@ -22,30 +26,35 @@ export class AuthService {
 
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    // Dùng transaction để đảm bảo cả user và donor đều được tạo thành công
-    await this.prisma.$transaction(async (tx) => {
-      // Bước 1: Tạo User
-      const newUser = await tx.user.create({
-        data: {
-          name,
-          email,
-          phone,
-          password: hashedPassword,
-          role,
-        },
-      });
+    await this.usersRepository.create({ name, email, phone, bloodType, hashedPassword, role });
 
-      // Bước 2: Nếu role là DONOR thì tạo bản ghi Donors với bloodType
-      if (role === Role.DONOR) {
-        await tx.donors.create({
-          data: {
-            bloodType,
-            userId: newUser.id,
-          },
-        });
-      }
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.redis.set(`otp:${email}`, otp, 'EX', 300);
+
+    await this.mailQueue.add('sendOtpEmail', {
+      email,
+      otp,
+      name
+    }, {
+      attempts: 3,
+      backoff: 5000,
     });
 
     return { message: 'Đăng ký tài khoản thành công!', status:  HttpRequestStatus.SUCCESS};
+  }
+
+  async verifyOtp(verifyOtpDto: VerifyOtpDto) {
+    const { email, otp } = verifyOtpDto;
+    const storedOtp = await this.redis.get(`otp:${email}`);
+    if (!storedOtp) {
+      throw new BadRequestException('Mã OTP đã hết hạn!');
+    }
+    if (storedOtp !== otp) {
+      throw new BadRequestException('Mã OTP không chính xác!');
+    }
+    await this.redis.del(`otp:${email}`);
+    await this.usersRepository.update(email);
+    return { message: 'Xác thực tài khoản thành công!', status:  HttpRequestStatus.SUCCESS};
   }
 }
