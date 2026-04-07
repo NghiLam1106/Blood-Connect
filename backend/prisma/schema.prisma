@@ -4,8 +4,8 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
   moduleFormat = "cjs"
 }
 
@@ -14,35 +14,55 @@ datasource db {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  phone String
-  password String
-  role Role
-  avatar String?
-  isVerified Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  phone      String
+  password   String
+  address    String?
+  role       Role
+  avatar     String?
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  donors Donors?
+  donors   Donors?
+  hospital Hospital?
 }
 
 model Donors {
-  id Int @id @default(autoincrement())
-  bloodType String
+  id           Int       @id @default(autoincrement())
+  bloodType    String
   lastDonation DateTime?
-  latitude Float?
-  longitude Float?
-  userId Int @unique
-  user User @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  latitude     Float?
+  longitude    Float?
+  weight       Float?
+  unitBlood    Int?
+  status       Status    @default(UNAVAILABLE)
+  responseRate Decimal   @default(0) @db.Decimal(5, 2)
+  userId       Int       @unique
+  user         User      @relation(fields: [userId], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
 
+model Hospital {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique
+  licenseCode String?
+  pathFile    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id])
 }
 
 enum Role {
   ADMIN
   DONOR
   REQUESTER
+}
+
+enum Status {
+  AVAILABLE
+  UNAVAILABLE
 }

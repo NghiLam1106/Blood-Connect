@@ -1,4 +1,6 @@
+import { HttpStatus } from "@nestjs/common";
+
 export enum HttpRequestStatus {
-  SUCCESS = 200 | 201,
-  ERROR = 400,
+  SUCCESS = HttpStatus.OK,
+  ERROR = HttpStatus.BAD_REQUEST,
 }

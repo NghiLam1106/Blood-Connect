@@ -152,13 +152,11 @@ export class AuthService {
       role: user.role,
     };
     const accessToken = this.jwtService.sign(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
-    const newRefreshToken = this.jwtService.sign(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' });
     return {
       message: 'Refresh token thành công!',
       status: HttpRequestStatus.SUCCESS,
       data: {
-        accessToken,
-        refreshToken: newRefreshToken,
+        accessToken
       }
     };
   }
