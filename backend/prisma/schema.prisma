@@ -19,6 +19,7 @@ model User {
   email String @unique
   phone String
   password String
+  address String?
   role Role
   avatar String?
   isVerified Boolean @default(false)
@@ -26,6 +27,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   donors Donors?
+  hospital Hospital?
 }
 
 model Donors {
@@ -34,11 +36,23 @@ model Donors {
   lastDonation DateTime?
   latitude Float?
   longitude Float?
+  weight Float?
+  unitBlood Int?
   userId Int @unique
   user User @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+}
+
+model Hospital {
+  id Int @id @default(autoincrement())
+  userId Int @unique
+  licenseCode String?
+  pathFile String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id])
 }
 
 enum Role {
