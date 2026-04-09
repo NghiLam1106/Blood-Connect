@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsDate, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { Status } from "generated/prisma/enums";
+import { Status } from "../../../../generated/prisma/enums";
 
 export class CreateDonorsDto {
   @ApiProperty({ description: 'Cân nặng người hiến máu' })

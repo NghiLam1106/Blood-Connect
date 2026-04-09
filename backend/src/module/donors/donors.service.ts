@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { HttpRequestStatus } from 'src/enums/httpRequest.enum';
-import { GeocodingService } from 'src/helpers/map/openStreetMap.map';
+import { HttpRequestStatus } from '../../../src/enums/httpRequest.enum';
+import { GeocodingService } from '../../../src/helpers/map/openStreetMap.map';
 import { UpdateDonorsDto } from './dto/updateDonors.dto';
 import { DonorsRepository } from './repository/donors.respository';
 
