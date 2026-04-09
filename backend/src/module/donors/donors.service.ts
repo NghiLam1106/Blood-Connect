@@ -14,12 +14,13 @@ export class DonorsService {
 
   async updateDonor(userId: number, body: UpdateDonorsDto) {
     const { weight, unitBlood, address, bloodType, lastDonation, responseRate, status } = body;
+    let data: any;
     if (address) {
       const coordinates = await this.geocodingService.getCoordinates(address);
-      await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, lastDonation, responseRate, status }, { lat: coordinates.lat, lng: coordinates.lon });
+      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, lastDonation, responseRate, status }, { lat: coordinates.lat, lng: coordinates.lon });
     } else {
-      await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, lastDonation, responseRate, status });
+      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, lastDonation, responseRate, status });
     }
-    return { message: 'Cập nhật thông tin hiến máu thành công!', status: HttpRequestStatus.SUCCESS };
+    return { message: 'Cập nhật thông tin hiến máu thành công!', status: HttpRequestStatus.SUCCESS, data };
   }
 }
