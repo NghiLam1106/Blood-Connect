@@ -1,15 +1,23 @@
-import { AuthService } from './auth.service';
 import { Body, Controller, Post } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
-import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { RegisterHospitalDto } from './dto/registerHospital.dto';
 
 @ApiTags('auth')
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+
+  @ApiOperation({ summary: 'Đăng ký tài khoản bệnh viện' })
+  @Post('/register-hospital')
+  async registerHospital(@Body() registerHospitalDto: RegisterHospitalDto) {
+    return this.authService.registerHospital(registerHospitalDto);
+  }
 
   @ApiOperation({ summary: 'Đăng ký tài khoản mới' })
   @Post('/register')
