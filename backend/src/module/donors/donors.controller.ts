@@ -1,5 +1,5 @@
 import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { AuthGuard } from '../../../src/common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { DonorsService } from './donors.service';
 import { UpdateDonorsDto } from './dto/updateDonors.dto';

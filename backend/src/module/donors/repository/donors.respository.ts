@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from "src/common/prisma/prisma.service";
+import { PrismaService } from "../../../../src/common/prisma/prisma.service";
 import { UpdateDonorsDto } from '../dto/updateDonors.dto';
 
 @Injectable()
@@ -10,8 +10,8 @@ export class DonorsRepository {
     return this.prisma.donors.findUnique({ where: { userId } });
   }
 
-  async updateDonor(userId: number, data: UpdateDonorsDto, coordinates?: { lat: number, lng: number }): Promise<void> {
-    await this.prisma.$transaction([
+  async updateDonor(userId: number, data: UpdateDonorsDto, coordinates?: { lat: number, lng: number }): Promise<any> {
+    const [user, donor] = await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
         data: { address: data.address },
@@ -30,5 +30,13 @@ export class DonorsRepository {
         },
       }),
     ]);
+
+    const { password, ...userWithoutPassword } = user;
+
+    return {
+      ...userWithoutPassword,
+      ...donor,
+      id: userId
+    };
   }
 }

@@ -1,28 +1,69 @@
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import { InjectQueue } from '@nestjs/bullmq';
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Queue } from 'bullmq';
 import { Redis } from 'ioredis';
-import { HttpRequestStatus } from 'src/enums/httpRequest.enum';
+import { HttpRequestStatus } from '../../../src/enums/httpRequest.enum';
 import { DonorsRepository } from '../donors/repository/donors.respository';
 import { UsersRepository } from '../users/repository/users.repository';
-import { RegisterDto } from './dto/register.dto';
-import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
+import { RegisterDto } from './dto/register.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { RegisterHospitalDto } from './dto/registerHospital.dto';
 
 @Injectable()
 export class AuthService {
-
   constructor(
     @InjectQueue('mail_queue') private mailQueue: Queue,
     @InjectRedis() private readonly redis: Redis,
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
-    private readonly donorsRepository: DonorsRepository
-  ) { }
+    private readonly donorsRepository: DonorsRepository,
+  ) {}
+
+  async registerHospital(registerHospitalDto: RegisterHospitalDto) {
+    const {
+      name,
+      email,
+      phone,
+      address,
+      password,
+      licenseCode,
+      pathFile,
+      role,
+    } = registerHospitalDto;
+
+    const userExists = await this.usersRepository.findByEmail(email);
+
+    if (userExists) {
+      throw new BadRequestException('Email này đã được sử dụng!');
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await this.usersRepository.create({
+      name,
+      email,
+      phone,
+      address,
+      licenseCode,
+      pathFile,
+      hashedPassword,
+      role,
+    });
+
+    return {
+      message: 'Đăng ký tài khoản thành công!',
+      status: HttpRequestStatus.SUCCESS,
+    };
+  }
 
   async register(registerDto: RegisterDto) {
     const { name, email, phone, bloodType, password, role } = registerDto;
@@ -35,22 +76,36 @@ export class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.usersRepository.create({ name, email, phone, bloodType, hashedPassword, role });
+    await this.usersRepository.create({
+      name,
+      email,
+      phone,
+      bloodType,
+      hashedPassword,
+      role,
+    });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     await this.redis.set(`otp:${email}`, otp, 'EX', 300);
 
-    await this.mailQueue.add('sendOtpEmail', {
-      email,
-      otp,
-      name
-    }, {
-      attempts: 3,
-      backoff: 5000,
-    });
+    await this.mailQueue.add(
+      'sendOtpEmail',
+      {
+        email,
+        otp,
+        name,
+      },
+      {
+        attempts: 3,
+        backoff: 5000,
+      },
+    );
 
-    return { message: 'Đăng ký tài khoản thành công!', status: HttpRequestStatus.SUCCESS };
+    return {
+      message: 'Đăng ký tài khoản thành công!',
+      status: HttpRequestStatus.SUCCESS,
+    };
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {
@@ -74,8 +129,14 @@ export class AuthService {
       email: user?.email,
       role: user?.role,
     };
-    const accessToken = this.jwtService.sign(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
-    const refreshToken = this.jwtService.sign(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: '1h',
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.REFRESH_TOKEN_SECRET,
+      expiresIn: '7d',
+    });
     return {
       message: 'Xác thực tài khoản thành công!',
       status: HttpRequestStatus.SUCCESS,
@@ -89,9 +150,9 @@ export class AuthService {
           phone: user?.phone,
           bloodType: donor?.bloodType,
           lastDonation: donor?.lastDonation,
-          role: user?.role
-        }
-      }
+          role: user?.role,
+        },
+      },
     };
   }
 
@@ -111,8 +172,14 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const accessToken = this.jwtService.sign(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
-    const refreshToken = this.jwtService.sign(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: '1h',
+    });
+    const refreshToken = this.jwtService.sign(payload, {
+      secret: process.env.REFRESH_TOKEN_SECRET,
+      expiresIn: '7d',
+    });
     return {
       message: 'Đăng nhập thành công!',
       status: HttpRequestStatus.SUCCESS,
@@ -126,9 +193,9 @@ export class AuthService {
           phone: user.phone,
           bloodType: donor?.bloodType,
           lastDonation: donor?.lastDonation,
-          role: user.role
-        }
-      }
+          role: user.role,
+        },
+      },
     };
   }
 
@@ -136,14 +203,20 @@ export class AuthService {
     const { refreshToken } = refreshTokenDto;
     let decodedToken: any;
     try {
-      decodedToken = this.jwtService.verify(refreshToken, { secret: process.env.REFRESH_TOKEN_SECRET });
+      decodedToken = this.jwtService.verify(refreshToken, {
+        secret: process.env.REFRESH_TOKEN_SECRET,
+      });
     } catch (error) {
-      throw new UnauthorizedException('Refresh token không hợp lệ hoặc đã hết hạn!');
+      throw new UnauthorizedException(
+        'Refresh token không hợp lệ hoặc đã hết hạn!',
+      );
     }
 
     const user = await this.usersRepository.findByEmail(decodedToken.email);
     if (!user) {
-      throw new UnauthorizedException('Người dùng không tồn tại hoặc đã bị khoá!');
+      throw new UnauthorizedException(
+        'Người dùng không tồn tại hoặc đã bị khoá!',
+      );
     }
 
     const payload = {
@@ -151,13 +224,16 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
-    const accessToken = this.jwtService.sign(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
+    const accessToken = this.jwtService.sign(payload, {
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      expiresIn: '1h',
+    });
     return {
       message: 'Refresh token thành công!',
       status: HttpRequestStatus.SUCCESS,
       data: {
-        accessToken
-      }
+        accessToken,
+      },
     };
   }
 }

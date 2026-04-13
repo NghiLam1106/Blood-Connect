@@ -1,17 +1,18 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaModule } from 'src/common/prisma/prisma.module';
-import { MailProcessor } from 'src/helpers/mail/mail.processor';
+import { PrismaModule } from '../../../src/common/prisma/prisma.module';
+import { MailProcessor } from '../../../src/helpers/mail/mail.processor';
 import { DonorsRepository } from '../donors/repository/donors.respository';
 import { UsersRepository } from '../users/repository/users.repository';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [BullModule.registerQueue({
     name: 'mail_queue',
-  }), PrismaModule],
+  }), PrismaModule, UsersModule],
   controllers: [AuthController],
   providers: [AuthService, UsersRepository, MailProcessor, JwtService, DonorsRepository],
   exports: [AuthService],
