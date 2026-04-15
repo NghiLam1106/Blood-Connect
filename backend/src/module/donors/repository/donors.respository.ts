@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../../../../src/common/prisma/prisma.service";
 import { UpdateDonorsDto } from '../dto/updateDonors.dto';
+import { BloodGroup } from '../../../enums/bloodTypes.enum';
 
 @Injectable()
 export class DonorsRepository {
@@ -38,5 +39,19 @@ export class DonorsRepository {
       ...donor,
       id: userId
     };
+  }
+
+  async findListDonor(compatibleBloodGroups: BloodGroup[], requiredBloodMl: number) {
+    return this.prisma.donors.findMany({
+      where: {
+        bloodType: {
+          in: compatibleBloodGroups
+        },
+        status: 'AVAILABLE',
+        unitBlood: {
+          lte: requiredBloodMl
+        }
+      }
+    });
   }
 }
