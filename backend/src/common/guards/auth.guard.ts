@@ -1,17 +1,25 @@
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CanActivate, ExecutionContext, HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
+import { HttpRequestStatus } from '../../enums/httpRequest.enum';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException('Token không được cung cấp!');
+      throw new HttpException(
+        {
+          status: HttpRequestStatus.UNAUTHORIZED,
+          message: 'Token không được cung cấp!',
+          error: 'Unauthorized',
+        },
+        HttpRequestStatus.UNAUTHORIZED,
+      );
     }
 
     try {
@@ -19,11 +27,16 @@ export class AuthGuard implements CanActivate {
         secret: process.env.ACCESS_TOKEN_SECRET,
       });
 
-      // Gán payload (chứa thông tin user) vào request
-      // Bạn có thể lấy thông tin này trong controller qua @Req() req
       request['user'] = payload;
     } catch (error) {
-      throw new UnauthorizedException('Token không hợp lệ hoặc đã hết hạn!');
+      throw new HttpException(
+        {
+          status: HttpRequestStatus.UNAUTHORIZED,
+          message: 'Token không hợp lệ hoặc đã hết hạn!',
+          error: 'Unauthorized',
+        },
+        HttpRequestStatus.UNAUTHORIZED,
+      );
     }
 
     return true;
