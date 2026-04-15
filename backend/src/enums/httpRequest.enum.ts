@@ -3,4 +3,12 @@ import { HttpStatus } from "@nestjs/common";
 export enum HttpRequestStatus {
   SUCCESS = HttpStatus.OK,
   ERROR = HttpStatus.BAD_REQUEST,
+  NOT_FOUND = HttpStatus.NOT_FOUND,
+  INTERNAL_SERVER_ERROR = HttpStatus.INTERNAL_SERVER_ERROR,
+  UNAUTHORIZED = HttpStatus.UNAUTHORIZED,
+  FORBIDDEN = HttpStatus.FORBIDDEN,
+  NOT_IMPLEMENTED = HttpStatus.NOT_IMPLEMENTED,
+  BAD_GATEWAY = HttpStatus.BAD_GATEWAY,
+  SERVICE_UNAVAILABLE = HttpStatus.SERVICE_UNAVAILABLE,
+  GATEWAY_TIMEOUT = HttpStatus.GATEWAY_TIMEOUT,
 }

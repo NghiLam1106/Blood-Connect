@@ -6,9 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
 import { UsersModule } from './module/users/users.module';
 import { DonorsModule } from './module/donors/donors.module';
+import { HospitalModule } from './module/hospital/hospital.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, DonorsModule, ConfigModule.forRoot({
+  imports: [UsersModule, AuthModule, DonorsModule, HospitalModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env'
   }),
