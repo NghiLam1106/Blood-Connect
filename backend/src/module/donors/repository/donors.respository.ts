@@ -15,18 +15,15 @@ export class DonorsRepository {
     const [user, donor] = await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
-        data: { address: data.address },
+        data: { address: data.address, name: data.name, avatar: data.avatar },
       }),
       this.prisma.donors.update({
         where: { userId: userId },
         data: {
           weight: data.weight,
-          unitBlood: data.unitBlood,
           latitude: coordinates?.lat,
           longitude: coordinates?.lng,
           bloodType: data.bloodType,
-          lastDonation: data.lastDonation,
-          responseRate: data.responseRate,
           status: data.status,
         },
       }),
@@ -36,8 +33,7 @@ export class DonorsRepository {
 
     return {
       ...userWithoutPassword,
-      ...donor,
-      id: userId
+      ...donor
     };
   }
 
@@ -53,5 +49,24 @@ export class DonorsRepository {
         }
       }
     });
+  }
+
+  async getDonorById(id: number) {
+
+    const [user, donor] = await this.prisma.$transaction([
+      this.prisma.user.findUnique({
+        where: { id: id },
+      }),
+      this.prisma.donors.findUnique({
+        where: { userId: id },
+      }),
+    ]);
+
+    if (!user || !donor) {
+      return null;
+    }
+
+    const { password, ...userWithoutPassword } = user;
+    return { ...userWithoutPassword, ...donor };
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../../src/common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { DonorsService } from './donors.service';
@@ -13,6 +13,11 @@ export class DonorsController {
   @Patch('update-donor/:id')
   async updateDonor(@Param('id') id: number, @Body() body: UpdateDonorsDto) {
     return await this.donorsService.updateDonor(id, body);
+  }
+
+  @Get('get-donor/:id')
+  async getDonorById(@Param('id') id: number) {
+    return await this.donorsService.getDonorById(id);
   }
 }
 
