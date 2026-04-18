@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, useTransition } from 'react'
+import { useRef, useState, useTransition } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Alert,
@@ -74,7 +74,7 @@ export default function DonorRegister() {
   const [activeStep, setActiveStep] = useState(0)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
-  const [otpSent, setOtpSent] = useState(false)
+  // const [otpSent, setOtpSent] = useState(false)
   const [otpCode, setOtpCode] = useState('')
   const [otpInfo, setOtpInfo] = useState('')
 
@@ -110,7 +110,7 @@ export default function DonorRegister() {
       const result = await sendOTP(form.phone)
       if (result.success) {
         setOtpInfo(result.message)
-        setOtpSent(true)
+        // setOtpSent(true)
         setActiveStep(1)
       } else {
         setError('Gửi OTP thất bại. Thử lại sau.')
