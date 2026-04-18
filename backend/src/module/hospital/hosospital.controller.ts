@@ -1,23 +1,30 @@
-import { Body, Controller, HttpCode, Param, Post } from "@nestjs/common";
-import { HospitalService } from "./hospital.service";
-import { RequestDto } from "./dto/request.dto";
-import { ApiBearerAuth } from "@nestjs/swagger";
-import { UseGuards } from "@nestjs/common";
+import { Body, Controller, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "../../common/guards/auth.guard";
-import { ApiTags } from "@nestjs/swagger";
 import { Roles } from "../../common/guards/roles.decorator";
 import { RolesGuard } from "../../common/guards/roles.guard";
+import { RequestDto } from "./dto/request.dto";
+import { SelectDonorDto } from "./dto/select-donor.dto";
+import { HospitalService } from "./hospital.service";
 
 @UseGuards(AuthGuard, RolesGuard)
-@Roles('REQUESTER')
 @ApiBearerAuth()
 @ApiTags('hospital')
 @Controller('/hospital')
 export class HospitalController {
-    constructor(private readonly hospitalService: HospitalService) { }
+  constructor(private readonly hospitalService: HospitalService) { }
 
-    @Post('/request/:id')
-    async requestBlood(@Param('id') id: number, @Body() requestDto: RequestDto) {
-        return this.hospitalService.requestBlood(id, requestDto);
-    }
+  @Post('/request/:id')
+  @Roles('REQUESTER')
+  async requestBlood(@Param('id') id: number, @Body() requestDto: RequestDto) {
+    return this.hospitalService.requestBlood(id, requestDto);
+  }
+
+  @Post('/select-donor/:id')
+  @Roles('REQUESTER')
+  async selectDonor(@Param('id') id: number, @Body() dto: SelectDonorDto) {
+    return this.hospitalService.selectDonor(id, dto);
+  }
+
+
 }

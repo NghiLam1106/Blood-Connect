@@ -4,12 +4,13 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
-import { UsersModule } from './module/users/users.module';
 import { DonorsModule } from './module/donors/donors.module';
 import { HospitalModule } from './module/hospital/hospital.module';
+import { NotificationModule } from './module/notification/notification.module';
+import { UsersModule } from './module/users/users.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, DonorsModule, HospitalModule, ConfigModule.forRoot({
+  imports: [UsersModule, AuthModule, DonorsModule, HospitalModule, NotificationModule, ConfigModule.forRoot({
     isGlobal: true,
     envFilePath: '.env'
   }),
