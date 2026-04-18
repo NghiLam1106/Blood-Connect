@@ -182,7 +182,8 @@ def predict(request: BatchPredictionRequest):
         ranked = compute_matching_scores(valid_donors, notify_ids, prob_map)
 
         return {
-            "results": ranked
+            "results": ranked,
+            "urgency": request.urgency,
         }
 
     except Exception as e:

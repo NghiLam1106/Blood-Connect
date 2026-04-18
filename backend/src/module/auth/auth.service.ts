@@ -15,8 +15,8 @@ import { UsersRepository } from '../users/repository/users.repository';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { RegisterDto } from './dto/register.dto';
-import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { RegisterHospitalDto } from './dto/registerHospital.dto';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +26,7 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly donorsRepository: DonorsRepository,
-  ) {}
+  ) { }
 
   async registerHospital(registerHospitalDto: RegisterHospitalDto) {
     const {
@@ -43,7 +43,10 @@ export class AuthService {
     const userExists = await this.usersRepository.findByEmail(email);
 
     if (userExists) {
-      throw new BadRequestException('Email này đã được sử dụng!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Email này đã được sử dụng!',
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -60,8 +63,8 @@ export class AuthService {
     });
 
     return {
-      message: 'Đăng ký tài khoản thành công!',
       status: HttpRequestStatus.SUCCESS,
+      message: 'Đăng ký tài khoản thành công!',
     };
   }
 
@@ -71,7 +74,10 @@ export class AuthService {
     const userExists = await this.usersRepository.findByEmail(email);
 
     if (userExists) {
-      throw new BadRequestException('Email này đã được sử dụng!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Email này đã được sử dụng!',
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -103,8 +109,8 @@ export class AuthService {
     );
 
     return {
-      message: 'Đăng ký tài khoản thành công!',
       status: HttpRequestStatus.SUCCESS,
+      message: 'Đăng ký tài khoản thành công!',
     };
   }
 
@@ -112,10 +118,16 @@ export class AuthService {
     const { email, otp } = verifyOtpDto;
     const storedOtp = await this.redis.get(`otp:${email}`);
     if (!storedOtp) {
-      throw new BadRequestException('Mã OTP đã hết hạn!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Mã OTP đã hết hạn!',
+      });
     }
     if (storedOtp !== otp) {
-      throw new BadRequestException('Mã OTP không chính xác!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Mã OTP không chính xác!',
+      });
     }
     await this.redis.del(`otp:${email}`);
     await this.usersRepository.update(email);
@@ -138,8 +150,8 @@ export class AuthService {
       expiresIn: '7d',
     });
     return {
-      message: 'Xác thực tài khoản thành công!',
       status: HttpRequestStatus.SUCCESS,
+      message: 'Xác thực tài khoản thành công!',
       data: {
         accessToken,
         refreshToken,
@@ -149,7 +161,7 @@ export class AuthService {
           email: user?.email,
           phone: user?.phone,
           bloodType: donor?.bloodType,
-          lastDonation: donor?.lastDonation,
+          avatar: user?.avatar,
           role: user?.role,
         },
       },
@@ -160,11 +172,17 @@ export class AuthService {
     const { email, password } = loginDto;
     const user = await this.usersRepository.findByEmail(email);
     if (!user) {
-      throw new BadRequestException('Email không tồn tại!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Email không tồn tại!',
+      });
     }
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new BadRequestException('Mật khẩu không chính xác!');
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Mật khẩu không chính xác!',
+      });
     }
     const donor = await this.donorsRepository.findByUserId(user.id);
     const payload = {
@@ -181,8 +199,8 @@ export class AuthService {
       expiresIn: '7d',
     });
     return {
-      message: 'Đăng nhập thành công!',
       status: HttpRequestStatus.SUCCESS,
+      message: 'Đăng nhập thành công!',
       data: {
         accessToken,
         refreshToken,
@@ -192,7 +210,7 @@ export class AuthService {
           email: user.email,
           phone: user.phone,
           bloodType: donor?.bloodType,
-          lastDonation: donor?.lastDonation,
+          avatar: user?.avatar,
           role: user.role,
         },
       },
@@ -208,14 +226,20 @@ export class AuthService {
       });
     } catch (error) {
       throw new UnauthorizedException(
-        'Refresh token không hợp lệ hoặc đã hết hạn!',
+        {
+          status: HttpRequestStatus.UNAUTHORIZED,
+          message: 'Refresh token không hợp lệ hoặc đã hết hạn!',
+        }
       );
     }
 
     const user = await this.usersRepository.findByEmail(decodedToken.email);
     if (!user) {
       throw new UnauthorizedException(
-        'Người dùng không tồn tại hoặc đã bị khoá!',
+        {
+          status: HttpRequestStatus.UNAUTHORIZED,
+          message: 'Người dùng không tồn tại hoặc đã bị khoá!',
+        }
       );
     }
 
@@ -229,8 +253,8 @@ export class AuthService {
       expiresIn: '1h',
     });
     return {
-      message: 'Refresh token thành công!',
       status: HttpRequestStatus.SUCCESS,
+      message: 'Refresh token thành công!',
       data: {
         accessToken,
       },

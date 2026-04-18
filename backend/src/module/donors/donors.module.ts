@@ -6,9 +6,10 @@ import { GeocodingService } from '../../../src/helpers/map/openStreetMap.map';
 import { DonorsController } from './donors.controller';
 import { DonorsService } from './donors.service';
 import { DonorsRepository } from './repository/donors.respository';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
-  imports: [JwtModule, HttpModule],
+  imports: [JwtModule, HttpModule, NotificationModule],
   controllers: [DonorsController],
   providers: [DonorsService, DonorsRepository, GeocodingService, PrismaService],
   exports: [],
