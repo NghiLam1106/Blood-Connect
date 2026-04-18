@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   AppBar,
   Box,
@@ -19,7 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import CloseIcon from '@mui/icons-material/Close'
-import { useStore } from '../store/useStore'
+import { useStore } from '../../store/useStore'
 
 const NAV_LINKS = [
   { label: 'Về chúng tôi', href: '/#about' },
@@ -31,7 +31,7 @@ const NAV_LINKS = [
 
 export function Header() {
   const navigate = useNavigate()
-  const location = useLocation()
+  // const location = useLocation()
   const { user, isAuthenticated, logout } = useStore()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
