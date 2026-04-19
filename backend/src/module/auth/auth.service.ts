@@ -8,14 +8,18 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Queue } from 'bullmq';
+import * as crypto from 'crypto';
 import { Redis } from 'ioredis';
 import { HttpRequestStatus } from '../../../src/enums/httpRequest.enum';
 import { DonorsRepository } from '../donors/repository/donors.respository';
 import { UsersRepository } from '../users/repository/users.repository';
+import { ForgotPasswordDto } from './dto/forgotPassword.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refreshToken.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RegisterHospitalDto } from './dto/registerHospital.dto';
+import { ResetPasswordDto } from './dto/resetPassword.dto';
+import { VerifyForgotPasswordOtpDto } from './dto/verifyForgotPasswordOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
 @Injectable()
@@ -258,6 +262,95 @@ export class AuthService {
       data: {
         accessToken,
       },
+    };
+  }
+
+  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
+    const { email } = forgotPasswordDto;
+
+    const user = await this.usersRepository.findByEmail(email);
+    if (!user) {
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Email không tồn tại!',
+      });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await this.redis.set(`forgot_password_otp:${email}`, otp, 'EX', 300);
+
+    await this.mailQueue.add(
+      'sendForgotPasswordEmail',
+      {
+        email,
+        otp,
+        name: user.name,
+      },
+      {
+        attempts: 3,
+        backoff: 5000,
+      },
+    );
+
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Mã OTP đặt lại mật khẩu đã được gửi đến email của bạn!',
+    };
+  }
+
+  async verifyForgotPasswordOtp(verifyForgotPasswordOtpDto: VerifyForgotPasswordOtpDto) {
+    const { email, otp } = verifyForgotPasswordOtpDto;
+
+    const storedOtp = await this.redis.get(`forgot_password_otp:${email}`);
+    if (!storedOtp) {
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Mã OTP đã hết hạn!',
+      });
+    }
+
+    if (storedOtp !== otp) {
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Mã OTP không chính xác!',
+      });
+    }
+
+    await this.redis.del(`forgot_password_otp:${email}`);
+
+    const resetToken = crypto.randomUUID();
+
+    await this.redis.set(`reset_password_token:${email}`, resetToken, 'EX', 300);
+
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Xác thực OTP thành công!',
+      data: {
+        resetToken,
+      },
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { email, resetToken, newPassword } = resetPasswordDto;
+
+    const storedToken = await this.redis.get(`reset_password_token:${email}`);
+    if (!storedToken || storedToken !== resetToken) {
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Phiên đặt lại mật khẩu đã hết hạn hoặc không hợp lệ!',
+      });
+    }
+
+    await this.redis.del(`reset_password_token:${email}`);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.usersRepository.updatePassword(email, hashedPassword);
+
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Đặt lại mật khẩu thành công!',
     };
   }
 }

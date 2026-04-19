@@ -28,6 +28,22 @@ export class MailProcessor extends WorkerHost {
         console.log(`Đã gửi mail thành công cho: ${email}`);
         break;
 
+      case 'sendForgotPasswordEmail':
+        await this.mailerService.sendMail({
+          to: email,
+          subject: 'Mã OTP xác nhận quên mật khẩu',
+          html: `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
+            <h2>Chào bạn, ${name}!</h2>
+            <p>Mã OTP xác nhận quên mật khẩu của bạn là:</p>
+            <div style="font-size: 30px; font-weight: bold; color: #2c3e50; background: #f1f2f6; text-align: center; padding: 10px;">
+              ${otp}
+            </div>
+            <p>Mã này có hiệu lực trong 5 phút. Vui lòng không tiết lộ mã này.</p>
+          </div>`,
+        });
+        console.log(`Đã gửi mail thành công cho: ${email}`);
+        break;
+
       default:
         break;
     }
