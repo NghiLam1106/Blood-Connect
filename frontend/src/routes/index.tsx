@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { Box, CircularProgress } from '@mui/material'
 import { paths } from './paths'
-import { MainLayout } from '../components/layouts/MainLayout'
+import { MainLayout } from '../layouts/MainLayout'
 import { PrivateRoute } from './PrivateRoute'
 import { RoleRoute } from './RoleRoute'
 
