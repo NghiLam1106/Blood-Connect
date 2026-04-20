@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# IDEs
+.vscode/
+
+# Data & Plots
+confusion_matrix.png
+roc_curve.png
+donor_dataset.csv
+train.py
