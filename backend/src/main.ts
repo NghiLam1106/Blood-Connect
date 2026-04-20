@@ -1,8 +1,9 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import 'dotenv/config';
 import { AppModule } from './app.module';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 
 async function bootstrap() {
@@ -12,6 +13,13 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
   }));
+
+  const configService = app.get(ConfigService);
+  const frontendUrl = configService.get<string>('FRONTEND_URL') || 'http://localhost:5173';
+  app.enableCors({
+    origin: frontendUrl,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Blood Connect API')
