@@ -8,7 +8,7 @@ export class UsersRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geocodingService: GeocodingService,
-  ) {}
+  ) { }
 
   async findByEmail(email: string) {
     return this.prisma.user.findUnique({ where: { email } });
@@ -71,6 +71,13 @@ export class UsersRepository {
     return this.prisma.user.update({
       where: { email },
       data: { isVerified: true },
+    });
+  }
+
+  async updatePassword(email: string, hashedPassword: string) {
+    return this.prisma.user.update({
+      where: { email },
+      data: { password: hashedPassword },
     });
   }
 }

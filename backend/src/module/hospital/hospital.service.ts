@@ -61,7 +61,8 @@ export class HospitalService {
     }));
 
     try {
-      const response = await axios.post("http://localhost:8000/predict", {
+      const aiServiceUrl = process.env.AI_SERVICE_URL || "http://localhost:8000";
+      const response = await axios.post(`${aiServiceUrl}/predict`, {
         donors: aiDonors,
         urgency: urgency
       });

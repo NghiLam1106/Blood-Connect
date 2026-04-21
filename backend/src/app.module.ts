@@ -2,7 +2,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
 import { DonorsModule } from './module/donors/donors.module';
 import { HospitalModule } from './module/hospital/hospital.module';
@@ -10,33 +10,47 @@ import { NotificationModule } from './module/notification/notification.module';
 import { UsersModule } from './module/users/users.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, DonorsModule, HospitalModule, NotificationModule, ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: '.env'
-  }),
-    BullModule.forRoot({
-      connection: {
-        host: process.env.REDIS_HOST,
-        port: Number(process.env.REDIS_PORT),
-      },
+  imports: [
+    UsersModule,
+    AuthModule,
+    DonorsModule,
+    HospitalModule,
+    NotificationModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env'
     }),
-    MailerModule.forRoot({
-      transport: {
-        host: process.env.MAIL_HOST,
-        port: Number(process.env.MAIL_PORT),
-        secure: false,
-        auth: {
-          user: process.env.MAIL_USER,
-          pass: process.env.MAIL_PASSWORD,
+
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        connection: config.get('REDIS_URL')
+          ? { url: config.get('REDIS_URL') }
+          : { host: config.get('REDIS_HOST'), port: config.get('REDIS_PORT') }
+      }),
+    }),
+
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        transport: {
+          host: config.get('MAIL_HOST'),
+          port: Number(config.get('MAIL_PORT')),
+          secure: false,
+          auth: {
+            user: config.get('MAIL_USER'),
+            pass: config.get('MAIL_PASSWORD'),
+          },
         },
-      },
+      }),
     }),
-    RedisModule.forRoot({
-      type: 'single',
-      options: {
-        host: process.env.REDIS_HOST,
-        port: Number(process.env.REDIS_PORT),
-      },
+
+    RedisModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'single',
+        url: config.get('REDIS_URL') || `redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`,
+      }),
     }),
   ],
   controllers: [],
