@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '../../../src/common/guards/auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { DonorsService } from './donors.service';
@@ -21,7 +21,7 @@ export class DonorsController {
   async getDonorById(@Param('id') id: number) {
     return await this.donorsService.getDonorById(id);
   }
-  
+
   @Post('/respond-donor')
   @Roles('DONOR')
   async respondDonor(@Body() dto: RespondDonorDto) {

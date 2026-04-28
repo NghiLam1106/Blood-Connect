@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Param, Post, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "../../common/guards/auth.guard";
 import { Roles } from "../../common/guards/roles.decorator";
@@ -9,7 +9,7 @@ import { HospitalService } from "./hospital.service";
 
 @UseGuards(AuthGuard, RolesGuard)
 @ApiBearerAuth()
-@ApiTags('hospital')
+@ApiTags('Hospital')
 @Controller('/hospital')
 export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) { }
@@ -25,6 +25,4 @@ export class HospitalController {
   async selectDonor(@Param('id') id: number, @Body() dto: SelectDonorDto) {
     return this.hospitalService.selectDonor(id, dto);
   }
-
-
 }
