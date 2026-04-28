@@ -74,13 +74,13 @@ export function Header() {
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6">
             {NAV_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors no-underline"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -169,8 +169,8 @@ export function Header() {
           {NAV_LINKS.map((link) => (
             <ListItemButton
               key={link.label}
-              component="a"
-              href={link.href}
+              component={Link}
+              to={link.href}
               onClick={() => setDrawerOpen(false)}
             >
               <ListItemText primary={<span className="font-semibold text-gray-700">{link.label}</span>} />
