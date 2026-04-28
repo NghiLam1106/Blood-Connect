@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './module/auth/auth.module';
+import { DonationHistoryModule } from './module/donation-history/donationHistory.module';
 import { DonorsModule } from './module/donors/donors.module';
 import { HospitalModule } from './module/hospital/hospital.module';
 import { NotificationModule } from './module/notification/notification.module';
@@ -16,6 +17,7 @@ import { UsersModule } from './module/users/users.module';
     DonorsModule,
     HospitalModule,
     NotificationModule,
+    DonationHistoryModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env'
