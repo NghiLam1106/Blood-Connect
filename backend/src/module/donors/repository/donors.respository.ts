@@ -37,6 +37,13 @@ export class DonorsRepository {
     };
   }
 
+  async updateResponseRate(userId: number, responseRate: number) {
+    return this.prisma.donors.update({
+      where: { userId },
+      data: { responseRate }
+    });
+  }
+
   async findListDonor(compatibleBloodGroups: BloodGroup[], requiredBloodMl: number) {
     return this.prisma.donors.findMany({
       where: {
@@ -46,6 +53,14 @@ export class DonorsRepository {
         status: 'AVAILABLE',
         unitBlood: {
           lte: requiredBloodMl
+        }
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            phone: true
+          }
         }
       }
     });

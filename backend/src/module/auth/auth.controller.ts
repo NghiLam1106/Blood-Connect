@@ -10,7 +10,7 @@ import { ResetPasswordDto } from './dto/resetPassword.dto';
 import { VerifyForgotPasswordOtpDto } from './dto/verifyForgotPasswordOtp.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 
-@ApiTags('auth')
+@ApiTags('Auth')
 @Controller('/auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
