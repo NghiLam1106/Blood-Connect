@@ -53,6 +53,8 @@ interface AuthSlice {
   user: User | null
   isAuthenticated: boolean
   isReady: boolean
+  authModalView: string | null
+  setAuthModalView: (view: string | null) => void
   login: (user: User) => void
   logout: () => void
 }
@@ -95,7 +97,9 @@ export const useStore = create<AppStore>()(
       user: null,
       isAuthenticated: false,
       isReady: false,
-      login: (user) => set({ user, isAuthenticated: true, isReady: true }),
+      authModalView: null,
+      setAuthModalView: (view) => set({ authModalView: view }),
+      login: (user) => set({ user, isAuthenticated: true, isReady: true, authModalView: null }),
       logout: () =>
         set({
           user: null,
@@ -103,6 +107,7 @@ export const useStore = create<AppStore>()(
           activeAlert: null,
           currentRequest: null,
           matchedDonors: [],
+          authModalView: null,
         }),
 
       // Emergency – Donor side

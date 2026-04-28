@@ -1,4 +1,10 @@
-export function Profile() {
-  return (<div>Profile Component</div>);
-}
+import React from 'react';
 
+export default function Profile() {
+  return (
+    <div className="bg-white rounded-3xl p-8 shadow-sm">
+      <h1 className="text-2xl font-extrabold text-dark mb-4">Hồ sơ cá nhân</h1>
+      <p className="text-gray-500">Chức năng đang được cập nhật...</p>
+    </div>
+  );
+}
