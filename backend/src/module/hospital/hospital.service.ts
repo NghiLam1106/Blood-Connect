@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import axios from "axios";
+import { StatusDonation } from "../../../generated/prisma/enums";
 import { BloodGroup } from "../../enums/bloodTypes.enum";
 import { HttpRequestStatus } from "../../enums/httpRequest.enum";
 import { getCompatibleDonors } from "../../helpers/blood/bloodType";
@@ -47,9 +48,12 @@ export class HospitalService {
       if (donor.latitude !== null && donor.longitude !== null && lat !== null && lon !== null) {
         distance = calculateDistance(donor.latitude, donor.longitude, lat, lon);
       }
+      const { user, ...donorData } = donor as any;
       return {
-        ...donor,
-        distance
+        ...donorData,
+        name: user?.name,
+        phone: user?.phone,
+        distance,
       };
     });
 
@@ -138,6 +142,7 @@ export class HospitalService {
       hospitalAddress: hospital.user.address,
       distance: distance,
       urgency: urgency,
+      unitBlood: donor.unitBlood,
       notes: notes ?? null,
       requestedAt: new Date().toISOString(),
     };
