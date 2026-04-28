@@ -32,6 +32,7 @@ export class NotificationRepository {
       where: { id },
       include: {
         hospital: true,
+        donor: true,
       },
     });
   }
@@ -41,6 +42,14 @@ export class NotificationRepository {
       where: { id },
       data: { isAccept },
     });
+  }
+
+  async countByDonorId(donorId: number) {
+    return this.prisma.notification.count({ where: { donorId } });
+  }
+
+  async countAcceptedByDonorId(donorId: number) {
+    return this.prisma.notification.count({ where: { donorId, isAccept: true } });
   }
 
   async findByDonorId(donorId: number) {
