@@ -8,7 +8,7 @@ export function PrivateRoute({ children }: { children: ReactNode }) {
   const location = useLocation()
 
   if (!isAuthenticated) {
-    return <Navigate to={paths.auth.login} state={{ from: location }} replace />
+    return <Navigate to={paths.public.home} state={{ from: location }} replace />
   }
 
   return <>{children}</>
