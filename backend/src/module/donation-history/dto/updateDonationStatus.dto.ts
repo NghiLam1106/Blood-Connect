@@ -7,9 +7,4 @@ export class UpdateDonationStatusDto {
   @IsEnum(StatusDonation)
   @IsNotEmpty()
   status!: StatusDonation;
-
-  @ApiProperty({ description: 'Id của người hiến máu' })
-  @IsNumber()
-  @IsNotEmpty()
-  donorId!: number;
 }
