@@ -5,36 +5,8 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import { useStore } from '../../store/useStore'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-
-
-// Demo accounts for quick login
-const DEMO_ACCOUNTS = {
-  donor: {
-    email: 'nguyen.van.an@demo.com',
-    password: 'demo123',
-    user: {
-      id: 'demo-donor-1',
-      name: 'Nguyễn Văn An',
-      email: 'nguyen.van.an@demo.com',
-      phone: '0901234567',
-      role: 'donor' as const,
-      bloodType: 'O+' as const,
-      totalDonations: 5,
-      lastDonation: '2025-01-15',
-    },
-  },
-  hospital: {
-    email: 'admin@bachmai.vn',
-    password: 'demo123',
-    user: {
-      id: 'demo-hospital-1',
-      name: 'Bệnh viện Bạch Mai',
-      email: 'admin@bachmai.vn',
-      phone: '02438574341',
-      role: 'hospital' as const,
-    },
-  },
-}
+import { authService } from '../../services/auth.service'
+import { storage } from '../../utils/localStorage'
 
 interface LoginProps {
   asModal?: boolean;
@@ -67,24 +39,39 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
     setError('')
 
     startTransition(async () => {
-      await new Promise((r) => setTimeout(r, 1000))
+      try {
+        const response = await authService.login(form.email, form.password)
+        const responseData = response.data;
 
-      const demo = DEMO_ACCOUNTS[currentRole]
-      if (form.email === demo.email && form.password === demo.password) {
-        login(demo.user)
+        if (responseData?.accessToken) {
+          storage.setToken(responseData.accessToken)
+        }
+        
+        let normalizedRole = currentRole;
+        if (responseData?.user?.role) {
+          const rawRole = responseData.user.role.toLowerCase();
+          if (rawRole === 'requester') {
+            normalizedRole = 'hospital';
+          } else {
+            normalizedRole = rawRole;
+          }
+        }
+
+        if (responseData?.user) {
+          const userToSave = { ...responseData.user, role: normalizedRole };
+          storage.setUser(userToSave);
+          login(userToSave);
+        }
+
         if (onClose) onClose()
-        if (currentRole === 'donor') navigate('/donor/dashboard')
-        else navigate('/hospital/dashboard')
-      } else {
-        setError('Email hoặc mật khẩu không đúng. Thử dùng tài khoản demo.')
+
+        if (normalizedRole === 'donor') navigate('/donor/dashboard')
+        else if (normalizedRole === 'hospital') navigate('/hospital/dashboard')
+        else navigate(`/${normalizedRole}/dashboard`)
+      } catch (err: any) {
+        setError(err.message || 'Email hoặc mật khẩu không đúng.')
       }
     })
-  }
-
-  const fillDemo = () => {
-    const demo = DEMO_ACCOUNTS[currentRole]
-    setForm({ email: demo.email, password: demo.password })
-    setError('')
   }
 
   const content = (
@@ -126,19 +113,6 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
           <Tab icon={<LocalHospitalIcon fontSize="small" />} iconPosition="start" label="Bệnh viện" />
         </Tabs>
 
-        {/* Demo hint */}
-        {/* <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4">
-          <p className="text-xs text-amber-700 mb-1.5">
-            💡 <strong>Tài khoản demo:</strong> {DEMO_ACCOUNTS[currentRole].email}
-          </p>
-          <button
-            onClick={fillDemo}
-            className="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded-lg font-medium transition cursor-pointer border-none"
-          >
-            Điền tự động →
-          </button>
-        </div> */}
-
         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,7 +122,7 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
               type="email"
               value={form.email}
               onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
-              placeholder={DEMO_ACCOUNTS[currentRole].email}
+              placeholder="abc@gmail.com"
               className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition"
             />
           </div>
