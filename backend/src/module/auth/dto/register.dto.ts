@@ -6,7 +6,7 @@ export class RegisterDto {
   @ApiProperty({ description: 'Tên người dùng' })
   @IsNotEmpty({ message: 'Tên không được để trống' })
   @IsString()
-  name!: string;
+  nameDonor!: string;
 
   @ApiProperty({ description: 'Email người dùng' })
   @IsEmail({}, { message: 'Email không đúng định dạng' })
