@@ -6,7 +6,7 @@ export class RegisterHospitalDto {
   @ApiProperty({ description: 'Tên người dùng' })
   @IsNotEmpty({ message: 'Tên không được để trống' })
   @IsString()
-  name!: string;
+  nameHospital!: string;
 
   @ApiProperty({ description: 'Email người dùng' })
   @IsEmail({}, { message: 'Email không đúng định dạng' })
@@ -34,7 +34,7 @@ export class RegisterHospitalDto {
   @ApiProperty({ description: 'Tài liệu xác minh' })
   @IsOptional({ message: 'Tài liệu xác minh không được để trống' })
   // @IsNotEmpty({ message: 'Tài liệu xác minh không được để trống' })
-  pathFile!: string;
+  licenseFile!: string;
 
   @ApiProperty({ description: 'Role người dùng' })
   @IsEnum(Role, { message: 'Role phải là ADMIN, DONOR hoặc REQUESTER' })

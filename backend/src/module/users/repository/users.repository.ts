@@ -23,7 +23,7 @@ export class UsersRepository {
       hashedPassword,
       role,
       licenseCode,
-      pathFile,
+      licenseFile,
       address,
     } = data;
 
@@ -58,7 +58,7 @@ export class UsersRepository {
           data: {
             userId: newUser.id,
             ...(licenseCode && { licenseCode }),
-            ...(pathFile && { pathFile }),
+            ...(licenseFile && { licenseFile }),
             latitude: coordinates!.lat,
             longitude: coordinates!.lon,
           },

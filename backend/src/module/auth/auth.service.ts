@@ -34,13 +34,13 @@ export class AuthService {
 
   async registerHospital(registerHospitalDto: RegisterHospitalDto) {
     const {
-      name,
+      nameHospital,
       email,
       phone,
       address,
       password,
       licenseCode,
-      pathFile,
+      licenseFile,
       role,
     } = registerHospitalDto;
 
@@ -56,12 +56,12 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.usersRepository.create({
-      name,
+      name: nameHospital,
       email,
       phone,
       address,
       licenseCode,
-      pathFile,
+      licenseFile,
       hashedPassword,
       role,
     });
@@ -73,7 +73,7 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const { name, email, phone, bloodType, password, role } = registerDto;
+    const { nameDonor, email, phone, bloodType, password, role } = registerDto;
 
     const userExists = await this.usersRepository.findByEmail(email);
 
@@ -87,7 +87,7 @@ export class AuthService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.usersRepository.create({
-      name,
+      name: nameDonor,
       email,
       phone,
       bloodType,
