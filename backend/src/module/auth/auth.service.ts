@@ -104,7 +104,7 @@ export class AuthService {
       {
         email,
         otp,
-        name,
+        name: nameDonor,
       },
       {
         attempts: 3,

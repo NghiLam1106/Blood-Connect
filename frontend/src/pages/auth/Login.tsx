@@ -46,7 +46,10 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
         if (responseData?.accessToken) {
           storage.setToken(responseData.accessToken)
         }
-        
+        if (responseData?.refreshToken) {
+          storage.setRefreshToken(responseData.refreshToken)
+        }   
+             
         let normalizedRole = currentRole;
         if (responseData?.user?.role) {
           const rawRole = responseData.user.role.toLowerCase();
@@ -59,7 +62,6 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
 
         if (responseData?.user) {
           const userToSave = { ...responseData.user, role: normalizedRole };
-          storage.setUser(userToSave);
           login(userToSave);
         }
 

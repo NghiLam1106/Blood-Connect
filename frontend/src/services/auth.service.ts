@@ -11,5 +11,34 @@ export const authService = {
       throw new Error(message);
     }
   },
-  // Các hàm khác như register, forgotPassword có thể viết ở đây...
+  
+  registerDonor: async (data: any) => {
+    try {
+      const response = await api.post('/auth/register', data);
+      return response.data;
+    } catch (error: any) {
+      let message = 'Đăng ký thất bại';
+      if (error.response?.data?.message) {
+        message = Array.isArray(error.response.data.message) 
+          ? error.response.data.message[0] 
+          : error.response.data.message;
+      }
+      throw new Error(message);
+    }
+  },
+
+  verifyOtp: async (email: string, otp: string) => {
+    try {
+      const response = await api.post('/auth/verify-otp', { email, otp });
+      return response.data;
+    } catch (error: any) {
+      let message = 'Xác thực OTP thất bại';
+      if (error.response?.data?.message) {
+        message = Array.isArray(error.response.data.message) 
+          ? error.response.data.message[0] 
+          : error.response.data.message;
+      }
+      throw new Error(message);
+    }
+  }
 };
