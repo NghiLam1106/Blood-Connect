@@ -14,7 +14,8 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import type { BloodType } from '../../store/useStore'
 import { useStore } from '../../store/useStore'
-import { sendOTP, verifyOTP } from '../../services/mockOTP'
+import { authService } from '../../services/auth.service'
+import { storage } from '../../utils/localStorage'
 
 const BLOOD_TYPES: BloodType[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const STEPS = ['Thông tin', 'Xác thực OTP', 'Hoàn tất']
@@ -116,12 +117,20 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
     }
 
     startTransition(async () => {
-      const result = await sendOTP(form.phone)
-      if (result.success) {
+      try {
+        const payload = {
+          nameDonor: form.name,
+          email: form.email,
+          phone: form.phone,
+          bloodType: form.bloodType,
+          password: form.password,
+          role: 'DONOR'
+        }
+        const result = await authService.registerDonor(payload)
         setOtpInfo(result.message)
         setActiveStep(1)
-      } else {
-        setError('Gửi OTP thất bại. Thử lại sau.')
+      } catch (err: any) {
+        setError(err.message || 'Gửi yêu cầu đăng ký thất bại.')
       }
     })
   }
@@ -134,20 +143,24 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
     }
 
     startTransition(async () => {
-      const result = await verifyOTP(form.phone, otpCode)
-      if (result.success) {
-        login({
-          id: `donor-${Date.now()}`,
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          role: 'donor',
-          bloodType: form.bloodType as BloodType,
-          totalDonations: 0,
-        })
+      try {
+        const result = await authService.verifyOtp(form.email, otpCode)
+        const responseData = result.data;
+        
+        if (responseData?.accessToken) {
+          storage.setToken(responseData.accessToken)
+        }
+        if (responseData?.refreshToken) {
+          storage.setRefreshToken(responseData.refreshToken)
+        }
+        if (responseData?.user) {
+          const userToSave = { ...responseData.user, role: 'donor' };
+          login(userToSave);
+        }
+
         setActiveStep(2)
-      } else {
-        setError(result.message)
+      } catch (err: any) {
+        setError(err.message || 'Xác thực OTP thất bại.')
       }
     })
   }
