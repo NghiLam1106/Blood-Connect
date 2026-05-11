@@ -10,6 +10,8 @@ import {
   Stepper,
   Step,
   StepLabel,
+  Dialog,
+  DialogContent,
 } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import type { BloodType } from '../../store/useStore'
@@ -83,6 +85,7 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
   const [error, setError] = useState('')
   const [otpCode, setOtpCode] = useState('')
   const [otpInfo, setOtpInfo] = useState('')
+  const [pendingUser, setPendingUser] = useState<any>(null)
 
   const go = (path: string) => {
     if (asModal && onNavigate) onNavigate(path)
@@ -155,7 +158,7 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
         }
         if (responseData?.user) {
           const userToSave = { ...responseData.user, role: 'donor' };
-          login(userToSave);
+          setPendingUser(userToSave);
         }
 
         setActiveStep(2)
@@ -292,7 +295,7 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
         )}
 
         {/* ─── Step 1: OTP ─── */}
-        {activeStep === 1 && (
+        {activeStep >= 1 && (
           <div className="space-y-4 text-center">
             <div className="bg-blue-50 rounded-2xl p-3 text-xs font-semibold text-blue-700">{otpInfo}</div>
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
@@ -316,27 +319,34 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
           </div>
         )}
 
-        {/* ─── Step 2: Success ─── */}
-        {activeStep === 2 && (
-          <div className="text-center py-4 space-y-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto shadow-sm">
-              <span className="text-3xl">✅</span>
+        {/* ─── Step 2: Success Popup ─── */}
+        <Dialog 
+          open={activeStep === 2} 
+          onClose={() => {}}
+          PaperProps={{
+            style: { borderRadius: 24, padding: 8 }
+          }}
+        >
+          <DialogContent className="text-center py-8 px-10 max-w-sm">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto shadow-sm mb-5">
+              <span className="text-4xl">✅</span>
             </div>
-            <h2 className="text-xl font-bold text-gray-900">Đăng ký thành công!</h2>
-            <p className="text-gray-500 text-sm">
-              Chào mừng <strong>{form.name}</strong>. Hãy vào Dashboard để bật trạng thái sẵn sàng hiến máu.
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Đăng ký thành công!</h2>
+            <p className="text-gray-500 text-sm mb-8">
+              Chào mừng <strong>{form.name}</strong>. Tài khoản của bạn đã được xác thực thành công. Hãy vào Dashboard để cập nhật trạng thái.
             </p>
             <button
               onClick={() => {
+                if (pendingUser) login(pendingUser)
                 if (onClose) onClose()
                 navigate('/donor/dashboard')
               }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all"
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-sm"
             >
               Đến Dashboard →
             </button>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
