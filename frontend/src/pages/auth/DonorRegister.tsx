@@ -18,9 +18,17 @@ import type { BloodType } from '../../store/useStore'
 import { useStore } from '../../store/useStore'
 import { authService } from '../../services/auth.service'
 import { storage } from '../../utils/localStorage'
+import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
 
 const BLOOD_TYPES: BloodType[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const STEPS = ['Thông tin', 'Xác thực OTP', 'Hoàn tất']
+const EMPTY_ADDRESS: VietnamAddressValue = {
+  provinceCode: '',
+  provinceName: '',
+  wardCode: '',
+  wardName: '',
+  street: '',
+}
 
 // ─── OTP Input Grid ────────────────────────────────────────────────────────────
 function OTPInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
@@ -96,18 +104,30 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
     name: '',
     email: '',
     phone: '',
+    addressDetails: EMPTY_ADDRESS,
     bloodType: '' as BloodType | '',
     password: '',
     confirmPassword: '',
   })
+  const [addressErrors, setAddressErrors] = useState({ province: '', ward: '' })
 
   const setField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   const handleStep1 = () => {
     setError('')
+    setAddressErrors({ province: '', ward: '' })
     if (!form.name || !form.email || !form.phone || !form.bloodType || !form.password) {
       setError('Vui lòng điền đầy đủ thông tin.')
+      return
+    }
+    const nextAddressErrors = {
+      province: form.addressDetails.provinceCode ? '' : 'Vui lòng chọn tỉnh/thành phố.',
+      ward: form.addressDetails.wardCode ? '' : 'Vui lòng chọn xã/phường.',
+    }
+    if (nextAddressErrors.province || nextAddressErrors.ward) {
+      setAddressErrors(nextAddressErrors)
+      setError('Vui lòng hoàn tất thông tin địa chỉ.')
       return
     }
     if (form.password !== form.confirmPassword) {
@@ -121,10 +141,18 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
 
     startTransition(async () => {
       try {
+        const address = [
+          form.addressDetails.street.trim(),
+          form.addressDetails.wardName,
+          form.addressDetails.provinceName,
+        ]
+          .filter(Boolean)
+          .join(', ')
         const payload = {
           nameDonor: form.name,
           email: form.email,
           phone: form.phone,
+          address,
           bloodType: form.bloodType,
           password: form.password,
           role: 'DONOR'
@@ -248,6 +276,14 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
                 />
               </div>
             </div>
+            <VietnamAddressField
+              value={form.addressDetails}
+              errors={addressErrors}
+              onChange={(nextAddress) => {
+                setAddressErrors({ province: '', ward: '' })
+                setForm((prev) => ({ ...prev, addressDetails: nextAddress }))
+              }}
+            />
             <FormControl fullWidth size="small">
               <InputLabel sx={{ fontSize: '0.8rem', fontWeight: 600 }}>Nhóm máu *</InputLabel>
               <Select
