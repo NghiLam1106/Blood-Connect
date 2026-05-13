@@ -17,6 +17,13 @@ export interface User {
   avatar?: string
   totalDonations?: number
   lastDonation?: string
+  address?: string
+  dateOfBirth?: string
+  dateOfBirthVerified?: boolean
+  gender?: 'male' | 'female'
+  weight?: number
+  unitBlood?: number
+  status?: 'AVAILABLE' | 'UNAVAILABLE'
 }
 
 export interface MatchedDonor {
@@ -56,6 +63,7 @@ interface AuthSlice {
   authModalView: string | null
   setAuthModalView: (view: string | null) => void
   login: (user: User) => void
+  updateUser: (updates: Partial<User>) => void
   logout: () => void
 }
 
@@ -100,6 +108,10 @@ export const useStore = create<AppStore>()(
       authModalView: null,
       setAuthModalView: (view) => set({ authModalView: view }),
       login: (user) => set({ user, isAuthenticated: true, isReady: true, authModalView: null }),
+      updateUser: (updates) =>
+        set((state) => ({
+          user: state.user ? { ...state.user, ...updates } : state.user,
+        })),
       logout: () =>
         set({
           user: null,
