@@ -5,7 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import LockResetIcon from '@mui/icons-material/LockReset'
 import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead'
 import VpnKeyIcon from '@mui/icons-material/VpnKey'
-import { sendOTP, verifyOTP } from '../../services/mockOTP'
+import { authService } from '../../services/auth.service'
 
 const STEPS = ['Nhập Email', 'Xác thực OTP', 'Mật khẩu mới']
 
@@ -74,6 +74,7 @@ export default function ForgotPassword({ asModal = false, onNavigate }: ForgotPa
   const [otpCode, setOtpCode] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [resetToken, setResetToken] = useState('')
 
   const go = (path: string) => {
     if (asModal && onNavigate) onNavigate(path)
@@ -90,13 +91,12 @@ export default function ForgotPassword({ asModal = false, onNavigate }: ForgotPa
     }
 
     startTransition(async () => {
-      // Simulate checking email and sending OTP using mockOTP service
-      const result = await sendOTP('0901234567') // Mocking phone/email OTP
-      if (result.success) {
-        setSuccess(`Mã xác thực đã được gửi tới ${email}. (Mã mẫu: 123456)`)
+      try {
+        await authService.forgotPassword(email)
+        setSuccess(`Mã xác thực đã được gửi tới email của bạn.`)
         setActiveStep(1)
-      } else {
-        setError('Gửi yêu cầu thất bại. Thử lại sau.')
+      } catch (err: any) {
+        setError(err.message || 'Gửi yêu cầu thất bại.')
       }
     })
   }
@@ -110,12 +110,15 @@ export default function ForgotPassword({ asModal = false, onNavigate }: ForgotPa
     }
 
     startTransition(async () => {
-      const result = await verifyOTP('0901234567', otpCode)
-      if (result.success) {
+      try {
+        const response = await authService.verifyForgotPasswordOtp(email, otpCode)
+        if (response?.data?.resetToken) {
+          setResetToken(response.data.resetToken)
+        }
         setSuccess('')
         setActiveStep(2)
-      } else {
-        setError(result.message)
+      } catch (err: any) {
+        setError(err.message || 'Xác thực OTP thất bại.')
       }
     })
   }
@@ -133,9 +136,12 @@ export default function ForgotPassword({ asModal = false, onNavigate }: ForgotPa
     }
 
     startTransition(async () => {
-      await new Promise(r => setTimeout(r, 1000))
-      // Mock success change password
-      setActiveStep(3)
+      try {
+        await authService.resetPassword(email, resetToken, newPassword)
+        setActiveStep(3)
+      } catch (err: any) {
+        setError(err.message || 'Đặt lại mật khẩu thất bại.')
+      }
     })
   }
 
