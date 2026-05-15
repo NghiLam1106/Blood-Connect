@@ -8,11 +8,12 @@ import { UsersRepository } from '../users/repository/users.repository';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [BullModule.registerQueue({
     name: 'mail_queue',
-  }), PrismaModule, UsersModule],
+  }), PrismaModule, UsersModule, NotificationModule],
   controllers: [AuthController],
   providers: [AuthService, UsersRepository, MailProcessor, JwtService, DonorsRepository],
   exports: [AuthService],
