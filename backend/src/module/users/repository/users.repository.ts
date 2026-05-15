@@ -2,12 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { Role } from '../../../../generated/prisma/enums';
 import { PrismaService } from '../../../common/prisma/prisma.service';
 import { GeocodingService } from '../../../helpers/map/openStreetMap.map';
+import { NotificationRepository } from '../../notification/notification.repository';
 
 @Injectable()
 export class UsersRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly geocodingService: GeocodingService,
+    private readonly notificationRepository: NotificationRepository,
   ) { }
 
   async findByEmail(email: string) {
@@ -47,12 +49,27 @@ export class UsersRepository {
       });
 
       if (role === Role.DONOR) {
-        await tx.donors.create({
+        const newDonor = await tx.donors.create({
           data: {
             bloodType,
             userId: newUser.id,
           },
         });
+
+        const totalCount = await this.notificationRepository.countAll();
+        const totalCountAccept = await this.notificationRepository.countAllAccept();
+        const c = totalCount > 0 ? (totalCountAccept / totalCount) : 0; //response rate trung bình toàn hệ thống
+        const n = await this.notificationRepository.countByDonorId(newDonor.id); //số lần được request
+        const acceptedCount = await this.notificationRepository.countAcceptedByDonorId(newDonor.id);
+        const r = n > 0 ? (acceptedCount / n) : 0; //response rate thật
+        const m = 5; //độ tin cậy tối thiểu
+        const responseRate = ((n * r) + (m * c)) / (n + m); // công thức Bayesian Average
+
+        await tx.donors.update({
+          where: { id: newDonor.id },
+          data: { responseRate },
+        });
+
       } else if (role === Role.REQUESTER) {
         await tx.hospital.create({
           data: {

@@ -21,6 +21,14 @@ export class NotificationRepository {
     });
   }
 
+  async countAll() {
+    return this.prisma.notification.count();
+  }
+
+  async countAllAccept() {
+    return this.prisma.notification.count({ where: { isAccept: true } });
+  }
+
   async findById(id: number) {
     return this.prisma.notification.findUnique({
       where: { id },
