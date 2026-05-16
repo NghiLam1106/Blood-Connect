@@ -58,9 +58,10 @@ export function DashboardLayout() {
     const navigate = useNavigate()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-    // Default to donor config if no user (shouldn't happen with auth guards but for safety)
-    const role = (user?.role as keyof typeof ROLE_CONFIGS) || 'donor'
-    const config = ROLE_CONFIGS[role]
+    // Normalize role and default to donor config if missing or mismatched
+    const rawRole = user?.role ? String(user.role) : ''
+    const role = (rawRole?.toLowerCase() as keyof typeof ROLE_CONFIGS) || 'donor'
+    const config = ROLE_CONFIGS[role] ?? ROLE_CONFIGS['donor']
 
     const [imgError, setImgError] = useState(false)
 
@@ -120,7 +121,7 @@ export function DashboardLayout() {
             </div>
 
             <nav className="flex-1 px-4 space-y-2">
-                {config.menu.map((item) => {
+                {(config?.menu ?? []).map((item) => {
                     const isActive = location.pathname === item.path
                     return (
                         <Link

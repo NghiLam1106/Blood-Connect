@@ -109,9 +109,15 @@ export const useStore = create<AppStore>()(
       setAuthModalView: (view) => set({ authModalView: view }),
       login: (user) => set({ user, isAuthenticated: true, isReady: true, authModalView: null }),
       updateUser: (updates) =>
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updates } : state.user,
-        })),
+      set((state) => {
+        const { id, ...safeUpdates } = updates;
+
+        return {
+          user: state.user
+            ? { ...state.user, ...safeUpdates }
+            : state.user,
+        };
+      }),
       logout: () =>
         set({
           user: null,
