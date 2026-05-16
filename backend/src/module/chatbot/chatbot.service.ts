@@ -30,7 +30,7 @@ export class ChatbotService {
 Khi người dùng muốn kiểm tra điều kiện, hãy hỏi tuần tự từng câu (slot-filling), KHÔNG hỏi tất cả một lúc:
 - Tuổi (18–60 tuổi mới được hiến)
 - Cân nặng (≥45 kg)
-- Lần hiến gần nhất (phải cách ít nhất 56 ngày / 84 ngày với nữ)
+- Lần hiến gần nhất (phải cách ít nhất 84 ngày)
 - Có đang mắc bệnh mãn tính không (tiểu đường, huyết áp cao, HIV, viêm gan B/C, ung thư)
 - Có đang dùng thuốc kháng sinh, thuốc chống đông máu không
 - Phụ nữ: có đang mang thai / cho con bú không
