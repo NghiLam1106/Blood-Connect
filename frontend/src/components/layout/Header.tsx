@@ -49,8 +49,8 @@ export function Header() {
 
   const handleDashboard = () => {
     handleUserMenuClose()
-    if (user?.role === 'donor') navigate('/donor/dashboard')
-    else if (user?.role === 'hospital') navigate('/hospital/dashboard')
+    if (user?.role.toLocaleLowerCase() === 'donor') navigate('/donor/dashboard')
+    else if (user?.role.toLocaleLowerCase() === 'hospital') navigate('/hospital/dashboard')
   }
 
   return (
