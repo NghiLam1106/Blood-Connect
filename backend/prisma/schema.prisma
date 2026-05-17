@@ -38,6 +38,8 @@ model Donors {
   longitude    Float?
   weight       Float?
   unitBlood    Int?
+  dob          DateTime?
+  gender       Gender    @default(MALE)
   status       Status    @default(UNAVAILABLE)
   responseRate Decimal   @default(0) @db.Decimal(5, 2)
   userId       Int       @unique
@@ -113,3 +115,9 @@ enum StatusDonation {
   ACCEPTED
   REJECTED
 }
+
+enum Gender {
+  MALE
+  FEMALE
+}
+

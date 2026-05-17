@@ -25,6 +25,8 @@ export class DonorsRepository {
           longitude: coordinates?.lng,
           bloodType: data.bloodType,
           status: data.status,
+          dob: data.dob ? new Date(data.dob) : undefined,
+          gender: data.gender,
         },
       }),
     ]);
