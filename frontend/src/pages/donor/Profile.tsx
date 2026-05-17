@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { updateDonorProfile } from '../../services/donor.service'
+import { updateDonorProfile, getDonorProfile } from '../../services/donor.service'
 import { BLOOD_TYPES } from '../../constants/bloodTypes'
 import { paths } from '../../routes/paths'
 import { useStore } from '../../store/useStore'
@@ -133,6 +133,30 @@ export default function Profile() {
     return () => clearTimeout(timer)
   }, [user])
 
+  useEffect(() => {
+  if (!user?.id) return;
+
+  let mounted = true;
+
+  const fetchProfile = async () => {
+    try {
+      const fresh = await getDonorProfile(user.id);
+
+      if (mounted && fresh) {
+        updateUser(fresh);
+      }
+    } catch (err) {
+      console.error('Failed to fetch donor profile', err);
+    }
+  };
+
+  fetchProfile();
+
+  return () => {
+    mounted = false;
+  };
+}, [user?.id, updateUser]);
+
   if (!user) return null
 
   const avatarSrc = previewAvatar ?? (user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined' ? user.avatar : null)
@@ -152,16 +176,25 @@ export default function Profile() {
   const weightEligibilityError =
     hasWeightValue && !hasGenderValue
       ? null
-      : hasWeightValue && selectedGender === 'male' && profileForm.weight < 45
+      : hasWeightValue && selectedGender === 'male' && profileForm.weight !== null && profileForm.weight < 45
         ? 'Nam giới cần tối thiểu 45 kg để hiến máu'
-        : hasWeightValue && selectedGender === 'female' && profileForm.weight < 42
+        : hasWeightValue && selectedGender === 'female' && profileForm.weight !== null && profileForm.weight < 42
           ? 'Nữ giới cần tối thiểu 42 kg để hiến máu'
           : null
-  const genderWeightHint = hasWeightValue && !hasGenderValue ? 'Vui lòng chọn giới tính để xác định điều kiện phù hợp' : null
+  const genderWeightHint = hasWeightValue && !hasGenderValue
+    ? 'Vui lòng chọn giới tính để xác định điều kiện phù hợp' : null
+
   const isWeightValidForDonation = hasWeightValue && hasGenderValue && !weightEligibilityError
-  const suggestedVolume = isWeightValidForDonation && selectedGender ? getSuggestedAmount(profileForm.weight, selectedGender) : null
-  const allowedVolumes = isWeightValidForDonation && selectedGender ? (getValidOptions(profileForm.weight, selectedGender) as SuggestedBloodVolume[]) : []
-  const maxDonationByWeight = hasWeightValue ? getMaxDonation(profileForm.weight) : null
+
+  const suggestedVolume = isWeightValidForDonation && selectedGender && profileForm.weight !== null
+    ? getSuggestedAmount(profileForm.weight, selectedGender) : null
+
+  const allowedVolumes =
+    isWeightValidForDonation && selectedGender && profileForm.weight !== null
+      ? (getValidOptions(profileForm.weight, selectedGender) as SuggestedBloodVolume[]) : []
+
+  const maxDonationByWeight = profileForm.weight !== null
+    ? getMaxDonation(profileForm.weight) : null
 
   const addressErrors = {
     province: profileForm.addressDetails.provinceCode ? '' : 'Vui lòng chọn tỉnh/thành phố.',

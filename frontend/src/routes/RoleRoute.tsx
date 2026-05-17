@@ -6,7 +6,10 @@ import { paths } from './paths'
 export function RoleRoute({ children, requiredRole }: { children: ReactNode, requiredRole: string }) {
   const { user } = useStore()
 
-  if (user?.role !== requiredRole) {
+  const userRole = user?.role ? String(user.role).toLowerCase() : ''
+  const required = String(requiredRole).toLowerCase()
+
+  if (userRole !== required) {
     return <Navigate to={paths.public.home} replace />
   }
 
