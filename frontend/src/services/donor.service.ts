@@ -4,8 +4,8 @@ export interface UpdateDonorProfilePayload {
 	name?: string
 	avatar?: string
 	address?: string
-	dateOfBirth?: string
-	gender?: 'male' | 'female'
+	dob?: string
+	gender?: 'MALE' | 'FEMALE'
 	bloodType?: string
 	weight?: number
 	unitBlood?: number

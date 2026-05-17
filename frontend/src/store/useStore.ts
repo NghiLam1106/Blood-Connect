@@ -19,9 +19,9 @@ export interface User {
   totalDonations?: number
   lastDonation?: string
   address?: string
-  dateOfBirth?: string
-  dateOfBirthVerified?: boolean
-  gender?: 'male' | 'female'
+  dob?: string
+  dobVerified?: boolean
+  gender?: 'MALE' | 'FEMALE'
   weight?: number
   unitBlood?: number
   status?: 'AVAILABLE' | 'UNAVAILABLE'
@@ -110,15 +110,15 @@ export const useStore = create<AppStore>()(
       setAuthModalView: (view) => set({ authModalView: view }),
       login: (user) => set({ user, isAuthenticated: true, isReady: true, authModalView: null }),
       updateUser: (updates) =>
-      set((state) => {
-        const { id, ...safeUpdates } = updates;
+        set((state) => {
+          const { id, ...safeUpdates } = updates;
 
-        return {
-          user: state.user
-            ? { ...state.user, ...safeUpdates }
-            : state.user,
-        };
-      }),
+          return {
+            user: state.user
+              ? { ...state.user, ...safeUpdates }
+              : state.user,
+          };
+        }),
       logout: () => {
         storage.clearAuth();
         set({
