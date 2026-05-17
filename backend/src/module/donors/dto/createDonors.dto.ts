@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
-import { Status } from "../../../../generated/prisma/enums";
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Gender, Status } from "../../../../generated/prisma/enums";
 
 export class CreateDonorsDto {
   @ApiProperty({ description: 'Tên người hiến máu' })
@@ -28,6 +28,16 @@ export class CreateDonorsDto {
   @IsString({ message: 'Nhóm máu phải là chuỗi' })
   bloodType!: string;
 
+  @ApiProperty({ description: 'Ngày sinh' })
+  @IsNotEmpty({ message: 'Ngày sinh không được để trống' })
+  @IsDateString()
+  dob!: string;
+
+  @ApiProperty({ description: 'Giới tính' })
+  @IsNotEmpty({ message: 'Giới tính không được để trống' })
+  @IsEnum(Gender, { message: 'Giới tính phải là MALE hoặc FEMALE' })
+  gender!: Gender;
+
   // @ApiProperty({ description: 'Ngày hiến máu gần nhất' })
   // @IsNotEmpty({ message: 'Ngày hiến máu gần nhất không được để trống' })
   // @IsDate({ message: 'Ngày hiến máu gần nhất phải là ngày' })
@@ -44,7 +54,6 @@ export class CreateDonorsDto {
   avatar!: string;
 
   @ApiProperty({ description: 'Trạng thái' })
-  @IsNotEmpty({ message: 'Trạng thái không được để trống' })
   @IsString({ message: 'Trạng thái phải là chuỗi' })
   status!: Status;
 }
