@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { storage } from '../utils/localStorage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -118,7 +119,8 @@ export const useStore = create<AppStore>()(
             : state.user,
         };
       }),
-      logout: () =>
+      logout: () => {
+        storage.clearAuth();
         set({
           user: null,
           isAuthenticated: false,
@@ -126,7 +128,8 @@ export const useStore = create<AppStore>()(
           currentRequest: null,
           matchedDonors: [],
           authModalView: null,
-        }),
+        })
+      },
 
       // Emergency – Donor side
       isAvailable: false,
