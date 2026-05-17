@@ -12,6 +12,5 @@ export const storage = {
   clearAuth: () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
   },
 };
