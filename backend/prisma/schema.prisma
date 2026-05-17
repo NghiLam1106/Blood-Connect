@@ -102,7 +102,7 @@ model DonationHistory {
 enum Role {
   ADMIN
   DONOR
-  REQUESTER
+  HOSPITAL
 }
 
 enum Status {

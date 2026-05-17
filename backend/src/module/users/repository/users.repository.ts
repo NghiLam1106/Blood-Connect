@@ -70,7 +70,7 @@ export class UsersRepository {
           data: { responseRate },
         });
 
-      } else if (role === Role.REQUESTER) {
+      } else if (role === Role.HOSPITAL) {
         await tx.hospital.create({
           data: {
             userId: newUser.id,

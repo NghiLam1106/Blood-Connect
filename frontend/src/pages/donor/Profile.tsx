@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { updateDonorProfile, getDonorProfile } from '../../services/donor.service'
+import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
 import { BLOOD_TYPES } from '../../constants/bloodTypes'
 import { paths } from '../../routes/paths'
+import { getDonorProfile, updateDonorProfile } from '../../services/donor.service'
 import { useStore } from '../../store/useStore'
 import { getAgeFromDOB, getMaxDonation, getSuggestedAmount, getValidOptions } from '../../utils/bloodDonation'
-import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
 
 const DONATION_INTERVAL_DAYS = 56
 
@@ -17,7 +17,7 @@ type TimelineItem = {
 }
 
 type SuggestedBloodVolume = 250 | 350 | 450
-type DonorGender = 'male' | 'female'
+type DonorGender = 'MALE' | 'FEMALE'
 
 const EMPTY_ADDRESS: VietnamAddressValue = {
   provinceCode: '',
@@ -82,7 +82,7 @@ export default function Profile() {
       ...EMPTY_ADDRESS,
       street: user?.address ?? '',
     },
-    dateOfBirth: formatDateForInput(user?.dateOfBirth),
+    dob: formatDateForInput(user?.dob),
     gender: user?.gender ?? '',
     bloodType: user?.bloodType ?? '',
     weight: typeof user?.weight === 'number' && user.weight > 0 ? user.weight : null,
@@ -112,7 +112,7 @@ export default function Profile() {
         ...EMPTY_ADDRESS,
         street: user.address ?? '',
       },
-      dateOfBirth: formatDateForInput(user.dateOfBirth),
+      dob: formatDateForInput(user.dob),
       gender: user.gender ?? '',
       bloodType: user.bloodType ?? '',
       weight: typeof user.weight === 'number' && user.weight > 0 ? user.weight : null,
@@ -168,17 +168,17 @@ export default function Profile() {
   const isEligibleNow = nextEligibleDate ? startOfDay(nextEligibleDate).getTime() <= today.getTime() : true
   const remainingDays = nextEligibleDate ? Math.max(0, Math.ceil((startOfDay(nextEligibleDate).getTime() - today.getTime()) / (1000 * 60 * 60 * 24))) : 0
   const rankMeta = getRankMeta(totalDonations)
-  const isDobVerified = Boolean(user.dateOfBirthVerified)
+  const isDobVerified = Boolean(user.dobVerified)
 
   const hasWeightValue = typeof profileForm.weight === 'number' && !Number.isNaN(profileForm.weight)
-  const hasGenderValue = profileForm.gender === 'male' || profileForm.gender === 'female'
+  const hasGenderValue = profileForm.gender === 'MALE' || profileForm.gender === 'FEMALE'
   const selectedGender = hasGenderValue ? (profileForm.gender as DonorGender) : null
   const weightEligibilityError =
     hasWeightValue && !hasGenderValue
       ? null
-      : hasWeightValue && selectedGender === 'male' && profileForm.weight !== null && profileForm.weight < 45
+      : hasWeightValue && selectedGender === 'MALE' && profileForm.weight !== null && profileForm.weight < 45
         ? 'Nam giới cần tối thiểu 45 kg để hiến máu'
-        : hasWeightValue && selectedGender === 'female' && profileForm.weight !== null && profileForm.weight < 42
+        : hasWeightValue && selectedGender === 'FEMALE' && profileForm.weight !== null && profileForm.weight < 42
           ? 'Nữ giới cần tối thiểu 42 kg để hiến máu'
           : null
   const genderWeightHint = hasWeightValue && !hasGenderValue
@@ -205,7 +205,7 @@ export default function Profile() {
     .filter(Boolean)
     .join(', ')
 
-  const showFemaleCondition = selectedGender === 'female'
+  const showFemaleCondition = selectedGender === 'FEMALE'
   const showSpacingCondition = totalDonations > 0
   const areHealthChecksValid =
     healthChecks.noBloodDisease &&
@@ -219,7 +219,7 @@ export default function Profile() {
     { label: 'Số điện thoại', value: user.phone },
     { label: 'Nhóm máu', value: user.bloodType },
     { label: 'Ảnh đại diện', value: user.avatar },
-    { label: 'Ngày sinh', value: user.dateOfBirth },
+    { label: 'Ngày sinh', value: user.dob },
     { label: 'Địa chỉ/Khu vực', value: user.address },
     { label: 'Cân nặng', value: user.weight && user.weight > 0 ? String(user.weight) : '' },
   ]
@@ -290,8 +290,8 @@ export default function Profile() {
   }
 
   const handleDobBlur = () => {
-    if (!profileForm.dateOfBirth) return setDobError(null)
-    const dob = new Date(profileForm.dateOfBirth)
+    if (!profileForm.dob) return setDobError(null)
+    const dob = new Date(profileForm.dob)
     if (Number.isNaN(dob.getTime())) return setDobError('Ngày sinh không hợp lệ.')
     const age = getAgeFromDOB(dob)
     if (age < 18) return setDobError('Người hiến máu phải từ 18 tuổi trở lên')
@@ -323,7 +323,7 @@ export default function Profile() {
       const response = await updateDonorProfile(user.id, {
         name: profileForm.name.trim(),
         address: formattedAddress,
-        dateOfBirth: profileForm.dateOfBirth || undefined,
+        dob: profileForm.dob || undefined,
         gender: hasGenderValue ? (profileForm.gender as DonorGender) : undefined,
         bloodType: profileForm.bloodType,
         weight: profileForm.weight,
@@ -380,7 +380,7 @@ export default function Profile() {
             </label>
             <label className="space-y-2">
               <span className="text-sm font-bold text-dark">Ngày sinh</span>
-              <input type="date" value={profileForm.dateOfBirth} disabled={isDobVerified} onChange={(e) => setProfileForm((p) => ({ ...p, dateOfBirth: e.target.value }))} onBlur={handleDobBlur} aria-invalid={Boolean(dobError)} className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:bg-gray-100" />
+              <input type="date" value={profileForm.dob} disabled={isDobVerified} onChange={(e) => setProfileForm((p) => ({ ...p, dob: e.target.value }))} onBlur={handleDobBlur} aria-invalid={Boolean(dobError)} className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:bg-gray-100" />
               {dobError ? <p className="text-xs font-semibold text-primary">{dobError}</p> : null}
             </label>
             <label className="space-y-2">
@@ -393,8 +393,8 @@ export default function Profile() {
                 return { ...prev, gender: nextGender, unitBlood: (nextSuggested as SuggestedBloodVolume | null) ?? null }
               })} className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white">
                 <option value="">Chọn giới tính</option>
-                <option value="male">Nam</option>
-                <option value="female">Nữ</option>
+                <option value="MALE">Nam</option>
+                <option value="FEMALE">Nữ</option>
               </select>
             </label>
 
@@ -412,7 +412,7 @@ export default function Profile() {
                       const nextWeight = raw === '' ? null : Number(raw)
                       setProfileForm((prev) => {
                         if (nextWeight === null || Number.isNaN(nextWeight)) return { ...prev, weight: null, unitBlood: null }
-                        if (prev.gender === 'male' || prev.gender === 'female') {
+                        if (prev.gender === 'MALE' || prev.gender === 'FEMALE') {
                           const nextSuggested = getSuggestedAmount(nextWeight, prev.gender)
                           return { ...prev, weight: nextWeight, unitBlood: (nextSuggested as SuggestedBloodVolume | null) ?? null }
                         }
@@ -529,7 +529,7 @@ export default function Profile() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between gap-4 border-b border-gray-100 pb-4"><div><h3 className="text-lg font-extrabold text-dark">Thông tin cá nhân</h3><p className="mt-1 text-sm text-gray-500">Các thông tin cơ bản đang được sử dụng trong hệ thống.</p></div></div>
-          <div className="mt-6 space-y-4">{[{ label: 'Họ và tên', value: user.name }, { label: 'Email', value: user.email }, { label: 'Số điện thoại', value: user.phone }, { label: 'Ngày sinh', value: formatDate(user.dateOfBirth) }, { label: 'Địa chỉ / Khu vực', value: user.address || 'Chưa cập nhật' }].map((item) => <div key={item.label} className="flex items-start justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50/70 px-4 py-3"><span className="text-sm font-semibold text-gray-500">{item.label}</span><span className="max-w-[60%] text-right text-sm font-bold text-dark">{item.value || 'Chưa cập nhật'}</span></div>)}</div>
+          <div className="mt-6 space-y-4">{[{ label: 'Họ và tên', value: user.name }, { label: 'Giới tính', value: user.gender === 'MALE' ? 'Nam' : 'Nữ' }, { label: 'Email', value: user.email }, { label: 'Số điện thoại', value: user.phone }, { label: 'Ngày sinh', value: formatDate(user.dob) }, { label: 'Địa chỉ / Khu vực', value: user.address || 'Chưa cập nhật' }].map((item) => <div key={item.label} className="flex items-start justify-between gap-4 rounded-2xl border border-gray-100 bg-gray-50/70 px-4 py-3"><span className="text-sm font-semibold text-gray-500">{item.label}</span><span className="max-w-[60%] text-right text-sm font-bold text-dark">{item.value || 'Chưa cập nhật'}</span></div>)}</div>
         </div>
         <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">
           <div className="flex items-center justify-between gap-4 border-b border-gray-100 pb-4"><div><h3 className="text-lg font-extrabold text-dark">Thông tin sức khỏe</h3><p className="mt-1 text-sm text-gray-500">Dữ liệu hỗ trợ sàng lọc và phản hồi trong các tình huống khẩn cấp.</p></div></div>
