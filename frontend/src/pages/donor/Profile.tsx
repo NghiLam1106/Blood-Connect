@@ -2,13 +2,14 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { VietnamAddressField } from '../../components/common/VietnamAddressField'
 import { BLOOD_TYPES } from '../../constants/bloodTypes'
+import { useAvatarColor } from '../../hooks/useAvatarColor'
 import { useDonorAvailability } from '../../hooks/useDonorAvailability'
+import { useUserInitial } from '../../hooks/useUserInitial'
 import { paths } from '../../routes/paths'
+import { uploadImageToCloudinary } from '../../services/cloudinary.service'
 import { getDonorProfile, updateDonorProfile } from '../../services/donor.service'
 import { useStore } from '../../store/useStore'
 import { getAgeFromDOB, getMaxDonation, getSuggestedAmount, getValidOptions } from '../../utils/bloodDonation'
-import { useUserInitial } from '../../hooks/useUserInitial'
-import { useAvatarColor } from '../../hooks/useAvatarColor'
 
 const DONATION_INTERVAL_DAYS = 56
 
@@ -236,35 +237,6 @@ export default function Profile() {
     fileInputRef.current?.click()
   }
 
-  const readFileAsDataUrl = (file: File) =>
-    new Promise<string>((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => resolve(String(reader.result))
-      reader.onerror = () => reject(new Error('Không thể đọc file ảnh'))
-      reader.readAsDataURL(file)
-    })
-
-  const compressImage = async (file: File, maxSize = 512, quality = 0.82) => {
-    const originalDataUrl = await readFileAsDataUrl(file)
-    return new Promise<string>((resolve) => {
-      const image = new Image()
-      image.onload = () => {
-        const scale = Math.min(1, maxSize / Math.max(image.width, image.height))
-        const width = Math.max(1, Math.round(image.width * scale))
-        const height = Math.max(1, Math.round(image.height * scale))
-        const canvas = document.createElement('canvas')
-        canvas.width = width
-        canvas.height = height
-        const context = canvas.getContext('2d')
-        if (!context) return resolve(originalDataUrl)
-        context.drawImage(image, 0, 0, width, height)
-        resolve(canvas.toDataURL('image/jpeg', quality))
-      }
-      image.onerror = () => resolve(originalDataUrl)
-      image.src = originalDataUrl
-    })
-  }
-
   const handleAvatarChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
@@ -281,10 +253,10 @@ export default function Profile() {
     setIsUploadingAvatar(true)
     setAvatarError(null)
     try {
-      const avatarDataUrl = await compressImage(file)
-      setPreviewAvatar(avatarDataUrl)
-      await updateDonorProfile(user.id, { avatar: avatarDataUrl })
-      updateUser({ avatar: avatarDataUrl })
+      const secureUrl = await uploadImageToCloudinary(file)
+      setPreviewAvatar(secureUrl)
+      await updateDonorProfile(user.id, { avatar: secureUrl })
+      updateUser({ avatar: secureUrl })
     } catch (error) {
       setPreviewAvatar(null)
       setAvatarError(error instanceof Error ? error.message : 'Cập nhật ảnh đại diện thất bại.')
