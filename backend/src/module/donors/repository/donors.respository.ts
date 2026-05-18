@@ -15,7 +15,7 @@ export class DonorsRepository {
     const [user, donor] = await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
-        data: { address: data.address, name: data.name, avatar: data.avatar },
+        data: { address: data.address, provinceName: data.provinceName, wardName: data.wardName, street: data.street, name: data.name, avatar: data.avatar },
       }),
       this.prisma.donors.update({
         where: { userId: userId },
@@ -27,6 +27,7 @@ export class DonorsRepository {
           status: data.status,
           dob: data.dob ? new Date(data.dob) : undefined,
           gender: data.gender,
+          unitBlood: data.unitBlood,
         },
       }),
     ]);

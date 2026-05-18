@@ -1,31 +1,19 @@
-import { Switch } from '@mui/material'
 import FavoriteIcon from '@mui/icons-material/Favorite'
+import { Switch } from '@mui/material'
+import { useState } from 'react'
+import { useAvatarColor } from '../../hooks/useAvatarColor'
+import { useDonorAvailability } from '../../hooks/useDonorAvailability'
+import { useUserInitial } from '../../hooks/useUserInitial'
 import { useStore } from '../../store/useStore'
-import { useMemo, useState } from 'react'
 
 export function DonorProfileCard() {
-  const { user, isAvailable, setAvailable } = useStore()
+  const { user } = useStore()
+  const { isAvailable, isToggling, toggle } = useDonorAvailability()
   const [imgError, setImgError] = useState(false)
 
-  const avatarColorClass = useMemo(() => {
-    if (!user?.name) return 'bg-primary'
-    const colors = [
-      'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-green-500', 'bg-emerald-500',
-      'bg-teal-500', 'bg-cyan-500', 'bg-blue-500', 'bg-indigo-500', 'bg-violet-500',
-      'bg-purple-500', 'bg-fuchsia-500', 'bg-pink-500', 'bg-rose-500'
-    ]
-    let hash = 0
-    for (let i = 0; i < user.name.length; i++) {
-      hash = user.name.charCodeAt(i) + ((hash << 5) - hash)
-    }
-    return colors[Math.abs(hash) % colors.length]
-  }, [user?.name])
+  const avatarColorClass = useAvatarColor(user?.name)
 
-  const initial = useMemo(() => {
-    if (!user?.name) return ''
-    const parts = user.name.trim().split(' ')
-    return parts.length > 0 ? parts[parts.length - 1].charAt(0).toUpperCase() : user.name.charAt(0).toUpperCase()
-  }, [user?.name])
+  const initial = useUserInitial(user?.name)
 
   if (!user) return null
 
@@ -37,10 +25,10 @@ export function DonorProfileCard() {
         <div className="relative">
           <div className={`w-20 h-20 rounded-2xl ${hasAvatar ? 'bg-white' : avatarColorClass} border border-gray-100 shadow-sm flex items-center justify-center overflow-hidden`}>
             {hasAvatar ?
-              <img 
-                src={user.avatar} 
-                alt="avatar" 
-                className="w-full h-full object-cover" 
+              <img
+                src={user.avatar}
+                alt="avatar"
+                className="w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
               :
@@ -65,8 +53,9 @@ export function DonorProfileCard() {
             </span>
             <Switch
               checked={isAvailable}
-              onChange={(_, val) => setAvailable(val)}
-              color="error" // MUI error maps to primary red
+              disabled={isToggling}
+              onChange={(_, val) => void toggle(val)}
+              color="error"
               sx={{ '& .MuiSwitch-switchBase.Mui-checked': { color: '#EF4444' }, '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': { backgroundColor: '#EF4444' } }}
             />
           </div>

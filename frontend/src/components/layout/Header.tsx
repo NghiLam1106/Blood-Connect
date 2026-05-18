@@ -22,6 +22,8 @@ import CloseIcon from '@mui/icons-material/Close'
 import { useStore } from '../../store/useStore'
 import { Logo } from './Logo'
 import { AuthModal, type AuthView } from '../auth/AuthModal'
+import { useUserInitial } from '../../hooks/useUserInitial'
+import { useAvatarColor } from '../../hooks/useAvatarColor'
 
 const NAV_LINKS = [
   { label: 'Trang chủ', href: '/' },
@@ -35,6 +37,8 @@ export function Header() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, isAuthenticated, logout, authModalView, setAuthModalView } = useStore()
+  const initial = useUserInitial(user?.name)
+  const avatarColorClass = useAvatarColor(user?.name)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -90,9 +94,11 @@ export function Header() {
               <>
                 <IconButton onClick={handleUserMenuOpen} sx={{ p: 0.5 }}>
                   <Avatar
-                    sx={{ width: 36, height: 36, bgcolor: '#3B82F6', fontSize: '0.875rem' }}
+                    src={user.avatar}
+                    sx={{ width: 36, height: 36, fontSize: '0.875rem' }}
+                    className={`!${avatarColorClass}`}
                   >
-                    {user.name.charAt(0)}
+                    {initial}
                   </Avatar>
                 </IconButton>
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleUserMenuClose}>

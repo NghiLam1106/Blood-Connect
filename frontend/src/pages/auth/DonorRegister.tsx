@@ -1,24 +1,24 @@
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import {
+    Alert,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    Select,
+    Step,
+    StepLabel,
+    Stepper,
+} from '@mui/material'
 import { useRef, useState, useTransition } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Alert,
-  CircularProgress,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stepper,
-  Step,
-  StepLabel,
-  Dialog,
-  DialogContent,
-} from '@mui/material'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
+import { authService } from '../../services/auth.service'
 import type { BloodType } from '../../store/useStore'
 import { useStore } from '../../store/useStore'
-import { authService } from '../../services/auth.service'
 import { storage } from '../../utils/localStorage'
-import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
 
 const BLOOD_TYPES: BloodType[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
 const STEPS = ['Thông tin', 'Xác thực OTP', 'Hoàn tất']
@@ -153,6 +153,9 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
           email: form.email,
           phone: form.phone,
           address,
+          province: form.addressDetails.provinceName,
+          ward: form.addressDetails.wardName,
+          street: form.addressDetails.street.trim(),
           bloodType: form.bloodType,
           password: form.password,
           role: 'DONOR'
@@ -177,7 +180,7 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
       try {
         const result = await authService.verifyOtp(form.email, otpCode)
         const responseData = result.data;
-        
+
         if (responseData?.accessToken) {
           storage.setToken(responseData.accessToken)
         }
@@ -356,8 +359,8 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
         )}
 
         {/* ─── Step 2: Success Popup ─── */}
-        <Dialog 
-          open={activeStep === 2} 
+        <Dialog
+          open={activeStep === 2}
           onClose={() => {}}
           PaperProps={{
             style: { borderRadius: 24, padding: 8 }

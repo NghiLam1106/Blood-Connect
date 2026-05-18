@@ -1,11 +1,14 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
+import { VietnamAddressField } from '../../components/common/VietnamAddressField'
 import { BLOOD_TYPES } from '../../constants/bloodTypes'
+import { useDonorAvailability } from '../../hooks/useDonorAvailability'
 import { paths } from '../../routes/paths'
 import { getDonorProfile, updateDonorProfile } from '../../services/donor.service'
 import { useStore } from '../../store/useStore'
 import { getAgeFromDOB, getMaxDonation, getSuggestedAmount, getValidOptions } from '../../utils/bloodDonation'
+import { useUserInitial } from '../../hooks/useUserInitial'
+import { useAvatarColor } from '../../hooks/useAvatarColor'
 
 const DONATION_INTERVAL_DAYS = 56
 
@@ -19,13 +22,7 @@ type TimelineItem = {
 type SuggestedBloodVolume = 250 | 350 | 450
 type DonorGender = 'MALE' | 'FEMALE'
 
-const EMPTY_ADDRESS: VietnamAddressValue = {
-  provinceCode: '',
-  provinceName: '',
-  wardCode: '',
-  wardName: '',
-  street: '',
-}
+
 
 const FALLBACK_TIMELINE: TimelineItem[] = [
   { id: '1', date: '2026-01-15', location: 'Bệnh viện Chợ Rẫy', donationType: 'Toàn phần' },
@@ -68,7 +65,8 @@ const getRankMeta = (totalDonations: number) => {
 export default function Profile() {
   const navigate = useNavigate()
   const fileInputRef = useRef<HTMLInputElement | null>(null)
-  const { user, isAuthenticated, isAvailable, setAvailable, updateUser } = useStore()
+  const { user, isAuthenticated, updateUser } = useStore()
+  const { isAvailable, isToggling: isTogglingAvailable, toggle: handleToggleAvailable } = useDonorAvailability()
 
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [avatarError, setAvatarError] = useState<string | null>(null)
@@ -79,8 +77,11 @@ export default function Profile() {
   const [profileForm, setProfileForm] = useState({
     name: user?.name ?? '',
     addressDetails: {
-      ...EMPTY_ADDRESS,
-      street: user?.address ?? '',
+      provinceCode: '',
+      provinceName: user?.provinceName ?? '',
+      wardCode: '',
+      wardName: user?.wardName ?? '',
+      street: user?.street ?? '',
     },
     dob: formatDateForInput(user?.dob),
     gender: user?.gender ?? '',
@@ -109,8 +110,11 @@ export default function Profile() {
     setProfileForm({
       name: user.name ?? '',
       addressDetails: {
-        ...EMPTY_ADDRESS,
-        street: user.address ?? '',
+        provinceCode: '',
+        provinceName: user.provinceName ?? '',
+        wardCode: '',
+        wardName: user.wardName ?? '',
+        street: user.street ?? '',
       },
       dob: formatDateForInput(user.dob),
       gender: user.gender ?? '',
@@ -131,7 +135,7 @@ export default function Profile() {
       setIsTimelineLoading(false)
     }, 500)
     return () => clearTimeout(timer)
-  }, [user])
+  }, [])
 
   useEffect(() => {
   if (!user?.id) return;
@@ -160,7 +164,8 @@ export default function Profile() {
   if (!user) return null
 
   const avatarSrc = previewAvatar ?? (user.avatar && user.avatar !== 'null' && user.avatar !== 'undefined' ? user.avatar : null)
-  const initial = user.name?.charAt(0)?.toUpperCase() ?? 'D'
+  const avatarColorClass = useAvatarColor(user?.name)
+  const initial = useUserInitial(user?.name)
   const totalDonations = user.totalDonations ?? 0
   const lastDonationDate = toDate(user.lastDonation)
   const nextEligibleDate = lastDonationDate ? addDays(lastDonationDate, DONATION_INTERVAL_DAYS) : null
@@ -197,8 +202,8 @@ export default function Profile() {
     ? getMaxDonation(profileForm.weight) : null
 
   const addressErrors = {
-    province: profileForm.addressDetails.provinceCode ? '' : 'Vui lòng chọn tỉnh/thành phố.',
-    ward: profileForm.addressDetails.wardCode ? '' : 'Vui lòng chọn xã/phường.',
+    province: profileForm.addressDetails.provinceName ? '' : 'Vui lòng chọn tỉnh/thành phố.',
+    ward: profileForm.addressDetails.wardName ? '' : 'Vui lòng chọn xã/phường.',
   }
   const isAddressValid = !addressErrors.province && !addressErrors.ward
   const formattedAddress = [profileForm.addressDetails.street.trim(), profileForm.addressDetails.wardName, profileForm.addressDetails.provinceName]
@@ -323,6 +328,9 @@ export default function Profile() {
       const response = await updateDonorProfile(user.id, {
         name: profileForm.name.trim(),
         address: formattedAddress,
+        provinceName: profileForm.addressDetails.provinceName || undefined,
+        wardName: profileForm.addressDetails.wardName || undefined,
+        street: profileForm.addressDetails.street.trim() || undefined,
         dob: profileForm.dob || undefined,
         gender: hasGenderValue ? (profileForm.gender as DonorGender) : undefined,
         bloodType: profileForm.bloodType,
@@ -472,7 +480,7 @@ export default function Profile() {
           <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-start">
             <div className="flex shrink-0 items-center gap-4">
               <div className="relative">
-                <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border border-white bg-primary shadow-sm">
+                <div className={`flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl border border-white shadow-sm ${avatarColorClass}`}>
                   {avatarSrc ? <img src={avatarSrc} alt={user.name} className="h-full w-full object-cover" /> : <span className="text-3xl font-extrabold text-white">{initial}</span>}
                 </div>
                 <div className={`absolute -bottom-2 -right-2 h-6 w-6 rounded-full border-2 border-white ${isAvailable ? 'bg-success' : 'bg-gray-400'}`} />
@@ -502,8 +510,8 @@ export default function Profile() {
             <div className="rounded-2xl bg-red-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-dark">Sẵn sàng hỗ trợ</span>
-                <button type="button" onClick={() => setAvailable(!isAvailable)} aria-label={isAvailable ? 'Tắt trạng thái sẵn sàng hỗ trợ' : 'Bật trạng thái sẵn sàng hỗ trợ'} className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${isAvailable ? 'bg-success' : 'bg-gray-300'}`}>
-                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
+                <button type="button" onClick={() => void handleToggleAvailable(!isAvailable)} disabled={isTogglingAvailable} aria-label={isAvailable ? 'Tắt trạng thái sẵn sàng hỗ trợ' : 'Bật trạng thái sẵn sàng hỗ trợ'} className={`relative inline-flex h-7 w-12 items-center rounded-full transition disabled:opacity-60 ${isAvailable ? 'bg-success' : 'bg-gray-300'}`}>
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${isTogglingAvailable ? 'opacity-60' : ''} ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-500">Khi bật trạng thái này, bạn sẽ được ưu tiên nhận các yêu cầu phù hợp với nhóm máu.</p>

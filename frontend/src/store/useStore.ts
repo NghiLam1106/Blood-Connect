@@ -19,6 +19,9 @@ export interface User {
   totalDonations?: number
   lastDonation?: string
   address?: string
+  provinceName?: string
+  wardName?: string
+  street?: string
   dob?: string
   dobVerified?: boolean
   gender?: 'MALE' | 'FEMALE'
