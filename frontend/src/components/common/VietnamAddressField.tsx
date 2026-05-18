@@ -30,7 +30,7 @@ type Props = {
   errors?: VietnamAddressErrors
 }
 
-const API_BASE = 'https://provinces.open-api.vn/api/v2'
+const API_BASE = import.meta.env.VITE_ADDRESS_API
 
 const EMPTY_LIST: AddressNode[] = []
 
@@ -52,6 +52,14 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
         const data = (await response.json()) as ProvinceResponse
         if (!active) return
         setProvinces(data)
+
+        // If editing saved profile: provinceName already set → pre-load its wards
+        if (value.provinceName) {
+          const matched = data.find((p) => p.name === value.provinceName)
+          if (matched && active) {
+            await fetchWardsByProvinceName(value.provinceName, matched.code)
+          }
+        }
       } catch (error) {
         if (!active) return
         setApiError(error instanceof Error ? error.message : 'Không thể tải dữ liệu địa chỉ')
@@ -65,10 +73,10 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
     }
   }, [])
 
-  const wards = useMemo(() => wardMap[value.provinceCode] ?? EMPTY_LIST, [value.provinceCode, wardMap])
+  const wards = useMemo(() => wardMap[value.provinceName] ?? EMPTY_LIST, [value.provinceName, wardMap])
 
-  const fetchWardsByProvince = async (provinceCode: string) => {
-    if (!provinceCode || wardMap[provinceCode]) return
+  const fetchWardsByProvinceName = async (provinceName: string, provinceCode: number) => {
+    if (!provinceName || wardMap[provinceName]) return
     setApiError(null)
     setIsLoadingWards(true)
     try {
@@ -76,7 +84,7 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
       if (!response.ok) throw new Error('Không thể tải danh sách xã/phường')
       const data = (await response.json()) as ProvinceDetailResponse
       const wardList = data.wards ?? data.communes ?? []
-      setWardMap((prev) => ({ ...prev, [provinceCode]: wardList }))
+      setWardMap((prev) => ({ ...prev, [provinceName]: wardList }))
     } catch (error) {
       setApiError(error instanceof Error ? error.message : 'Không thể tải dữ liệu xã/phường')
     } finally {
@@ -84,24 +92,24 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
     }
   }
 
-  const handleProvinceChange = async (nextCode: string) => {
-    const selected = provinces.find((item) => String(item.code) === nextCode)
+  const handleProvinceChange = async (selectedName: string) => {
+    const selected = provinces.find((item) => item.name === selectedName)
     onChange({
       ...value,
-      provinceCode: nextCode,
-      provinceName: selected?.name ?? '',
+      provinceCode: selected ? String(selected.code) : '',
+      provinceName: selectedName,
       wardCode: '',
       wardName: '',
     })
-    if (nextCode) await fetchWardsByProvince(nextCode)
+    if (selected) await fetchWardsByProvinceName(selectedName, selected.code)
   }
 
-  const handleWardChange = (nextCode: string) => {
-    const selected = wards.find((item) => String(item.code) === nextCode)
+  const handleWardChange = (selectedName: string) => {
+    const selected = wards.find((item) => item.name === selectedName)
     onChange({
       ...value,
-      wardCode: nextCode,
-      wardName: selected?.name ?? '',
+      wardCode: selected ? String(selected.code) : '',
+      wardName: selectedName,
     })
   }
 
@@ -111,7 +119,7 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
         <label className="space-y-2">
           <span className="text-sm font-bold text-dark">Tỉnh / Thành phố</span>
           <select
-            value={value.provinceCode}
+            value={value.provinceName}
             onChange={(e) => void handleProvinceChange(e.target.value)}
             aria-label="Chọn tỉnh hoặc thành phố"
             aria-invalid={Boolean(errors?.province)}
@@ -119,34 +127,34 @@ export function VietnamAddressField({ value, onChange, errors }: Props) {
           >
             <option value="">{isLoadingProvinces ? 'Đang tải tỉnh/thành...' : 'Chọn tỉnh/thành phố'}</option>
             {provinces.map((item) => (
-              <option key={item.code} value={item.code}>
+              <option key={item.code} value={item.name}>
                 {item.name}
               </option>
             ))}
           </select>
-          {errors?.province ? <p className="text-xs font-semibold text-primary">{errors.province}</p> : null}
+          {/* {errors?.province ? <p className="text-xs font-semibold text-primary">{errors.province}</p> : null} */}
         </label>
 
         <label className="space-y-2">
           <span className="text-sm font-bold text-dark">Xã / Phường</span>
           <select
-            value={value.wardCode}
-            disabled={!value.provinceCode || isLoadingWards}
+            value={value.wardName}
+            disabled={!value.provinceName || isLoadingWards}
             onChange={(e) => handleWardChange(e.target.value)}
             aria-label="Chọn xã hoặc phường"
             aria-invalid={Boolean(errors?.ward)}
             className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white disabled:cursor-not-allowed disabled:bg-gray-100"
           >
             <option value="">
-              {!value.provinceCode ? 'Chọn tỉnh/thành trước' : isLoadingWards ? 'Đang tải xã/phường...' : 'Chọn xã/phường'}
+              {!value.provinceName ? 'Chọn tỉnh/thành trước' : isLoadingWards ? 'Đang tải xã/phường...' : 'Chọn xã/phường'}
             </option>
             {wards.map((item) => (
-              <option key={item.code} value={item.code}>
+              <option key={item.code} value={item.name}>
                 {item.name}
               </option>
             ))}
           </select>
-          {errors?.ward ? <p className="text-xs font-semibold text-primary">{errors.ward}</p> : null}
+          {/* {errors?.ward ? <p className="text-xs font-semibold text-primary">{errors.ward}</p> : null} */}
         </label>
       </div>
 

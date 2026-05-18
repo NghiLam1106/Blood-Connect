@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 import { Gender, Status } from "../../../../generated/prisma/enums";
 
 export class CreateDonorsDto {
@@ -18,10 +18,25 @@ export class CreateDonorsDto {
   @IsNumber({}, { message: 'Đơn vị máu phải là số' })
   unitBlood!: number;
 
-  @ApiProperty({ description: 'Địa chỉ' })
-  @IsNotEmpty({ message: 'Địa chỉ không được để trống' })
-  @IsString({ message: 'Địa chỉ phải là chuỗi' })
+  @ApiProperty({ description: 'Dia chi' })
+  @IsNotEmpty({ message: 'Dia chi khong duoc de trong' })
+  @IsString({ message: 'Dia chi phai la chuoi' })
   address!: string;
+
+  @ApiProperty({ description: 'Ten tinh/thanh pho', required: false })
+  @IsOptional()
+  @IsString()
+  provinceName?: string;
+
+  @ApiProperty({ description: 'Ten xa/phuong', required: false })
+  @IsOptional()
+  @IsString()
+  wardName?: string;
+
+  @ApiProperty({ description: 'So nha / ten duong', required: false })
+  @IsOptional()
+  @IsString()
+  street?: string;
 
   @ApiProperty({ description: 'Nhóm máu' })
   @IsNotEmpty({ message: 'Nhóm máu không được để trống' })

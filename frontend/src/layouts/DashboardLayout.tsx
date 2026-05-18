@@ -1,19 +1,20 @@
-import React, { useState, useMemo } from 'react'
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom'
-import { useStore } from '../store/useStore'
-import { Logo } from '../components/layout/Logo'
+import AssessmentIcon from '@mui/icons-material/Assessment'
+import CloseIcon from '@mui/icons-material/Close'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import HistoryIcon from '@mui/icons-material/History'
-import PersonIcon from '@mui/icons-material/Person'
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
-import ReceiptIcon from '@mui/icons-material/Receipt'
-import AssessmentIcon from '@mui/icons-material/Assessment'
-import PeopleIcon from '@mui/icons-material/People'
-import SettingsIcon from '@mui/icons-material/Settings'
-import MenuIcon from '@mui/icons-material/Menu'
-import CloseIcon from '@mui/icons-material/Close'
 import LogoutIcon from '@mui/icons-material/Logout'
+import MenuIcon from '@mui/icons-material/Menu'
+import PeopleIcon from '@mui/icons-material/People'
+import PersonIcon from '@mui/icons-material/Person'
+import SettingsIcon from '@mui/icons-material/Settings'
+import { useState } from 'react'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Logo } from '../components/layout/Logo'
+import { useAvatarColor } from '../hooks/useAvatarColor'
+import { useUserInitial } from '../hooks/useUserInitial'
+import { useStore } from '../store/useStore'
 
 // Role configs
 const ROLE_CONFIGS = {
@@ -65,25 +66,9 @@ export function DashboardLayout() {
 
     const [imgError, setImgError] = useState(false)
 
-    const avatarColorClass = useMemo(() => {
-        if (!user?.name) return role === 'donor' ? 'bg-primary' : role === 'hospital' ? 'bg-accent' : 'bg-purple-600'
-        const colors = [
-            'bg-red-500', 'bg-orange-500', 'bg-amber-500', 'bg-green-500', 'bg-emerald-500',
-            'bg-teal-500', 'bg-cyan-500', 'bg-blue-500', 'bg-indigo-500', 'bg-violet-500',
-            'bg-purple-500', 'bg-fuchsia-500', 'bg-pink-500', 'bg-rose-500'
-        ]
-        let hash = 0
-        for (let i = 0; i < user.name.length; i++) {
-            hash = user.name.charCodeAt(i) + ((hash << 5) - hash)
-        }
-        return colors[Math.abs(hash) % colors.length]
-    }, [user?.name, role])
+    const avatarColorClass = useAvatarColor(user?.name, role === 'donor' ? 'bg-primary' : role === 'hospital' ? 'bg-accent' : 'bg-purple-600')
 
-    const initial = useMemo(() => {
-        if (!user?.name) return 'U'
-        const parts = user.name.trim().split(' ')
-        return parts.length > 0 ? parts[parts.length - 1].charAt(0).toUpperCase() : user.name.charAt(0).toUpperCase()
-    }, [user?.name])
+    const initial = useUserInitial(user?.name)
 
     const hasAvatar = Boolean(user?.avatar && user.avatar !== 'null' && user.avatar !== 'undefined' && user.avatar.trim() !== '' && !imgError);
 
@@ -104,10 +89,10 @@ export function DashboardLayout() {
             <div className="px-6 py-4 flex items-center gap-3 border-b border-gray-50 mb-4">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold overflow-hidden shadow-sm ${hasAvatar ? 'bg-white' : avatarColorClass}`}>
                     {hasAvatar ? (
-                        <img 
-                            src={user?.avatar} 
-                            alt="avatar" 
-                            className="w-full h-full object-cover" 
+                        <img
+                            src={user?.avatar}
+                            alt="avatar"
+                            className="w-full h-full object-cover"
                             onError={() => setImgError(true)}
                         />
                     ) : (
