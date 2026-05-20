@@ -36,10 +36,10 @@ const DonorDashboard = Loadable(lazy(() => import('../pages/donor/Dashboard')))
 const DonorProfile = Loadable(lazy(() => import('../pages/donor/Profile')))
 const DonorHistory = Loadable(lazy(() => import('../pages/donor/DonationHistory')))
 const DonorAppointments = Loadable(lazy(() => import('../pages/donor/Appointments')))
-const DonorNotifications = Loadable(lazy(() => import('../pages/donor/Notifications')))
 
 // Hospital Dashboard pages
 const HospitalDashboard = Loadable(lazy(() => import('../pages/hospital/Dashboard')))
+const DonorMatching = Loadable(lazy(() => import('../pages/hospital/DonorMatching')))
 
 // Admin Dashboard pages
 const AdminDashboard = Loadable(lazy(() => import('../pages/admin/Dashboard')))
@@ -97,14 +97,14 @@ export const router = createBrowserRouter([
         path: paths.donor.appointments,
         element: <RoleRoute requiredRole="donor"><DonorAppointments /></RoleRoute>,
       },
-      {
-        path: paths.donor.notifications,
-        element: <RoleRoute requiredRole="donor"><DonorNotifications /></RoleRoute>,
-      },
       // Hospital Routes
       {
         path: paths.hospital.dashboard,
         element: <RoleRoute requiredRole="hospital"><HospitalDashboard /></RoleRoute>,
+      },
+      {
+        path: paths.hospital.donorMatching,
+        element: <RoleRoute requiredRole="hospital"><DonorMatching /></RoleRoute>,
       },
       // Admin Routes
       {

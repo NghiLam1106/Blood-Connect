@@ -36,7 +36,7 @@ const ROLE_CONFIGS = {
         menu: [
             { label: 'Dashboard', path: '/hospital/dashboard', icon: <DashboardIcon /> },
             // { label: 'Tạo yêu cầu', path: '/hospital/requests', icon: <ReceiptIcon /> },
-            { label: 'Matching Donor', path: '/hospital/matching', icon: <FavoriteIcon /> },
+            { label: 'Danh sách người hiến máu', path: '/hospital/matching', icon: <FavoriteIcon /> },
             { label: 'Báo cáo', path: '/hospital/reports', icon: <AssessmentIcon /> },
         ]
     },
