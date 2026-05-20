@@ -67,6 +67,29 @@ export class NotificationRepository {
     });
   }
 
+  async findByDonorUserId(userId: number) {
+    return this.prisma.notification.findMany({
+      where: { donor: { userId } },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        hospital: {
+          include: {
+            user: {
+              select: { name: true, address: true, phone: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findByIdWithDonor(id: number) {
+    return this.prisma.notification.findUnique({
+      where: { id },
+      include: { donor: true },
+    });
+  }
+
   async checkPendingOrRecentNotification(donorId: number, hospitalId: number, cooldownMinutes: number = 30) {
     const timeLimit = new Date();
     timeLimit.setMinutes(timeLimit.getMinutes() - cooldownMinutes);

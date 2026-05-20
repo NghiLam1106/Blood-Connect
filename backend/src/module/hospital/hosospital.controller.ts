@@ -15,13 +15,13 @@ export class HospitalController {
   constructor(private readonly hospitalService: HospitalService) { }
 
   @Post('/request/:id')
-  @Roles('REQUESTER')
+  @Roles('HOSPITAL')
   async requestBlood(@Param('id') id: number, @Body() requestDto: RequestDto) {
     return this.hospitalService.requestBlood(id, requestDto);
   }
 
   @Post('/select-donor/:id')
-  @Roles('REQUESTER')
+  @Roles('HOSPITAL')
   async selectDonor(@Param('id') id: number, @Body() dto: SelectDonorDto) {
     return this.hospitalService.selectDonor(id, dto);
   }

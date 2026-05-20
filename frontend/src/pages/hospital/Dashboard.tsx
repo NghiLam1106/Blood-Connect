@@ -1,16 +1,17 @@
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import PendingIcon from '@mui/icons-material/Pending'
 import { useEffect, useState, useTransition } from 'react'
 import { useNavigate } from 'react-router-dom'
-import PendingIcon from '@mui/icons-material/Pending'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { useStore } from '../../store/useStore'
-import { runAIMatching, simulateDonorResponse } from '../../services/mockAI'
-import type { BloodType } from '../../store/useStore'
-import { RequestForm } from '../../components/hospital/RequestForm'
 import { MatchingResults } from '../../components/hospital/MatchingResults'
+import { RequestForm } from '../../components/hospital/RequestForm'
+import { useDonorResponse } from '../../hooks/useDonorResponse'
+import { requestBlood } from '../../services/hospital.service'
+import type { BloodType, MatchedDonor } from '../../store/useStore'
+import { useStore } from '../../store/useStore'
 
 export default function HospitalDashboard() {
   const navigate = useNavigate()
-  const { user, isAuthenticated, matchedDonors, isSearching, setMatchedDonors, setIsSearching, updateDonorStatus } =
+  const { user, isAuthenticated, matchedDonors, isSearching, setMatchedDonors, setIsSearching } =
     useStore()
   const [isPending, startTransition] = useTransition()
   const [bloodType, setBloodType] = useState<BloodType>('O+')
@@ -19,6 +20,9 @@ export default function HospitalDashboard() {
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
   const [searchDone, setSearchDone] = useState(false)
+
+  // Lắng nghe real-time phản hồi từ donor qua WebSocket
+  useDonorResponse()
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/auth/login')
@@ -36,16 +40,37 @@ export default function HospitalDashboard() {
     setIsSearching(true)
 
     startTransition(async () => {
-      const results = await runAIMatching({ bloodType, count: 10 })
-      setMatchedDonors(results)
-      setIsSearching(false)
-      setSearchDone(true)
+      try {
+        const res = await requestBlood(Number(user!.id), {
+          quantity: Number(quantity),
+          bloodType,
+          urgency,
+          notes,
+        })
 
-      results.slice(0, 3).forEach((donor, i) => {
-        setTimeout(() => {
-          simulateDonorResponse(donor.id, updateDonorStatus)
-        }, i * 1500)
-      })
+        const mergedResults = res.data?.mergedResults ?? []
+
+        const mapped: MatchedDonor[] = mergedResults.map((item: any) => ({
+          id: item.id,
+          userId: item.userId,
+          name: item.name ?? 'Không rõ',
+          phone: item.phone ?? 'Không rõ',
+          bloodType: item.bloodType as BloodType,
+          distance: item.distance ?? 0,
+          status: 'pending' as const,
+          score: item.score,
+          willDonate: item.will_donate,
+        }))
+
+        setMatchedDonors(mapped)
+        setSearchDone(true)
+      } catch (err: any) {
+        setError(
+          err?.response?.data?.message || 'Đã xảy ra lỗi khi tìm kiếm người hiến máu. Vui lòng thử lại.'
+        )
+      } finally {
+        setIsSearching(false)
+      }
     })
   }
 
@@ -73,7 +98,9 @@ export default function HospitalDashboard() {
             <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Đang chờ</p>
-                <p className="text-2xl font-extrabold text-accent">12</p>
+                <p className="text-2xl font-extrabold text-accent">
+                  {matchedDonors.filter(d => d.status === 'pending').length}
+                </p>
               </div>
               <div className="w-10 h-10 bg-blue-50 text-accent rounded-xl flex items-center justify-center">
                 <PendingIcon />
@@ -81,8 +108,10 @@ export default function HospitalDashboard() {
             </div>
             <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Hoàn thành</p>
-                <p className="text-2xl font-extrabold text-success">36</p>
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Đã chọn</p>
+                <p className="text-2xl font-extrabold text-success">
+                  {matchedDonors.filter(d => d.status === 'confirmed').length}
+                </p>
               </div>
               <div className="w-10 h-10 bg-green-50 text-success rounded-xl flex items-center justify-center">
                 <CheckCircleIcon />
@@ -113,6 +142,9 @@ export default function HospitalDashboard() {
             matchedDonors={matchedDonors}
             isPending={isPending}
             isSearching={isSearching}
+            urgency={urgency}
+            notes={notes}
+            hospitalUserId={Number(user.id)}
           />
         </div>
       </div>

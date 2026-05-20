@@ -1,36 +1,23 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useStore } from '../../store/useStore'
-import { EmergencyAlertBanner } from '../../components/donor/EmergencyAlertBanner'
+import { BadgeCard } from '../../components/donor/BadgeCard'
 import { DonorProfileCard } from '../../components/donor/DonorProfileCard'
 import { DonorStats } from '../../components/donor/DonorStats'
+import { EmergencyAlertBanner } from '../../components/donor/EmergencyAlertBanner'
 import { RecentDonations } from '../../components/donor/RecentDonations'
-import { BadgeCard } from '../../components/donor/BadgeCard'
+import { useBloodRequest } from '../../hooks/useBloodRequest'
+import { useStore } from '../../store/useStore'
 
 export default function DonorDashboard() {
   const navigate = useNavigate()
-  const { user, isAuthenticated, isAvailable, setActiveAlert, activeAlert } = useStore()
+  const { user, isAuthenticated } = useStore()
+
+  // Lắng nghe real-time event 'blood-request' từ WebSocket
+  useBloodRequest()
 
   useEffect(() => {
     if (!isAuthenticated) navigate('/auth/login')
   }, [isAuthenticated, navigate])
-
-  // Simulate alert for testing
-  useEffect(() => {
-    if (!isAvailable || activeAlert) return
-    const timer = setTimeout(() => {
-      setActiveAlert({
-        id: `alert-${Date.now()}`,
-        bloodType: user?.bloodType ?? 'O+',
-        hospitalName: 'Bệnh viện Chợ Rẫy',
-        hospitalAddress: '201B Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM',
-        distance: 2.5,
-        urgencyLevel: 5,
-        mapsUrl: `https://www.google.com/maps/search/bệnh+viện+chợ+rẫy`,
-      })
-    }, 8000)
-    return () => clearTimeout(timer)
-  }, [isAvailable, activeAlert, setActiveAlert, user?.bloodType])
 
   if (!user) return null
 

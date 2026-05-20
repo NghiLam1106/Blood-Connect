@@ -19,6 +19,7 @@ export const paths = {
     profile: '/donor/profile',
     history: '/donor/history',
     appointments: '/donor/appointments',
+    notifications: '/donor/notifications',
   },
   hospital: {
     dashboard: '/hospital/dashboard',

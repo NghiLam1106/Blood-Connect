@@ -31,11 +31,12 @@ export interface User {
 }
 
 export interface MatchedDonor {
-  id: string
+  id: number           // donor record id
+  userId: number       // userId của donor (dùng để gọi selectDonor)
   name: string
   phone: string
   bloodType: BloodType
-  distance: number // km
+  distance: number     // km
   status: DonorStatus
   estimatedArrival?: number // minutes
   avatar?: string
@@ -43,7 +44,8 @@ export interface MatchedDonor {
 
 export interface EmergencyAlert {
   id: string
-  bloodType: BloodType
+  notificationId: number   // id của notification trong DB, dùng để gọi PATCH /notifications/:id/respond
+  bloodType?: string
   hospitalName: string
   hospitalAddress: string
   distance: number
@@ -88,7 +90,7 @@ interface EmergencySlice {
   setCurrentRequest: (req: EmergencyRequest | null) => void
   setMatchedDonors: (donors: MatchedDonor[]) => void
   setIsSearching: (val: boolean) => void
-  updateDonorStatus: (donorId: string, status: DonorStatus) => void
+  updateDonorStatus: (donorId: number, status: DonorStatus) => void
 }
 
 // ─── Location Slice ───────────────────────────────────────────────────────────
