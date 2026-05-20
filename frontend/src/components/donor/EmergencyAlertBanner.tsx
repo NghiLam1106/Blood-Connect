@@ -1,15 +1,44 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import LocationOnIcon from '@mui/icons-material/LocationOn'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useState } from 'react'
+import { respondToNotification } from '../../services/notification.service'
 import { useStore } from '../../store/useStore'
 
 export function EmergencyAlertBanner() {
-  const { activeAlert, setActiveAlert } = useStore()
+  const { activeAlert, setActiveAlert, user } = useStore()
   const [confirmed, setConfirmed] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   if (!activeAlert) return null
+
+  const handleAccept = async () => {
+    if (!activeAlert.notificationId || !user?.id) return
+    setIsLoading(true)
+    try {
+      await respondToNotification(activeAlert.notificationId, Number(user.id), 'accept')
+      setConfirmed(true)
+    } catch (err) {
+      console.error('Lỗi khi chấp nhận thông báo:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleDecline = async () => {
+    if (!activeAlert.notificationId || !user?.id) return
+    setIsLoading(true)
+    try {
+      await respondToNotification(activeAlert.notificationId, Number(user.id), 'reject')
+      setActiveAlert(null)
+    } catch (err) {
+      console.error('Lỗi khi từ chối thông báo:', err)
+      setActiveAlert(null)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   if (confirmed) {
     return (
@@ -71,9 +100,11 @@ export function EmergencyAlertBanner() {
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3 mb-2">
               <span className="font-extrabold text-xl">🚨 YÊU CẦU KHẨN CẤP</span>
-              <span className="bg-white text-primary text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                Nhóm máu {activeAlert.bloodType}
-              </span>
+              {activeAlert.bloodType && (
+                <span className="bg-white text-primary text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+                  Nhóm máu {activeAlert.bloodType}
+                </span>
+              )}
               <span className="bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full border border-white/20">
                 Khẩn cấp mức {activeAlert.urgencyLevel}
               </span>
@@ -85,15 +116,16 @@ export function EmergencyAlertBanner() {
 
             <p className="text-red-100 text-sm flex items-center gap-1 mb-4">
               <LocationOnIcon fontSize="small" />
-              {activeAlert.hospitalAddress} • Cách bạn <strong className="text-white underline">{activeAlert.distance}km</strong>
+              {activeAlert.hospitalAddress} • Cách bạn <strong className="text-white underline">{Number(activeAlert.distance).toFixed(1)}km</strong>
             </p>
 
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => setConfirmed(true)}
-                className="bg-white text-primary font-bold px-6 py-3 rounded-xl hover:scale-105 transition-all text-sm shadow-md"
+                onClick={handleAccept}
+                disabled={isLoading}
+                className="bg-white text-primary font-bold px-6 py-3 rounded-xl hover:scale-105 transition-all text-sm shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                ✅ Chấp nhận hỗ trợ ngay
+                {isLoading ? '⏳ Đang xử lý...' : '✅ Chấp nhận hỗ trợ ngay'}
               </button>
               <a
                 href={activeAlert.mapsUrl}
@@ -104,8 +136,9 @@ export function EmergencyAlertBanner() {
                 📍 Xem bản đồ
               </a>
               <button
-                onClick={() => setActiveAlert(null)}
-                className="px-4 text-red-200 hover:text-white font-semibold text-sm transition-colors uppercase tracking-widest ml-auto md:ml-0 mt-2 md:mt-0"
+                onClick={handleDecline}
+                disabled={isLoading}
+                className="px-4 text-red-200 hover:text-white font-semibold text-sm transition-colors uppercase tracking-widest ml-auto md:ml-0 mt-2 md:mt-0 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Từ chối
               </button>

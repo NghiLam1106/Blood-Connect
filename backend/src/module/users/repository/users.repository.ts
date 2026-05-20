@@ -58,7 +58,7 @@ export class UsersRepository {
 
         const totalCount = await this.notificationRepository.countAll();
         const totalCountAccept = await this.notificationRepository.countAllAccept();
-        const c = totalCount > 0 ? (totalCountAccept / totalCount) : 0; //response rate trung bình toàn hệ thống
+        const c = totalCount > 0 ? (totalCountAccept / totalCount) : 0.5; //response rate trung bình toàn hệ thống
         const n = await this.notificationRepository.countByDonorId(newDonor.id); //số lần được request
         const acceptedCount = await this.notificationRepository.countAcceptedByDonorId(newDonor.id);
         const r = n > 0 ? (acceptedCount / n) : 0; //response rate thật

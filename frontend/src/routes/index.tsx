@@ -1,9 +1,9 @@
+import { Box, CircularProgress } from '@mui/material'
 import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
-import { Box, CircularProgress } from '@mui/material'
-import { paths } from './paths'
-import { MainLayout } from '../layouts/MainLayout'
 import { DashboardLayout } from '../layouts/DashboardLayout'
+import { MainLayout } from '../layouts/MainLayout'
+import { paths } from './paths'
 import { PrivateRoute } from './PrivateRoute'
 import { RoleRoute } from './RoleRoute'
 
@@ -36,6 +36,7 @@ const DonorDashboard = Loadable(lazy(() => import('../pages/donor/Dashboard')))
 const DonorProfile = Loadable(lazy(() => import('../pages/donor/Profile')))
 const DonorHistory = Loadable(lazy(() => import('../pages/donor/DonationHistory')))
 const DonorAppointments = Loadable(lazy(() => import('../pages/donor/Appointments')))
+const DonorNotifications = Loadable(lazy(() => import('../pages/donor/Notifications')))
 
 // Hospital Dashboard pages
 const HospitalDashboard = Loadable(lazy(() => import('../pages/hospital/Dashboard')))
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
       {
         path: paths.donor.appointments,
         element: <RoleRoute requiredRole="donor"><DonorAppointments /></RoleRoute>,
+      },
+      {
+        path: paths.donor.notifications,
+        element: <RoleRoute requiredRole="donor"><DonorNotifications /></RoleRoute>,
       },
       // Hospital Routes
       {

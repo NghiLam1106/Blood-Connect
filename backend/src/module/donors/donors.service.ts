@@ -67,12 +67,12 @@ export class DonorsService {
       );
     }
 
-    if (action === 'accept') {
+    const totalCount = await this.notificationRepository.countByDonorId(donor.id);
+    const acceptedCount = await this.notificationRepository.countAcceptedByDonorId(donor.id);
+    const responseRate = totalCount > 0 ? (acceptedCount / totalCount) : 0;
+    await this.donorsRepository.updateResponseRate(donorUserId, responseRate);
 
-      const totalCount = await this.notificationRepository.countByDonorId(donor.id);
-      const acceptedCount = await this.notificationRepository.countAcceptedByDonorId(donor.id);
-      const responseRate = totalCount > 0 ? (acceptedCount / totalCount) : 0;
-      await this.donorsRepository.updateResponseRate(donorUserId, responseRate);
+    if (action === 'accept') {
 
       if (notification) {
         await this.donationHistoryService.createHistory({
@@ -90,7 +90,6 @@ export class DonorsService {
       };
     }
 
-    // action === 'reject'
     return {
       status: HttpRequestStatus.SUCCESS,
       message: 'Donor đã từ chối yêu cầu hiến máu.',
