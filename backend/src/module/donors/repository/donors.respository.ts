@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../../../../src/common/prisma/prisma.service";
 import { BloodGroup } from '../../../enums/bloodTypes.enum';
-import { UpdateDonorsDto } from '../dto/updateDonors.dto';
 import { toGMT7ISOString } from "../../../helpers/Date/getNowGMT7";
+import { UpdateDonorsDto } from '../dto/updateDonors.dto';
 
 @Injectable()
 export class DonorsRepository {
@@ -78,21 +78,30 @@ export class DonorsRepository {
   }
 
   async getDonorById(id: number) {
+    const donor: any = await this.prisma.donors.findUnique({
+      where: { userId: id },
+      include: {
+        user: true,
+        _count: {
+          select: {
+            donationHistories: { where: { status: 'ACCEPTED' } },
+          },
+        },
+      },
+    });
 
-    const [user, donor] = await this.prisma.$transaction([
-      this.prisma.user.findUnique({
-        where: { id: id },
-      }),
-      this.prisma.donors.findUnique({
-        where: { userId: id },
-      }),
-    ]);
-
-    if (!user || !donor) {
+    if (!donor || !donor.user) {
       return null;
     }
 
-    const { password, ...userWithoutPassword } = user;
-    return { ...userWithoutPassword, ...donor };
+    const { password, ...userWithoutPassword } = donor.user;
+    const { user, _count, ...donorFields } = donor;
+
+    return {
+      ...userWithoutPassword,
+      ...donorFields,
+      totalDonations: _count.donationHistories,
+    };
   }
 }
+

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { VietnamAddressField } from '../../components/common/VietnamAddressField'
+import { ProfileDonationTimeline } from '../../components/donor/ProfileDonationTimeline'
 import { BLOOD_TYPES } from '../../constants/bloodTypes'
 import { useAvatarColor } from '../../hooks/useAvatarColor'
 import { useDonorAvailability } from '../../hooks/useDonorAvailability'
 import { useUserInitial } from '../../hooks/useUserInitial'
-import { paths } from '../../routes/paths'
 import { uploadImageToCloudinary } from '../../services/cloudinary.service'
 import { getDonorProfile, updateDonorProfile } from '../../services/donor.service'
 import { useStore } from '../../store/useStore'
@@ -13,23 +13,11 @@ import { getAgeFromDOB, getMaxDonation, getSuggestedAmount, getValidOptions } fr
 
 const DONATION_INTERVAL_DAYS = 56
 
-type TimelineItem = {
-  id: string
-  date: string
-  location: string
-  donationType: string
-}
-
 type SuggestedBloodVolume = 250 | 350 | 450
 type DonorGender = 'MALE' | 'FEMALE'
 
 
 
-const FALLBACK_TIMELINE: TimelineItem[] = [
-  { id: '1', date: '2026-01-15', location: 'Bệnh viện Chợ Rẫy', donationType: 'Toàn phần' },
-  { id: '2', date: '2025-09-10', location: 'Bệnh viện 115', donationType: 'Tiểu cầu' },
-  { id: '3', date: '2025-04-20', location: 'Bệnh viện Truyền máu Huyết học', donationType: 'Toàn phần' },
-]
 
 const toDate = (value?: string) => {
   if (!value) return null
@@ -73,8 +61,6 @@ export default function Profile() {
   const [avatarError, setAvatarError] = useState<string | null>(null)
   const [previewAvatar, setPreviewAvatar] = useState<string | null>(null)
   const [isEditingProfile, setIsEditingProfile] = useState(false)
-  const [isTimelineLoading, setIsTimelineLoading] = useState(true)
-  const [timelineItems, setTimelineItems] = useState<TimelineItem[]>([])
   const [profileForm, setProfileForm] = useState({
     name: user?.name ?? '',
     addressDetails: {
@@ -125,18 +111,6 @@ export default function Profile() {
     })
   }, [user])
 
-  useEffect(() => {
-    if (!user) return
-    setIsTimelineLoading(true)
-    const timer = setTimeout(() => {
-      const baseItems: TimelineItem[] = user.lastDonation
-        ? [{ id: 'latest', date: user.lastDonation, location: user.address || 'Chưa cập nhật địa điểm', donationType: 'Toàn phần' }]
-        : []
-      setTimelineItems([...baseItems, ...FALLBACK_TIMELINE].slice(0, 3))
-      setIsTimelineLoading(false)
-    }, 500)
-    return () => clearTimeout(timer)
-  }, [])
 
   useEffect(() => {
   if (!user?.id) return;
@@ -494,17 +468,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <h3 className="text-lg font-extrabold text-dark">Mini timeline hiến máu</h3>
-          <button type="button" onClick={() => navigate(paths.donor.history)} className="text-xs font-bold text-primary transition hover:underline">Xem tất cả</button>
-        </div>
-        {isTimelineLoading ? (
-          <div className="space-y-4">{[1, 2, 3].map((item) => <div key={item} className="flex items-start gap-3"><div className="mt-1 h-3 w-3 animate-pulse rounded-full bg-gray-200" /><div className="w-full space-y-2"><div className="h-4 w-36 animate-pulse rounded bg-gray-100" /><div className="h-3 w-56 animate-pulse rounded bg-gray-100" /></div></div>)}</div>
-        ) : (
-          <div className="space-y-4">{timelineItems.map((item, index) => <div key={`${item.id}-${index}`} className="flex items-start gap-3"><div className="mt-1.5 flex flex-col items-center"><span className="h-3 w-3 rounded-full bg-primary" />{index < timelineItems.length - 1 ? <span className="mt-1 h-12 w-px bg-gray-200" /> : null}</div><div className="rounded-2xl border border-gray-100 bg-gray-50/60 px-4 py-3"><p className="text-sm font-bold text-dark">{formatDate(item.date)}</p><p className="mt-1 text-xs text-gray-500">{item.location}</p><span className="mt-2 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">{item.donationType}</span></div></div>)}</div>
-        )}
-      </div>
+      <ProfileDonationTimeline />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm">

@@ -4,13 +4,15 @@ import { BadgeCard } from '../../components/donor/BadgeCard'
 import { DonorProfileCard } from '../../components/donor/DonorProfileCard'
 import { DonorStats } from '../../components/donor/DonorStats'
 import { EmergencyAlertBanner } from '../../components/donor/EmergencyAlertBanner'
-import { RecentDonations } from '../../components/donor/RecentDonations'
+import { RecentDonationsDashboard } from '../../components/donor/RecentDonationsDashboard'
 import { useBloodRequest } from '../../hooks/useBloodRequest'
+import { getDonorProfile } from '../../services/donor.service'
 import { useStore } from '../../store/useStore'
+
 
 export default function DonorDashboard() {
   const navigate = useNavigate()
-  const { user, isAuthenticated } = useStore()
+  const { user, isAuthenticated, updateUser } = useStore()
 
   // Lắng nghe real-time event 'blood-request' từ WebSocket
   useBloodRequest()
@@ -18,6 +20,24 @@ export default function DonorDashboard() {
   useEffect(() => {
     if (!isAuthenticated) navigate('/auth/login')
   }, [isAuthenticated, navigate])
+
+  // Fetch fresh donor profile (gồm totalDonations) mỗi khi Dashboard mount
+  useEffect(() => {
+    if (!user?.id) return
+    let mounted = true
+
+    const fetchProfile = async () => {
+      try {
+        const fresh = await getDonorProfile(user.id)
+        if (mounted && fresh) updateUser(fresh)
+      } catch (err) {
+        console.error('Failed to fetch donor profile', err)
+      }
+    }
+
+    fetchProfile()
+    return () => { mounted = false }
+  }, [user?.id, updateUser])
 
   if (!user) return null
 
@@ -47,7 +67,7 @@ export default function DonorDashboard() {
       {/* Bottom sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent History */}
-        <RecentDonations />
+        <RecentDonationsDashboard />
 
         {/* User Score Badge */}
         <BadgeCard />
