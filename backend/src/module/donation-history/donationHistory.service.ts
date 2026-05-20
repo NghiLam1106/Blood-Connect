@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { StatusDonation } from '../../../generated/prisma/enums';
 import { HttpRequestStatus } from '../../enums/httpRequest.enum';
-import { CreateDonationHistoryDto } from './dto/createDonationHistory.dto';
-import { DonationHistoryRepository } from './repository/donationHistory.repository';
 import { DonorsRepository } from '../donors/repository/donors.respository';
 import { HospitalRepository } from '../hospital/repository/hospital.repository';
+import { CreateDonationHistoryDto } from './dto/createDonationHistory.dto';
 import { UpdateDonationStatusDto } from './dto/updateDonationStatus.dto';
-import { StatusDonation } from '../../../generated/prisma/enums';
+import { DonationHistoryRepository } from './repository/donationHistory.repository';
+import { toGMT7ISOString } from '../../helpers/Date/getNowGMT7';
 
 @Injectable()
 export class DonationHistoryService {
@@ -87,6 +88,15 @@ export class DonationHistoryService {
         message: 'Không tìm thấy lịch sử hiến máu'
       });
     }
+
+    // Nếu hospital duyệt (ACCEPTED), cập nhật lastDonation của donor
+    if (dto.status === StatusDonation.ACCEPTED) {
+      await this.donorRepository.updateLastDonation(
+        getDonation.donorId,
+        toGMT7ISOString(new Date()),
+      );
+    }
+
     return {
       status: HttpRequestStatus.SUCCESS,
       message: 'Cập nhật trạng thái hiến máu thành công!',

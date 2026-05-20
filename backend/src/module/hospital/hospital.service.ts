@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import axios from "axios";
-import { StatusDonation } from "../../../generated/prisma/enums";
 import { BloodGroup } from "../../enums/bloodTypes.enum";
 import { HttpRequestStatus } from "../../enums/httpRequest.enum";
 import { getCompatibleDonors } from "../../helpers/blood/bloodType";
 import { convertLastDonationDays } from "../../helpers/Date/convertLastDonationDay";
+import { getNowGMT7ISOString } from "../../helpers/Date/getNowGMT7";
 import { calculateDistance } from "../../helpers/distance/calulateDistance";
 import { DonorsRepository } from "../donors/repository/donors.respository";
 import { NotificationGateway } from "../notification/notification.gateway";
@@ -144,7 +144,7 @@ export class HospitalService {
       urgency: urgency,
       unitBlood: donor.unitBlood,
       notes: notes ?? null,
-      requestedAt: new Date().toISOString(),
+      requestedAt: getNowGMT7ISOString(),
     };
 
     const notification = await this.notificationRepository.create({

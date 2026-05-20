@@ -1,0 +1,26 @@
+import api from './api';
+
+export type DonationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+
+export interface DonationHistory {
+  id: number;
+  donorId: number;
+  hospitalId: number;
+  donationDate: string;
+  status: DonationStatus;
+  donor: {
+    id: number;
+    bloodType: string;
+    user: { name: string };
+  };
+}
+
+export async function getHospitalDonationHistory(hospitalUserId: number) {
+  const response = await api.get(`/donation-history/get-donation-history-by-hospital/${hospitalUserId}`);
+  return response.data;
+}
+
+export async function updateDonationStatus(id: number, status: 'ACCEPTED' | 'REJECTED') {
+  const response = await api.put(`/donation-history/update-donation-status/${id}`, { status });
+  return response.data;
+}

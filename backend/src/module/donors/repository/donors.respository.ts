@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../../../../src/common/prisma/prisma.service";
 import { BloodGroup } from '../../../enums/bloodTypes.enum';
 import { UpdateDonorsDto } from '../dto/updateDonors.dto';
+import { toGMT7ISOString } from "../../../helpers/Date/getNowGMT7";
 
 @Injectable()
 export class DonorsRepository {
@@ -44,6 +45,13 @@ export class DonorsRepository {
     return this.prisma.donors.update({
       where: { userId },
       data: { responseRate }
+    });
+  }
+
+  async updateLastDonation(donorId: number, lastDonation: string) {
+    return this.prisma.donors.update({
+      where: { id: donorId },
+      data: { lastDonation: toGMT7ISOString(lastDonation) },
     });
   }
 
