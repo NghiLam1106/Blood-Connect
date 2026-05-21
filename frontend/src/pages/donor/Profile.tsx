@@ -437,7 +437,7 @@ export default function Profile() {
                 <h2 className="text-2xl font-extrabold text-dark">{user.name}</h2>
                 <span tabIndex={0} aria-label={`Cấp bậc donor: ${rankMeta.label}`} title={rankMeta.description} className="cursor-help rounded-full border border-secondary/30 bg-secondary/10 px-3 py-1 text-xs font-bold text-secondary focus:outline-none focus:ring-2 focus:ring-secondary/30">{rankMeta.label}</span>
                 <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-bold text-primary">Nhóm {user.bloodType ?? 'Chưa cập nhật'}</span>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${isAvailable ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-500'}`}>{isAvailable ? 'Đang sẵn sàng hiến máu' : 'Tạm ngừng hỗ trợ'}</span>
+                <span className={`rounded-full px-3 py-1 text-xs font-bold ${user.status === 'AVAILABLE' ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-500'}`}>{user.status === 'AVAILABLE' ? 'Đang sẵn sàng hiến máu' : 'Tạm ngừng hỗ trợ'}</span>
               </div>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-gray-500">Cập nhật đầy đủ hồ sơ giúp bệnh viện và hệ thống liên hệ với bạn nhanh hơn khi có yêu cầu khẩn cấp phù hợp.</p>
               <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-4">
@@ -456,8 +456,8 @@ export default function Profile() {
             <div className="rounded-2xl bg-red-50 p-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-bold text-dark">Sẵn sàng hỗ trợ</span>
-                <button type="button" onClick={() => void handleToggleAvailable(!isAvailable)} disabled={isTogglingAvailable} aria-label={isAvailable ? 'Tắt trạng thái sẵn sàng hỗ trợ' : 'Bật trạng thái sẵn sàng hỗ trợ'} className={`relative inline-flex h-7 w-12 items-center rounded-full transition disabled:opacity-60 ${isAvailable ? 'bg-success' : 'bg-gray-300'}`}>
-                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${isTogglingAvailable ? 'opacity-60' : ''} ${isAvailable ? 'translate-x-6' : 'translate-x-1'}`} />
+                <button type="button" onClick={() => void handleToggleAvailable(!isAvailable)} disabled={isTogglingAvailable} aria-label={user.status === 'AVAILABLE' ? 'Tắt trạng thái sẵn sàng hỗ trợ' : 'Bật trạng thái sẵn sàng hỗ trợ'} className={`relative inline-flex h-7 w-12 items-center rounded-full transition disabled:opacity-60 ${user.status === 'AVAILABLE' ? 'bg-success' : 'bg-gray-300'}`}>
+                  <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${isTogglingAvailable ? 'opacity-60' : ''} ${user.status === 'AVAILABLE' ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
               <p className="mt-2 text-xs leading-5 text-gray-500">Khi bật trạng thái này, bạn sẽ được ưu tiên nhận các yêu cầu phù hợp với nhóm máu.</p>
