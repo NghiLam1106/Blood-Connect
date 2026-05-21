@@ -59,6 +59,8 @@ export class UsersRepository {
           data: {
             bloodType,
             userId: newUser.id,
+            latitude: coordinates?.lat,
+            longitude: coordinates?.lon,
           },
         });
 
