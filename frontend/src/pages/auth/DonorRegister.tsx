@@ -1,16 +1,16 @@
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import {
-    Alert,
-    CircularProgress,
-    Dialog,
-    DialogContent,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Select,
-    Step,
-    StepLabel,
-    Stepper,
+  Alert,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  Step,
+  StepLabel,
+  Stepper,
 } from '@mui/material'
 import { useRef, useState, useTransition } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -153,8 +153,8 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
           email: form.email,
           phone: form.phone,
           address,
-          province: form.addressDetails.provinceName,
-          ward: form.addressDetails.wardName,
+          provinceName: form.addressDetails.provinceName,
+          wardName: form.addressDetails.wardName,
           street: form.addressDetails.street.trim(),
           bloodType: form.bloodType,
           password: form.password,
@@ -287,13 +287,22 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
                 setForm((prev) => ({ ...prev, addressDetails: nextAddress }))
               }}
             />
-            <FormControl fullWidth size="small">
+            <FormControl fullWidth size="small" sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 3,
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#DC2626',
+                },
+              },
+              '& .MuiInputLabel-root.Mui-focused': {
+                color: '#DC2626',
+              },
+            }}>
               <InputLabel sx={{ fontSize: '0.8rem', fontWeight: 600 }}>Nhóm máu *</InputLabel>
               <Select
                 value={form.bloodType}
                 label="Nhóm máu *"
                 onChange={(e) => setForm((p) => ({ ...p, bloodType: e.target.value as BloodType }))}
-                sx={{ borderRadius: 3 }}
               >
                 {BLOOD_TYPES.map((bt) => (
                   <MenuItem key={bt} value={bt}>{bt}</MenuItem>

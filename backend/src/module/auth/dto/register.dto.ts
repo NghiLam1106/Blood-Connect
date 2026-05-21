@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsPhoneNumber, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, MinLength } from 'class-validator';
 import { Role } from '../../../../generated/prisma/enums';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -29,4 +29,24 @@ export class RegisterDto {
   @ApiProperty({ description: 'Role người dùng' })
   @IsEnum(Role, { message: 'Role phải là ADMIN, DONOR hoặc REQUESTER' })
   role!: Role;
+
+  @ApiProperty({ description: 'Tên tỉnh/thành phố' })
+  @IsString()
+  @IsOptional()
+  provinceName?: string;
+
+  @ApiProperty({ description: 'Tên quận/huyện' })
+  @IsString()
+  @IsOptional()
+  wardName?: string;
+
+  @ApiProperty({ description: 'Địa chỉ chi tiết' })
+  @IsString()
+  @IsOptional()
+  street?: string;
+
+  @ApiProperty({ description: 'Địa chỉ người dùng' })
+  @IsNotEmpty({ message: 'Địa chỉ không được để trống' })
+  @IsString()
+  address!: string;
 }

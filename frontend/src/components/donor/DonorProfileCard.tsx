@@ -52,7 +52,7 @@ export function DonorProfileCard() {
               Sẵn sàng hiến máu
             </span>
             <Switch
-              checked={isAvailable}
+              checked={user.status === 'AVAILABLE'}
               disabled={isToggling}
               onChange={(_, val) => void toggle(val)}
               color="error"

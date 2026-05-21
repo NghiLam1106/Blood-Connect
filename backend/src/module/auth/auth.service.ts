@@ -79,7 +79,7 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const { nameDonor, email, phone, bloodType, password, role } = registerDto;
+    const { nameDonor, email, phone, bloodType, password, role, provinceName, wardName, street, address } = registerDto;
 
     const userExists = await this.usersRepository.findByEmail(email);
 
@@ -99,6 +99,10 @@ export class AuthService {
       bloodType,
       hashedPassword,
       role,
+      provinceName,
+      wardName,
+      street,
+      address,
     });
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
