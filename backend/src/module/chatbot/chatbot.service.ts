@@ -214,24 +214,29 @@ ${dbContext}`
 - Không bịa thông tin y tế. Nếu không chắc, nói thẳng và hướng dẫn tìm thêm
 - Cuối mỗi câu trả lời về FAQ, đề xuất 1–2 câu hỏi liên quan người dùng có thể hỏi tiếp`;
 
-      const model = this.genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
-        systemInstruction: systemInstruction,
-      });
+      const MODELS = ['gemini-2.5-flash', 'gemini-3.5-flash'];
 
       const formattedHistory = history.map((msg) => ({
         role: msg.role === 'model' ? 'model' : 'user',
         parts: [{ text: msg.text }],
       }));
 
-      const chatSession = model.startChat({
-        history: formattedHistory,
-      });
-
-      const result = await chatSession.sendMessage(message);
-      return {
-        response: result.response.text()
-      };
+      let lastError: any;
+      for (const modelName of MODELS) {
+        try {
+          const model = this.genAI.getGenerativeModel({
+            model: modelName,
+            systemInstruction: systemInstruction,
+          });
+          const chatSession = model.startChat({ history: formattedHistory });
+          const result = await chatSession.sendMessage(message);
+          return { response: result.response.text() };
+        } catch (err) {
+          console.warn(`[Chatbot] Model ${modelName} failed, trying next...`, err);
+          lastError = err;
+        }
+      }
+      throw lastError;
     } catch (error) {
       console.error('Gemini API Error:', error);
       throw new InternalServerErrorException('Lỗi kết nối với AI Service. Vui lòng thử lại sau.');
