@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
-import Login from '../../pages/auth/Login';
 import AuthSelect from '../../pages/auth/AuthSelect';
 import DonorRegister from '../../pages/auth/DonorRegister';
-import HospitalRegister from '../../pages/auth/HospitalRegister';
 import ForgotPassword from '../../pages/auth/ForgotPassword';
+import HospitalRegister from '../../pages/auth/HospitalRegister';
+import Login from '../../pages/auth/Login';
 
 export type AuthView = 'login' | 'select' | 'donor' | 'hospital' | 'forgot-password' | '/auth/login' | '/auth' | '/auth/register/donor' | '/auth/register/hospital' | '/auth/forgot-password';
 
@@ -87,8 +87,8 @@ export function AuthModal({ isOpen, onClose, defaultView = 'login' }: AuthModalP
                         initial={{ scale: 0.95, opacity: 0, y: 20 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: -20 }}
-                        className={`relative w-full ${view === 'select' || view === '/auth' ? 'max-w-[800px]' : 'max-w-[480px]'} bg-[#FFF7F7] rounded-3xl shadow-2xl p-4 overflow-hidden z-10 transition-all duration-300`}
-                        style={{ maxHeight: '90vh', overflowY: 'auto' }}
+                        className={`relative w-full ${view === 'select' || view === '/auth' ? 'max-w-[800px]' : 'max-w-[480px]'} bg-[#FFF7F7] rounded-3xl shadow-2xl p-4 overflow-hidden z-10 transition-all duration-300 no-scrollbar`}
+                        style={{ maxHeight: '90vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                     >
                         {/* Close button */}
                         <button

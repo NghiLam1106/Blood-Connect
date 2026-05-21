@@ -27,6 +27,9 @@ export class UsersRepository {
       licenseCode,
       licenseFile,
       address,
+      provinceName,
+      wardName,
+      street,
     } = data;
 
     let coordinates: { lat: number; lon: number } | undefined;
@@ -45,6 +48,9 @@ export class UsersRepository {
           role,
           isVerified: false,
           ...(address && { address }),
+          ...(provinceName && { provinceName }),
+          ...(wardName && { wardName }),
+          ...(street && { street }),
         },
       });
 
