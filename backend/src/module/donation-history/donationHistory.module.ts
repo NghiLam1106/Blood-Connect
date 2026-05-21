@@ -10,6 +10,6 @@ import { DonationHistoryRepository } from './repository/donationHistory.reposito
 @Module({
   controllers: [DonationHistoryController],
   providers: [DonationHistoryService, DonationHistoryRepository, PrismaService, JwtService, DonorsRepository, HospitalRepository],
-  exports: [DonationHistoryService]
+  exports: [DonationHistoryService, DonationHistoryRepository, DonorsRepository, HospitalRepository]
 })
 export class DonationHistoryModule { }
