@@ -105,7 +105,7 @@ export default function DonorMatching() {
         <div>
           <h1 className="text-3xl font-extrabold text-dark mb-1">Danh sách người hiến máu</h1>
           <p className="text-gray-500 font-medium text-sm">
-            Bệnh viện • {user?.name} — Danh sách toàn bộ người hiến máu tại cơ sở
+            {user?.name} — Danh sách toàn bộ người hiến máu tại cơ sở
           </p>
         </div>
       </div>
