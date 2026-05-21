@@ -1,16 +1,20 @@
-import { useCallback, useState, useTransition } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useDropzone } from 'react-dropzone'
-import { Alert, CircularProgress } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { useStore } from '../../store/useStore'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import { Alert, CircularProgress, Dialog, DialogContent } from '@mui/material'
+import { useCallback, useState, useTransition } from 'react'
+import { useDropzone } from 'react-dropzone'
+import { useNavigate } from 'react-router-dom'
+import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
+import { authService } from '../../services/auth.service'
 
-const PROVINCES = [
-  'Hà Nội', 'TP. Hồ Chí Minh', 'Đà Nẵng', 'Cần Thơ', 'Hải Phòng',
-  'Bình Dương', 'Đồng Nai', 'Khánh Hòa', 'Thừa Thiên Huế', 'Nghệ An',
-]
+const EMPTY_ADDRESS: VietnamAddressValue = {
+  provinceCode: '',
+  provinceName: '',
+  wardCode: '',
+  wardName: '',
+  street: '',
+}
 
 // ─── Dropzone Component ───────────────────────────────────────────────────────
 function DocumentDropzone({
@@ -71,11 +75,12 @@ interface RegisterProps {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function HospitalRegister({ asModal = false, onClose, onNavigate }: RegisterProps) {
   const navigate = useNavigate()
-  const login = useStore((s) => s.login)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [documents, setDocuments] = useState<File[]>([])
+  const [addressDetails, setAddressDetails] = useState<VietnamAddressValue>(EMPTY_ADDRESS)
+  const [addressErrors, setAddressErrors] = useState({ province: '', ward: '' })
 
   const go = (path: string) => {
     if (asModal && onNavigate) onNavigate(path)
@@ -85,21 +90,41 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
   const [form, setForm] = useState({
     hospitalName: '',
     licenseCode: '',
-    province: '',
     email: '',
     phone: '',
     password: '',
+    confirmPassword: '',
   })
 
-  const setField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+  const setField = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [field]: e.target.value }))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setAddressErrors({ province: '', ward: '' })
 
-    if (!form.hospitalName || !form.licenseCode || !form.province || !form.email || !form.password) {
+    if (!form.hospitalName || !form.licenseCode || !form.email || !form.phone || !form.password) {
       setError('Vui lòng điền đầy đủ thông tin bắt buộc.')
+      return
+    }
+
+    const nextAddressErrors = {
+      province: addressDetails.provinceCode ? '' : 'Vui lòng chọn tỉnh/thành phố.',
+      ward: addressDetails.wardCode ? '' : 'Vui lòng chọn xã/phường.',
+    }
+    if (nextAddressErrors.province || nextAddressErrors.ward) {
+      setAddressErrors(nextAddressErrors)
+      setError('Vui lòng hoàn tất thông tin địa chỉ.')
+      return
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp.')
+      return
+    }
+    if (!/^(0[3|5|7|8|9])\d{8}$/.test(form.phone)) {
+      setError('Số điện thoại không hợp lệ.')
       return
     }
     if (documents.length === 0) {
@@ -108,44 +133,72 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
     }
 
     startTransition(async () => {
-      await new Promise((r) => setTimeout(r, 1800))
-      login({
-        id: `hospital-${Date.now()}`,
-        name: form.hospitalName,
-        email: form.email,
-        phone: form.phone,
-        role: 'hospital',
-      })
-      setSuccess(true)
+      try {
+        const address = [
+          addressDetails.street.trim(),
+          addressDetails.wardName,
+          addressDetails.provinceName,
+        ]
+          .filter(Boolean)
+          .join(', ')
+
+        const payload = {
+          nameHospital: form.hospitalName,
+          email: form.email,
+          phone: form.phone,
+          address,
+          provinceName: addressDetails.provinceName,
+          wardName: addressDetails.wardName,
+          street: addressDetails.street.trim(),
+          password: form.password,
+          licenseCode: form.licenseCode,
+          licenseFile: documents[0]?.name ?? '',
+          role: 'HOSPITAL',
+        }
+        await authService.registerHospital(payload)
+        setSuccess(true)
+      } catch (err: any) {
+        setError(err.message || 'Gửi yêu cầu đăng ký thất bại.')
+      }
     })
   }
 
   if (success) {
     const successContent = (
-      <div className={`w-full max-w-md mx-auto text-center ${asModal ? 'py-4' : 'bg-[#FFF7F7] rounded-3xl shadow-xl p-10'}`}>
-        <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <span className="text-3xl">🏥</span>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Đăng ký thành công!</h2>
-        <p className="text-gray-500 text-sm mb-2">
-          Hồ sơ của <strong>{form.hospitalName}</strong> đang được xem xét.
-        </p>
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs font-semibold text-amber-700 mb-6">
-          ⏳ Thời gian xét duyệt: 1-3 ngày làm việc. Kết quả sẽ gửi qua email.
-        </div>
-        <button
-          onClick={() => {
-            if (onClose) onClose()
-            navigate('/hospital/dashboard')
+      <div className={`w-full max-w-md mx-auto text-center ${asModal ? 'py-4' : ''}`}>
+        <Dialog
+          open={true}
+          onClose={() => {}}
+          PaperProps={{
+            style: { borderRadius: 24, padding: 8 }
           }}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition"
         >
-          Đến Dashboard Demo →
-        </button>
+          <DialogContent className="text-center py-8 px-10 max-w-sm">
+            <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto shadow-sm mb-5">
+              <span className="text-4xl">🏥</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Đăng ký thành công!</h2>
+            <p className="text-gray-500 text-sm mb-3">
+              Hồ sơ của <strong>{form.hospitalName}</strong> đang được xem xét.
+            </p>
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs font-semibold text-amber-700 mb-6">
+              ⏳ Thời gian xét duyệt: 1–3 ngày làm việc. Kết quả sẽ gửi qua email.
+            </div>
+            <button
+              onClick={() => {
+                if (onClose) onClose()
+                navigate('/hospital/dashboard')
+              }}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md text-sm"
+            >
+              Đến Dashboard →
+            </button>
+          </DialogContent>
+        </Dialog>
       </div>
     )
 
-    if (asModal) return successContent;
+    if (asModal) return successContent
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4">
         {successContent}
@@ -186,6 +239,7 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
         {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
         <form onSubmit={handleSubmit} className="space-y-3">
+          {/* Hospital Name */}
           <div>
             <label className="block text-xs font-bold text-gray-700 mb-1">Tên bệnh viện / cơ sở y tế *</label>
             <input
@@ -197,6 +251,7 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
             />
           </div>
 
+          {/* License Code + Phone */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">Mã giấy phép *</label>
@@ -209,35 +264,57 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Tỉnh / Thành phố *</label>
-              <select
-                value={form.province}
-                onChange={setField('province')}
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition bg-white"
-              >
-                <option value="">Chọn khu vực...</option>
-                {PROVINCES.map((p) => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">Email liên hệ *</label>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Số điện thoại *</label>
               <input
-                type="email"
-                value={form.email}
-                onChange={setField('email')}
-                placeholder="admin@benhvien.vn"
+                type="tel"
+                value={form.phone}
+                onChange={setField('phone')}
+                placeholder="0901234567"
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
               />
             </div>
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1">Email liên hệ *</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={setField('email')}
+              placeholder="admin@benhvien.vn"
+              className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+            />
+          </div>
+
+          {/* Vietnam Address */}
+          <VietnamAddressField
+            value={addressDetails}
+            errors={addressErrors}
+            onChange={(next) => {
+              setAddressErrors({ province: '', ward: '' })
+              setAddressDetails(next)
+            }}
+          />
+
+          {/* Password + Confirm */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">Mật khẩu *</label>
               <input
                 type="password"
                 value={form.password}
                 onChange={setField('password')}
+                placeholder="••••••••"
+                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">Xác nhận MK *</label>
+              <input
+                type="password"
+                value={form.confirmPassword}
+                onChange={setField('confirmPassword')}
                 placeholder="••••••••"
                 className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
               />
@@ -263,7 +340,7 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
     </div>
   )
 
-  if (asModal) return content;
+  if (asModal) return content
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center px-4 py-12">

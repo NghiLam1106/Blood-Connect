@@ -39,4 +39,19 @@ export class RegisterHospitalDto {
   @ApiProperty({ description: 'Role người dùng' })
   @IsEnum(Role, { message: 'Role phải là ADMIN, DONOR hoặc REQUESTER' })
   role!: Role;
+
+  @ApiProperty({ description: 'Ten tinh/thanh pho', required: false })
+  @IsOptional()
+  @IsString()
+  provinceName?: string;
+
+  @ApiProperty({ description: 'Ten xa/phuong', required: false })
+  @IsOptional()
+  @IsString()
+  wardName?: string;
+
+  @ApiProperty({ description: 'So nha / ten duong', required: false })
+  @IsOptional()
+  @IsString()
+  street?: string;
 }

@@ -42,6 +42,9 @@ export class AuthService {
       licenseCode,
       licenseFile,
       role,
+      provinceName,
+      wardName,
+      street,
     } = registerHospitalDto;
 
     const userExists = await this.usersRepository.findByEmail(email);
@@ -64,6 +67,9 @@ export class AuthService {
       licenseFile,
       hashedPassword,
       role,
+      provinceName,
+      wardName,
+      street,
     });
 
     return {
