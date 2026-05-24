@@ -79,4 +79,14 @@ export class DonationHistoryRepository {
       },
     });
   }
+
+  async findAcceptedByDateRange(startDate: Date, endDate: Date) {
+    return this.prisma.donationHistory.findMany({
+      where: {
+        status: 'ACCEPTED',
+        donationDate: { gte: startDate, lte: endDate },
+      },
+      select: { donationDate: true },
+    });
+  }
 }

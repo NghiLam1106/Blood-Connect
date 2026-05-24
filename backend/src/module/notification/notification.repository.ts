@@ -105,4 +105,13 @@ export class NotificationRepository {
       }
     });
   }
+
+  async findByDateRange(startDate: Date, endDate: Date) {
+    return this.prisma.notification.findMany({
+      where: {
+        createdAt: { gte: startDate, lte: endDate },
+      },
+      select: { createdAt: true },
+    });
+  }
 }
