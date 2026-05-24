@@ -9,6 +9,10 @@ export class HospitalRepository {
     return this.prisma.hospital.findUnique({ where: { userId } });
   }
 
+  async countAll() {
+    return this.prisma.hospital.count();
+  }
+
   async findByUserIdWithUser(userId: number) {
     return this.prisma.hospital.findUnique({
       where: { userId },

@@ -3,6 +3,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AdminModule } from './module/admin/admin.module';
 import { AuthModule } from './module/auth/auth.module';
 import { ChatbotModule } from './module/chatbot/chatbot.module';
 import { DonationHistoryModule } from './module/donation-history/donationHistory.module';
@@ -20,6 +21,7 @@ import { UsersModule } from './module/users/users.module';
     NotificationModule,
     DonationHistoryModule,
     ChatbotModule,
+    AdminModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env'
