@@ -114,4 +114,72 @@ export class NotificationRepository {
       select: { createdAt: true },
     });
   }
+
+  async findRecent(limit: number) {
+    return this.prisma.notification.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        hospitalName: true,
+        urgency: true,
+        isAccept: true,
+        createdAt: true,
+        donor: {
+          select: { bloodType: true },
+        },
+      },
+    });
+  }
+
+  async findPaginated(params: {
+    skip: number;
+    take: number;
+    search?: string;
+    isAccept?: boolean | null;
+    bloodType?: string;
+  }) {
+    const where: any = {};
+    if (params.search) {
+      where.hospitalName = { contains: params.search, mode: 'insensitive' };
+    }
+    if (params.bloodType) {
+      where.donor = { bloodType: params.bloodType };
+    }
+    if (params.isAccept !== undefined) {
+      where.isAccept = params.isAccept;
+    }
+    return this.prisma.notification.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: params.skip,
+      take: params.take,
+      select: {
+        id: true,
+        hospitalName: true,
+        urgency: true,
+        isAccept: true,
+        createdAt: true,
+        donor: { select: { bloodType: true } },
+      },
+    });
+  }
+
+  async countPaginated(params: {
+    search?: string;
+    isAccept?: boolean | null;
+    bloodType?: string;
+  }) {
+    const where: any = {};
+    if (params.search) {
+      where.hospitalName = { contains: params.search, mode: 'insensitive' };
+    }
+    if (params.bloodType) {
+      where.donor = { bloodType: params.bloodType };
+    }
+    if (params.isAccept !== undefined) {
+      where.isAccept = params.isAccept;
+    }
+    return this.prisma.notification.count({ where });
+  }
 }

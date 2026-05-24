@@ -9,6 +9,7 @@ import MenuIcon from '@mui/icons-material/Menu'
 import PeopleIcon from '@mui/icons-material/People'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
+import WaterDropIcon from '@mui/icons-material/WaterDrop'
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Logo } from '../components/layout/Logo'
@@ -47,7 +48,8 @@ const ROLE_CONFIGS = {
         menu: [
             { label: 'Dashboard', path: '/admin/dashboard', icon: <DashboardIcon /> },
             { label: 'Quản lý Donor', path: '/admin/users', icon: <PeopleIcon /> },
-            { label: 'Quản lý Hospital', path: '/admin/hospitals', icon: <LocalHospitalIcon /> },
+            { label: 'Quản lý Hospital', path: '/admin/hospitals-list', icon: <LocalHospitalIcon /> },
+            { label: 'Lưu lượng máu', path: '/admin/hospitals', icon: <WaterDropIcon /> },
             { label: 'Cấu hình hệ thống', path: '/admin/settings', icon: <SettingsIcon /> },
         ]
     }

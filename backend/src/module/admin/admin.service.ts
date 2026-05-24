@@ -77,4 +77,93 @@ export class AdminService {
 
     return result;
   }
+
+  async getRecentTraffic(limit: number) {
+    const notifications = await this.notificationRepository.findRecent(limit);
+
+    return notifications.map((n) => {
+      let status: string;
+      if (n.isAccept === true) {
+        status = 'Đã xử lý';
+      } else if (n.isAccept === false) {
+        status = 'Từ chối';
+      } else if (n.urgency === 5) {
+        status = 'Cực kỳ khẩn cấp';
+      } else if (n.urgency === 4) {
+        status = 'Khẩn cấp';
+      } else if (n.urgency === 3) {
+        status = 'Ưu tiên';
+      } else if (n.urgency === 2) {
+        status = 'Ưu tiên thấp';
+      } else {
+        status = 'Bình thường';
+      }
+
+      return {
+        id: n.id,
+        hospitalName: n.hospitalName,
+        bloodType: n.donor?.bloodType ?? 'N/A',
+        createdAt: n.createdAt,
+        status,
+      };
+    });
+  }
+
+  async getHospitalsTraffic(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    status?: string;    // 'urgent' | 'normal' | 'resolved' | 'rejected'
+    bloodType?: string;
+  }) {
+    const { page, limit, search, status, bloodType } = params;
+    const skip = (page - 1) * limit;
+
+    // Map status filter sang isAccept
+    let isAcceptFilter: boolean | null | undefined = undefined;
+    let urgencyMin: number | undefined = undefined;
+    if (status === 'resolved') isAcceptFilter = true;
+    else if (status === 'rejected') isAcceptFilter = false;
+    else if (status === 'urgent') { isAcceptFilter = null; urgencyMin = 3; }
+    else if (status === 'normal') { isAcceptFilter = null; urgencyMin = undefined; }
+
+    const filterParams = { search, isAccept: isAcceptFilter, bloodType };
+
+    const [rows, total] = await Promise.all([
+      this.notificationRepository.findPaginated({ skip, take: limit, ...filterParams }),
+      this.notificationRepository.countPaginated(filterParams),
+    ]);
+
+    const formatStatus = (isAccept: boolean | null, urgency: number) => {
+      if (isAccept === true) return 'Đã xử lý';
+      if (isAccept === false) return 'Từ chối';
+      if (urgency === 5) return 'Cực kỳ khẩn cấp';
+      if (urgency === 4) return 'Khẩn cấp';
+      if (urgency === 3) return 'Ưu tiên';
+      if (urgency === 2) return 'Ưu tiên thấp';
+      return 'Bình thường';
+    };
+
+    const data = rows
+      .filter((n) => {
+        if (status === 'urgent') return n.isAccept === null && n.urgency >= 3;
+        if (status === 'normal') return n.isAccept === null && n.urgency < 3;
+        return true;
+      })
+      .map((n) => ({
+        id: n.id,
+        hospitalName: n.hospitalName,
+        bloodType: n.donor?.bloodType ?? 'N/A',
+        urgency: n.urgency,
+        createdAt: n.createdAt,
+        status: formatStatus(n.isAccept, n.urgency),
+      }));
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 }

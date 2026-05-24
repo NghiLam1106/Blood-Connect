@@ -33,4 +33,39 @@ export class AdminController {
       data,
     };
   }
+
+  @Get('recent-traffic')
+  @Roles('ADMIN')
+  async getRecentTraffic(@Query('limit') limit: string) {
+    const limitNum = Math.min(Math.max(Number(limit) || 5, 1), 20);
+    const data = await this.adminService.getRecentTraffic(limitNum);
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy lưu lượng gần đây thành công!',
+      data,
+    };
+  }
+
+  @Get('hospitals-traffic')
+  @Roles('ADMIN')
+  async getHospitalsTraffic(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('search') search: string,
+    @Query('status') status: string,
+    @Query('bloodType') bloodType: string,
+  ) {
+    const data = await this.adminService.getHospitalsTraffic({
+      page: Math.max(Number(page) || 1, 1),
+      limit: Math.min(Math.max(Number(limit) || 20, 5), 100),
+      search: search || undefined,
+      status: status || undefined,
+      bloodType: bloodType || undefined,
+    });
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy danh sách lưu lượng bệnh viện thành công!',
+      data,
+    };
+  }
 }
