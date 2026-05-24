@@ -77,6 +77,10 @@ export class DonorsRepository {
     });
   }
 
+  async countAll() {
+    return this.prisma.donors.count();
+  }
+
   async getDonorById(id: number) {
     const donor: any = await this.prisma.donors.findUnique({
       where: { userId: id },

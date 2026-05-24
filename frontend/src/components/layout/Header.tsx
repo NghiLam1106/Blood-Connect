@@ -55,6 +55,7 @@ export function Header() {
     handleUserMenuClose()
     if (user?.role.toLocaleLowerCase() === 'donor') navigate('/donor/dashboard')
     else if (user?.role.toLocaleLowerCase() === 'hospital') navigate('/hospital/dashboard')
+    else if (user?.role.toLocaleLowerCase() === 'admin') navigate('/admin/dashboard')
   }
 
   return (
