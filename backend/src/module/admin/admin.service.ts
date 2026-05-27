@@ -205,4 +205,42 @@ export class AdminService {
   async verifyHospital(userId: number, isVerified: boolean) {
     return this.hospitalRepository.updateUserVerified(userId, isVerified);
   }
+
+  async getDonors(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    bloodType?: string;
+    status?: string;
+  }) {
+    const { page, limit, search, bloodType, status } = params;
+    const skip = (page - 1) * limit;
+
+    const [rows, total] = await Promise.all([
+      this.donorsRepository.findAllWithUser({ skip, take: limit, search, bloodType, status }),
+      this.donorsRepository.countAllWithFilter({ search, bloodType, status }),
+    ]);
+
+    const data = rows.map((d) => ({
+      userId: d.userId,
+      name: d.user?.name ?? 'N/A',
+      email: d.user?.email ?? 'N/A',
+      phone: d.user?.phone ?? null,
+      address: d.user?.address ?? null,
+      avatar: d.user?.avatar ?? null,
+      bloodType: d.bloodType,
+      status: d.status,
+      responseRate: d.responseRate,
+      lastDonation: d.lastDonation,
+      totalDonations: d._count?.donationHistories ?? 0,
+      createdAt: d.user?.createdAt,
+    }));
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
 }
