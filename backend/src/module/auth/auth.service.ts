@@ -198,6 +198,12 @@ export class AuthService {
         message: 'Mật khẩu không chính xác!',
       });
     }
+    if (user.role === 'HOSPITAL' && !user.isVerified) {
+      throw new BadRequestException({
+        status: HttpRequestStatus.ERROR,
+        message: 'Tài khoản bệnh viện chưa được xác minh. Vui lòng chờ admin duyệt!',
+      });
+    }
     const donor = await this.donorsRepository.findByUserId(user.id);
     const payload = {
       userId: user.id,

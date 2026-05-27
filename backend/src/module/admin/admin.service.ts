@@ -166,4 +166,43 @@ export class AdminService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async getHospitals(params: {
+    page: number;
+    limit: number;
+    search?: string;
+    isVerified?: boolean;
+  }) {
+    const { page, limit, search, isVerified } = params;
+    const skip = (page - 1) * limit;
+
+    const [rows, total] = await Promise.all([
+      this.hospitalRepository.findAllWithUser({ skip, take: limit, search, isVerified }),
+      this.hospitalRepository.countAllWithFilter({ search, isVerified }),
+    ]);
+
+    const data = rows.map((h) => ({
+      userId: h.userId,
+      hospitalId: h.id,
+      name: h.user.name,
+      email: h.user.email,
+      phone: h.user.phone,
+      address: h.user.address ?? null,
+      licenseCode: h.licenseCode ?? null,
+      licenseFile: h.licenseFile ?? null,
+      isVerified: h.user.isVerified,
+      createdAt: h.user.createdAt,
+    }));
+
+    return {
+      data,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async verifyHospital(userId: number, isVerified: boolean) {
+    return this.hospitalRepository.updateUserVerified(userId, isVerified);
+  }
 }

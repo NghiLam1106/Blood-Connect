@@ -72,3 +72,42 @@ export async function getHospitalsTraffic(params: {
   const response = await api.get(`/admin/hospitals-traffic?${query.toString()}`);
   return response.data.data;
 }
+
+export interface HospitalItem {
+  userId: number;
+  hospitalId: number;
+  name: string;
+  email: string;
+  phone: string;
+  address: string | null;
+  licenseCode: string | null;
+  licenseFile: string | null;
+  isVerified: boolean;
+  createdAt: string;
+}
+
+export interface HospitalsResponse {
+  data: HospitalItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export async function getHospitals(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isVerified?: boolean;
+}): Promise<HospitalsResponse> {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  if (params.search) query.set('search', params.search);
+  if (params.isVerified !== undefined) query.set('isVerified', String(params.isVerified));
+  const response = await api.get(`/admin/hospitals?${query.toString()}`);
+  return response.data.data;
+}
+
+export async function verifyHospital(userId: number, isVerified: boolean): Promise<void> {
+  await api.patch(`/admin/hospitals/${userId}/verify`, { isVerified });
+}

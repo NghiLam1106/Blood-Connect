@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { Roles } from '../../common/guards/roles.decorator';
@@ -65,6 +65,47 @@ export class AdminController {
     return {
       status: HttpRequestStatus.SUCCESS,
       message: 'Lấy danh sách lưu lượng bệnh viện thành công!',
+      data,
+    };
+  }
+
+  @Get('hospitals')
+  @Roles('ADMIN')
+  async getHospitals(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('search') search: string,
+    @Query('isVerified') isVerified: string,
+  ) {
+    let isVerifiedFilter: boolean | undefined = undefined;
+    if (isVerified === 'true') isVerifiedFilter = true;
+    else if (isVerified === 'false') isVerifiedFilter = false;
+
+    const data = await this.adminService.getHospitals({
+      page: Math.max(Number(page) || 1, 1),
+      limit: Math.min(Math.max(Number(limit) || 20, 5), 100),
+      search: search || undefined,
+      isVerified: isVerifiedFilter,
+    });
+    return {
+      status: 'success',
+      message: 'Lấy danh sách bệnh viện thành công!',
+      data,
+    };
+  }
+
+  @Patch('hospitals/:userId/verify')
+  @Roles('ADMIN')
+  async verifyHospital(
+    @Param('userId') userId: string,
+    @Body('isVerified') isVerified: boolean,
+  ) {
+    const data = await this.adminService.verifyHospital(Number(userId), isVerified);
+    return {
+      status: 'success',
+      message: isVerified
+        ? 'Đã xác minh bệnh viện thành công!'
+        : 'Đã thu hồi xác minh bệnh viện!',
       data,
     };
   }
