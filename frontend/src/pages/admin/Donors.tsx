@@ -1,18 +1,19 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { DonorItem } from '../../services/admin.service'
 import { getDonors } from '../../services/admin.service'
 
 const BLOOD_TYPE_OPTIONS = [
   { label: 'Tất cả nhóm máu', value: '' },
-  { label: 'A+', value: 'A_POSITIVE' },
-  { label: 'A-', value: 'A_NEGATIVE' },
-  { label: 'B+', value: 'B_POSITIVE' },
-  { label: 'B-', value: 'B_NEGATIVE' },
-  { label: 'AB+', value: 'AB_POSITIVE' },
-  { label: 'AB-', value: 'AB_NEGATIVE' },
-  { label: 'O+', value: 'O_POSITIVE' },
-  { label: 'O-', value: 'O_NEGATIVE' },
+  { label: 'A+', value: 'A+' },
+  { label: 'A-', value: 'A-' },
+  { label: 'B+', value: 'B+' },
+  { label: 'B-', value: 'B-' },
+  { label: 'AB+', value: 'AB+' },
+  { label: 'AB-', value: 'AB-' },
+  { label: 'O+', value: 'O+' },
+  { label: 'O-', value: 'O-' },
 ]
 
 const STATUS_OPTIONS = [
@@ -22,21 +23,21 @@ const STATUS_OPTIONS = [
 ]
 
 const BLOOD_TYPE_LABEL: Record<string, string> = {
-  A_POSITIVE: 'A+', A_NEGATIVE: 'A-',
-  B_POSITIVE: 'B+', B_NEGATIVE: 'B-',
-  AB_POSITIVE: 'AB+', AB_NEGATIVE: 'AB-',
-  O_POSITIVE: 'O+', O_NEGATIVE: 'O-',
+  'A+': 'A+', 'A-': 'A-',
+  'B+': 'B+', 'B-': 'B-',
+  'AB+': 'AB+', 'AB-': 'AB-',
+  'O+': 'O+', 'O-': 'O-',
 }
 
 const BLOOD_TYPE_COLOR: Record<string, string> = {
-  A_POSITIVE: 'bg-red-50 text-red-600 border-red-200',
-  A_NEGATIVE: 'bg-red-50 text-red-600 border-red-200',
-  B_POSITIVE: 'bg-blue-50 text-blue-600 border-blue-200',
-  B_NEGATIVE: 'bg-blue-50 text-blue-600 border-blue-200',
-  AB_POSITIVE: 'bg-purple-50 text-purple-600 border-purple-200',
-  AB_NEGATIVE: 'bg-purple-50 text-purple-600 border-purple-200',
-  O_POSITIVE: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-  O_NEGATIVE: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+  'A+': 'bg-red-50 text-red-600 border-red-200',
+  'A-': 'bg-red-50 text-red-600 border-red-200',
+  'B+': 'bg-red-50 text-red-600 border-red-200',
+  'B-': 'bg-red-50 text-red-600 border-red-200',
+  'AB+': 'bg-red-50 text-red-600 border-red-200',
+  'AB-': 'bg-red-50 text-red-600 border-red-200',
+  'O+': 'bg-red-50 text-red-600 border-red-200',
+  'O-': 'bg-red-50 text-red-600 border-red-200',
 }
 
 function formatDate(dateStr: string | null): string {
@@ -82,6 +83,7 @@ function SkeletonRow() {
 }
 
 export default function AdminDonors() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<DonorItem[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -253,7 +255,8 @@ export default function AdminDonors() {
                 items.map((item) => (
                   <tr
                     key={item.userId}
-                    className="border-b border-gray-50 hover:bg-red-50/30 transition-colors"
+                    onClick={() => navigate(`/admin/donors/${item.userId}`)}
+                    className="border-b border-gray-50 hover:bg-red-50/30 transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3">
                       <AvatarCell name={item.name} avatar={item.avatar} />

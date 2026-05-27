@@ -132,4 +132,22 @@ export class AdminController {
       data,
     };
   }
+
+  @Get('donors/:userId')
+  @Roles('ADMIN')
+  async getDonorDetail(@Param('userId') userId: string) {
+    const data = await this.adminService.getDonorDetail(Number(userId));
+    if (!data) {
+      return {
+        status: 'error',
+        message: 'Không tìm thấy người hiến máu!',
+        data: null,
+      };
+    }
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy thông tin người hiến máu thành công!',
+      data,
+    };
+  }
 }
