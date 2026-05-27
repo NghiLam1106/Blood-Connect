@@ -3,6 +3,8 @@ import { StatsSection } from '../../components/home/StatsSection'
 import { GridSection } from '../../components/home/GridSection'
 import { BenefitsSection } from '../../components/home/BenefitsSection'
 import { StoryCTASection } from '../../components/home/StoryCTASection'
+import FeaturesSection from '../../components/home/FeaturesSection'
+import ProcessSection from '../../components/home/ProcessSection'
 
 export default function Home() {
   return (
@@ -10,6 +12,8 @@ export default function Home() {
       <HeroSection />
       <StatsSection />
       <GridSection />
+      <FeaturesSection />
+      <ProcessSection />
       <BenefitsSection />
       <StoryCTASection />
     </div>
