@@ -109,4 +109,27 @@ export class AdminController {
       data,
     };
   }
+
+  @Get('donors')
+  @Roles('ADMIN')
+  async getDonors(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Query('search') search: string,
+    @Query('bloodType') bloodType: string,
+    @Query('status') status: string,
+  ) {
+    const data = await this.adminService.getDonors({
+      page: Math.max(Number(page) || 1, 1),
+      limit: Math.min(Math.max(Number(limit) || 20, 5), 100),
+      search: search || undefined,
+      bloodType: bloodType || undefined,
+      status: status || undefined,
+    });
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy danh sách người hiến máu thành công!',
+      data,
+    };
+  }
 }

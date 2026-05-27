@@ -111,3 +111,42 @@ export async function getHospitals(params: {
 export async function verifyHospital(userId: number, isVerified: boolean): Promise<void> {
   await api.patch(`/admin/hospitals/${userId}/verify`, { isVerified });
 }
+
+export interface DonorItem {
+  userId: number;
+  name: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  avatar: string | null;
+  bloodType: string;
+  status: 'AVAILABLE' | 'UNAVAILABLE';
+  responseRate: number | null;
+  lastDonation: string | null;
+  totalDonations: number;
+  createdAt: string;
+}
+
+export interface DonorsResponse {
+  data: DonorItem[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+export async function getDonors(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  bloodType?: string;
+  status?: string;
+}): Promise<DonorsResponse> {
+  const query = new URLSearchParams();
+  if (params.page) query.set('page', String(params.page));
+  if (params.limit) query.set('limit', String(params.limit));
+  if (params.search) query.set('search', params.search);
+  if (params.bloodType) query.set('bloodType', params.bloodType);
+  if (params.status) query.set('status', params.status);
+  const response = await api.get(`/admin/donors?${query.toString()}`);
+  return response.data.data;
+}
