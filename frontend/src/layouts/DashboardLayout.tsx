@@ -48,8 +48,8 @@ const ROLE_CONFIGS = {
         menu: [
             { label: 'Dashboard', path: '/admin/dashboard', icon: <DashboardIcon /> },
             { label: 'Quản lý Donor', path: '/admin/users', icon: <PeopleIcon /> },
-            { label: 'Quản lý Hospital', path: '/admin/hospitals-list', icon: <LocalHospitalIcon /> },
-            { label: 'Lưu lượng máu', path: '/admin/hospitals', icon: <WaterDropIcon /> },
+            { label: 'Quản lý Hospital', path: '/admin/hospitals', icon: <LocalHospitalIcon /> },
+            { label: 'Lưu lượng máu', path: '/admin/blood-collect', icon: <WaterDropIcon /> },
             { label: 'Cấu hình hệ thống', path: '/admin/settings', icon: <SettingsIcon /> },
         ]
     }

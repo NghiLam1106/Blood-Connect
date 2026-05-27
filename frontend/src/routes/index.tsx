@@ -43,7 +43,9 @@ const DonorMatching = Loadable(lazy(() => import('../pages/hospital/DonorMatchin
 
 // Admin Dashboard pages
 const AdminDashboard = Loadable(lazy(() => import('../pages/admin/Dashboard')))
-const AdminHospitals = Loadable(lazy(() => import('../pages/admin/BloodCollect')))
+const AdminHospitals = Loadable(lazy(() => import('../pages/admin/Hospitals')))
+const AdminHospitalDetail = Loadable(lazy(() => import('../pages/admin/HospitalDetail')))
+const AdminBloodCollect = Loadable(lazy(() => import('../pages/admin/BloodCollect')))
 
 export const router = createBrowserRouter([
   {
@@ -115,6 +117,14 @@ export const router = createBrowserRouter([
       {
         path: paths.admin.hospitals,
         element: <RoleRoute requiredRole="admin"><AdminHospitals /></RoleRoute>,
+      },
+      {
+        path: paths.admin.hospitalDetail,
+        element: <RoleRoute requiredRole="admin"><AdminHospitalDetail /></RoleRoute>,
+      },
+      {
+        path: paths.admin.bloodCollect,
+        element: <RoleRoute requiredRole="admin"><AdminBloodCollect /></RoleRoute>,
       },
       // Fallback
       {

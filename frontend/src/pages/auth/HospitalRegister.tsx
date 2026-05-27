@@ -7,6 +7,7 @@ import { useDropzone } from 'react-dropzone'
 import { useNavigate } from 'react-router-dom'
 import { VietnamAddressField, type VietnamAddressValue } from '../../components/common/VietnamAddressField'
 import { authService } from '../../services/auth.service'
+import { uploadFileToCloudinary } from '../../services/cloudinary.service'
 
 const EMPTY_ADDRESS: VietnamAddressValue = {
   provinceCode: '',
@@ -142,6 +143,12 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
           .filter(Boolean)
           .join(', ')
 
+        // Upload file lên Cloudinary và lấy URL
+        let licenseFileUrl = ''
+        if (documents[0]) {
+          licenseFileUrl = await uploadFileToCloudinary(documents[0])
+        }
+
         const payload = {
           nameHospital: form.hospitalName,
           email: form.email,
@@ -152,7 +159,7 @@ export default function HospitalRegister({ asModal = false, onClose, onNavigate 
           street: addressDetails.street.trim(),
           password: form.password,
           licenseCode: form.licenseCode,
-          licenseFile: documents[0]?.name ?? '',
+          licenseFile: licenseFileUrl,
           role: 'HOSPITAL',
         }
         await authService.registerHospital(payload)

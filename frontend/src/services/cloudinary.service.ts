@@ -24,3 +24,30 @@ export async function uploadImageToCloudinary(file: File): Promise<string> {
   const data = await res.json()
   return (data as { secure_url: string }).secure_url
 }
+
+export async function uploadFileToCloudinary(file: File): Promise<string> {
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+  const uploadPdf = import.meta.env.VITE_CLOUDINARY_UPLOAD_PDF
+
+  if (!cloudName || !uploadPdf) {
+    throw new Error('Cấu hình Cloudinary chưa được thiết lập.')
+  }
+
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', uploadPdf)
+  formData.append('folder', 'license_files')
+
+  const res = await fetch(
+    `https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`,
+    { method: 'POST', body: formData }
+  )
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error((err as any)?.error?.message ?? 'Upload file thất bại')
+  }
+
+  const data = await res.json()
+  return (data as { secure_url: string }).secure_url
+}

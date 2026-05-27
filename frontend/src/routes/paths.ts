@@ -31,6 +31,8 @@ export const paths = {
     dashboard: '/admin/dashboard',
     users: '/admin/users',
     hospitals: '/admin/hospitals',
+    hospitalDetail: '/admin/hospitals/:userId',
+    bloodCollect: '/admin/blood-collect',
     articles: '/admin/articles',
     settings: '/admin/settings',
   }
