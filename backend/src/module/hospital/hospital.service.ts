@@ -167,7 +167,7 @@ export class HospitalService {
       status: HttpRequestStatus.SUCCESS,
       message: delivered
         ? `Đã gửi thông báo đến donor (userId=${donorUserId})`
-        : `Donor (userId=${donorUserId}) hiện không online, thông báo chưa được gửi`,
+        : `Donor (userId=${donorUserId}) hiện không online. Thông báo đã được lưu và sẽ tự động gửi khi donor kết nối lại.`,
       delivered,
       notificationId: notification.id,
     };

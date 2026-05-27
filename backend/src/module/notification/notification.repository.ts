@@ -60,6 +60,31 @@ export class NotificationRepository {
     return this.prisma.notification.count({ where: { donorId, isAccept: true } });
   }
 
+  async findPendingByDonorId(donorId: number) {
+    return this.prisma.notification.findMany({
+      where: { donorId, isAccept: null },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        hospital: {
+          include: {
+            user: { select: { name: true, address: true } },
+          },
+        },
+        donor: { select: { unitBlood: true } },
+      },
+    });
+  }
+
+  async findPendingByDonorUserId(userId: number) {
+    return this.prisma.notification.findMany({
+      where: { donor: { userId }, isAccept: null },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        donor: { select: { unitBlood: true } },
+      },
+    });
+  }
+
   async findByDonorId(donorId: number) {
     return this.prisma.notification.findMany({
       where: { donorId },

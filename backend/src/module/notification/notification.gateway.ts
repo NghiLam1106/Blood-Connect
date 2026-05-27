@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Redis } from 'ioredis';
 import { Server, Socket } from 'socket.io';
+import { NotificationRepository } from './notification.repository';
 
 @WebSocketGateway({
   cors: {
@@ -22,6 +23,7 @@ export class NotificationGateway
   constructor(
     @InjectRedis() private readonly redis: Redis,
     private readonly jwtService: JwtService,
+    private readonly notificationRepository: NotificationRepository,
   ) { }
 
   async handleConnection(client: Socket) {
@@ -48,6 +50,9 @@ export class NotificationGateway
       (client as any).userId = userId;
 
       console.log(`✅ Client connected: userId=${userId}, socketId=${client.id}`);
+
+      // Flush các notification pending (chưa phản hồi) cho donor này
+      await this.flushPendingNotifications(userId, client);
     } catch (err) {
       console.warn('❌ WebSocket auth failed:', (err as Error).message);
       client.disconnect();
@@ -59,6 +64,36 @@ export class NotificationGateway
     if (userId) {
       await this.redis.del(`socket:map:${userId}`);
       console.log(`🔌 Client disconnected: userId=${userId}`);
+    }
+  }
+
+  /**
+   * Khi donor kết nối lại, gửi các notification đang pending (isAccept=null)
+   */
+  private async flushPendingNotifications(userId: number, client: Socket) {
+    try {
+      // Tìm donor theo userId
+      const pendingNotifications = await this.notificationRepository.findPendingByDonorUserId(userId);
+
+      if (pendingNotifications.length === 0) return;
+
+      console.log(`📬 Gửi ${pendingNotifications.length} notification pending đến userId=${userId}`);
+
+      for (const notification of pendingNotifications) {
+        const payloadData = {
+          notificationId: notification.id,
+          hospitalName: notification.hospitalName,
+          hospitalAddress: notification.hospitalAddress,
+          distance: notification.distance,
+          urgency: notification.urgency,
+          unitBlood: notification.donor?.unitBlood,
+          notes: notification.notes,
+          requestedAt: notification.createdAt.toISOString(),
+        };
+        client.emit('blood-request', payloadData);
+      }
+    } catch (err) {
+      console.warn('⚠️ Lỗi khi flush pending notifications:', (err as Error).message);
     }
   }
 
