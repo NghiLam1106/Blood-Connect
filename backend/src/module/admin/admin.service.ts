@@ -243,4 +243,23 @@ export class AdminService {
       totalPages: Math.ceil(total / limit),
     };
   }
+
+  async getDonorDetail(userId: number) {
+    const donor = await this.donorsRepository.getDonorById(userId);
+    if (!donor) return null;
+
+    const histories = await this.donationHistoryRepository.findByDonorId(donor.id);
+
+    const mappedHistories = histories.map((h) => ({
+      id: h.id,
+      bloodType: h.bloodType,
+      unitBlood: h.unitBlood,
+      status: h.status,
+      donationDate: h.donationDate,
+      notes: h.notes,
+      hospitalName: (h as any).hospital?.user?.name ?? 'Không rõ',
+    }));
+
+    return { donor, histories: mappedHistories };
+  }
 }

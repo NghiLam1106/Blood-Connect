@@ -1,5 +1,6 @@
 import SearchIcon from '@mui/icons-material/Search'
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { DonorItem } from '../../services/admin.service'
 import { getDonors } from '../../services/admin.service'
 
@@ -82,6 +83,7 @@ function SkeletonRow() {
 }
 
 export default function AdminDonors() {
+  const navigate = useNavigate()
   const [items, setItems] = useState<DonorItem[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -253,7 +255,8 @@ export default function AdminDonors() {
                 items.map((item) => (
                   <tr
                     key={item.userId}
-                    className="border-b border-gray-50 hover:bg-red-50/30 transition-colors"
+                    onClick={() => navigate(`/admin/donors/${item.userId}`)}
+                    className="border-b border-gray-50 hover:bg-red-50/30 transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-3">
                       <AvatarCell name={item.name} avatar={item.avatar} />
