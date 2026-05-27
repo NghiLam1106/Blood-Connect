@@ -100,20 +100,6 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
       </div>
 
       <div className={`${!asModal ? 'bg-[#FFF7F7] rounded-3xl shadow-xl p-8 border border-rose-100' : 'p-2'}`}>
-        {/* Role Tabs */}
-        <Tabs
-          value={tab}
-          onChange={(_, v) => { setTab(v); setError(''); setForm({ email: '', password: '' }) }}
-          variant="fullWidth"
-          sx={{
-            mb: 3,
-            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, borderRadius: 2, minHeight: 40 },
-            '& .MuiTabs-indicator': { backgroundColor: '#dc2626' },
-          }}
-        >
-          <Tab icon={<PersonOutlineIcon fontSize="small" />} iconPosition="start" label="Người hiến máu" />
-          <Tab icon={<LocalHospitalIcon fontSize="small" />} iconPosition="start" label="Bệnh viện" />
-        </Tabs>
 
         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
