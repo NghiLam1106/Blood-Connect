@@ -61,7 +61,7 @@ export function RecentTraffic() {
         <h2 className="text-lg font-extrabold text-dark">Lưu lượng gần đây</h2>
         <span
           className="text-xs text-primary font-bold cursor-pointer hover:underline"
-          onClick={() => navigate('/admin/hospitals')}
+          onClick={() => navigate('/admin/blood-collect')}
         >
           Chi tiết
         </span>
