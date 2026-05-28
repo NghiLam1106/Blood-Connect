@@ -4,7 +4,7 @@ import { storage } from '../utils/localStorage'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type UserRole = 'donor' | 'hospital' | 'guest'
+export type UserRole = 'donor' | 'hospital' | 'admin' | 'guest'
 export type BloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-'
 export type DonorStatus = 'pending' | 'confirmed' | 'arrived' | 'rejected'
 

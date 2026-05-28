@@ -118,7 +118,7 @@ export default function FeaturesSection() {
         <div className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-red-100/40 mix-blend-multiply filter blur-[100px] opacity-60 animate-blob" />
         <div className="absolute top-[10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-blue-100/40 mix-blend-multiply filter blur-[100px] opacity-60 animate-blob animation-delay-2000" />
         <div className="absolute bottom-[-20%] left-[20%] w-[700px] h-[700px] rounded-full bg-orange-100/30 mix-blend-multiply filter blur-[100px] opacity-50 animate-blob animation-delay-4000" />
-        
+
         {/* Subtle SaaS Dot Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px] opacity-40 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
       </div>
@@ -134,21 +134,21 @@ export default function FeaturesSection() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 border border-red-100 shadow-sm text-red-600 font-medium text-sm mb-6 transition-all hover:bg-red-100 cursor-default">
               <Sparkles size={16} className="text-red-500" />
-              <span>BloodConnect Features</span>
+              <span>RedBridge AI Features</span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight">
               Tính năng nổi bật
             </h2>
-            
+
             <p className="text-lg md:text-xl text-slate-500 leading-relaxed max-w-2xl">
               Nền tảng kết nối hiến máu thông minh giúp bệnh viện và người hiến kết nối nhanh chóng.
             </p>
           </motion.div>
         </div>
 
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -159,32 +159,32 @@ export default function FeaturesSection() {
               key={index}
               variants={itemVariants}
               whileHover={{ y: -8 }}
-              className={`group relative p-6 md:p-8 rounded-[32px] bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${feature.hoverShadow} ${feature.hoverBorder} transition-all duration-300 ease-out cursor-pointer flex flex-col h-full min-h-[300px]`}
+              className={`group relative p-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] ${feature.hoverShadow} ${feature.hoverBorder} transition-all duration-300 ease-out cursor-pointer flex flex-col h-full`}
             >
-              <div className="flex items-start justify-between mb-8">
+              <div className="flex items-start justify-between mb-5">
                 {/* Icon Box */}
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${feature.iconBorder} ${feature.iconBg} ${feature.color} group-hover:scale-110 transition-transform duration-300 ease-out shadow-inner`}>
-                  <feature.icon strokeWidth={2} size={28} />
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center border ${feature.iconBorder} ${feature.iconBg} ${feature.color} group-hover:scale-110 transition-transform duration-300 ease-out shadow-inner`}>
+                  <feature.icon strokeWidth={2} size={24} />
                 </div>
-                
+
                 {/* Subtle Badge */}
-                <div className={`px-3 py-1 rounded-full border text-xs font-semibold tracking-wide ${feature.badgeColor} opacity-80 group-hover:opacity-100 transition-opacity duration-300`}>
+                <div className={`px-2.5 py-0.5 rounded-full border text-[10px] sm:text-xs font-semibold tracking-wide ${feature.badgeColor} opacity-80 group-hover:opacity-100 transition-opacity duration-300`}>
                   {feature.badge}
                 </div>
               </div>
-              
+
               {/* Content */}
               <div className="flex-1 flex flex-col">
-                <h3 className="text-xl md:text-2xl font-bold text-slate-900 mb-3 tracking-tight group-hover:text-red-600 transition-colors duration-300">
+                <h3 className="text-lg font-extrabold text-slate-900 mb-2 tracking-tight group-hover:text-red-600 transition-colors duration-300">
                   {feature.title}
                 </h3>
-                <p className="text-slate-500 text-base leading-relaxed line-clamp-2">
+                <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">
                   {feature.description}
                 </p>
               </div>
 
               {/* Bottom interactive hint */}
-              <div className="mt-6 flex items-center text-sm font-semibold text-slate-400 group-hover:text-red-500 transition-colors duration-300">
+              <div className="mt-4 flex items-center text-xs sm:text-sm font-semibold text-slate-400 group-hover:text-red-500 transition-colors duration-300">
                 <span>Tìm hiểu thêm</span>
                 <ArrowRight size={16} className="ml-2 transform group-hover:translate-x-1 transition-transform duration-300" />
               </div>

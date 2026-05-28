@@ -1,7 +1,19 @@
 import { Link } from 'react-router-dom'
 import { Logo } from './Logo'
+import { useStore } from '../../store/useStore'
 
 export function Footer() {
+  const { isAuthenticated, user } = useStore()
+
+  const getAccountLink = () => {
+    if (!isAuthenticated || !user) return '/auth/login'
+    const role = user.role.toLowerCase()
+    if (role === 'donor') return '/donor/profile'
+    if (role === 'hospital') return '/hospital/dashboard'
+    if (role === 'admin') return '/admin/dashboard'
+    return '/auth/login'
+  }
+
   return (
     <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
       <div className="container mx-auto px-4">
@@ -20,11 +32,16 @@ export function Footer() {
           <div>
             <h3 className="text-gray-900 font-bold mb-4 uppercase text-sm tracking-wider">Hệ sinh thái</h3>
             <ul className="space-y-3">
-              {['Về chúng tôi', 'Tính năng', 'Quy trình AI', 'Hỗ trợ'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-sm border-b border-transparent text-gray-500 hover:text-primary transition-colors no-underline">
-                    {item}
-                  </a>
+              {[
+                { label: 'Về chúng tôi', href: '/' },
+                { label: 'Tính năng', href: '/#features' },
+                { label: 'Quy trình AI', href: '/#process' },
+                { label: 'Hỗ trợ', href: '/faq' }
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link to={item.href} className="text-sm border-b border-transparent text-gray-500 hover:text-primary transition-colors no-underline">
+                    {item.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -37,7 +54,7 @@ export function Footer() {
               <li><Link to="/auth/register/donor" className="text-sm text-gray-500 hover:text-primary transition-colors no-underline">Đăng ký hiến máu</Link></li>
               <li><Link to="/knowledge" className="text-sm text-gray-500 hover:text-primary transition-colors no-underline">Kiến thức chung</Link></li>
               <li><Link to="/faq" className="text-sm text-gray-500 hover:text-primary transition-colors no-underline">Hỏi đáp thường gặp</Link></li>
-              <li><Link to="/auth/login" className="text-sm text-gray-500 hover:text-primary transition-colors no-underline">Tài khoản</Link></li>
+              <li><Link to={getAccountLink()} className="text-sm text-gray-500 hover:text-primary transition-colors no-underline">Tài khoản</Link></li>
             </ul>
           </div>
 
@@ -66,8 +83,8 @@ export function Footer() {
         <div className="border-t border-gray-100 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-gray-400">© 2026 RedBridge AI. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Chính sách bảo mật</a>
-            <a href="#" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Điều khoản</a>
+            <Link to="/privacy" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Chính sách bảo mật</Link>
+            <Link to="/terms" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Điều khoản</Link>
           </div>
         </div>
       </div>

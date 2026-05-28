@@ -139,11 +139,11 @@ export default function ProcessSection() {
                 <motion.div 
                   whileHover={{ y: -8, scale: step.isAI ? 1.05 : 1.02 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
-                  className={`w-full h-full pt-8 pb-6 px-5 md:px-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer flex flex-col items-center transition-all duration-300 ease-out ${step.glow} ${step.isAI ? 'border-orange-100/80 shadow-[0_8px_30px_rgba(249,115,22,0.08)] bg-gradient-to-b from-white to-orange-50/20' : ''}`}
+                  className={`w-full h-full p-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer flex flex-col items-center transition-all duration-300 ease-out ${step.glow} ${step.isAI ? 'border-orange-100/80 shadow-[0_8px_30px_rgba(249,115,22,0.08)] bg-gradient-to-b from-white to-orange-50/20' : ''}`}
                 >
                   {/* Icon Circle */}
-                  <div className={`relative w-20 h-20 rounded-full flex items-center justify-center mb-5 bg-gradient-to-br ${step.gradient} ${step.border} border-2 shadow-lg ${step.shadow} group-hover:scale-110 transition-transform duration-300 ease-out z-10`}>
-                    <step.icon strokeWidth={2} size={32} className={`${step.color} ${step.isAI ? 'drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]' : ''}`} />
+                  <div className={`relative w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gradient-to-br ${step.gradient} ${step.border} border-2 shadow-lg ${step.shadow} group-hover:scale-110 transition-transform duration-300 ease-out z-10`}>
+                    <step.icon strokeWidth={2} size={28} className={`${step.color} ${step.isAI ? 'drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]' : ''}`} />
                     
                     {/* Glow effect strictly for AI */}
                     {step.isAI && (
@@ -153,15 +153,15 @@ export default function ProcessSection() {
 
                   {/* AI Badge inside Card */}
                   {step.isAI && (
-                    <div className="mb-3 px-3 py-1 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 text-secondary text-[11px] font-bold tracking-widest uppercase shadow-sm">
+                    <div className="mb-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 text-secondary text-[10px] sm:text-[11px] font-bold tracking-widest uppercase shadow-sm">
                       AI Powered
                     </div>
                   )}
                   
-                  <h3 className={`text-lg md:text-xl font-extrabold text-dark mb-2 tracking-tight ${step.isAI ? 'text-secondary' : ''}`}>
+                  <h3 className={`text-lg font-extrabold text-dark mb-2 tracking-tight ${step.isAI ? 'text-secondary' : ''}`}>
                     {step.title}
                   </h3>
-                  <p className="text-gray-500 text-sm md:text-base leading-relaxed max-w-[260px]">
+                  <p className="text-gray-500 text-sm leading-relaxed max-w-[260px]">
                     {step.description}
                   </p>
                 </motion.div>
