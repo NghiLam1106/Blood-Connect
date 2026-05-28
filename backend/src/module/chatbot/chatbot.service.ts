@@ -6,6 +6,8 @@ import { DonorsRepository } from '../donors/repository/donors.respository';
 import { HospitalRepository } from '../hospital/repository/hospital.repository';
 import { ChatDto } from './dto/chat.dto';
 
+type Intent = 'DONATION_HISTORY' | 'ELIGIBILITY_CHECK' | 'FAQ';
+
 @Injectable()
 export class ChatbotService {
   private genAI!: GoogleGenerativeAI;
@@ -24,32 +26,124 @@ export class ChatbotService {
     }
   }
 
-  // Detect xem user có đang hỏi về lịch sử hiến máu không
-  private detectDonationHistoryIntent(message: string): boolean {
-    const keywords = [
+  // ─────────────────────────────────────────────
+  // BƯỚC 1: Normalize text — bỏ dấu tiếng Việt
+  // ─────────────────────────────────────────────
+  private normalizeText(text: string): string {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // bỏ dấu tiếng Việt
+      .replace(/[^\w\s]/g, ' ')        // bỏ dấu câu
+      .replace(/\s+/g, ' ')
+      .toLowerCase()
+      .trim();
+  }
+
+  // ─────────────────────────────────────────────
+  // BƯỚC 2: Fast-path keyword match (cả có dấu + không dấu)
+  // ─────────────────────────────────────────────
+  private detectIntentFastPath(message: string): Intent | null {
+    const raw = message.toLowerCase();
+    const norm = this.normalizeText(message);
+
+    // ── Keywords DONATION_HISTORY ──
+    const historyKeywords = [
+      // Có dấu (nguyên bản)
       'lịch sử', 'lịch sử hiến máu', 'đã hiến', 'bao nhiêu lần', 'những lần hiến',
       'hiến máu bao giờ', 'lần hiến', 'donation history', 'tiếp nhận máu',
       'danh sách hiến', 'số lần hiến', 'hiến máu của tôi', 'tôi đã hiến', 'khi nào hiến',
       'hiến gần nhất', 'hiến lần cuối', 'lần cuối hiến', 'bệnh viện nào hiến',
       'của bệnh viện tôi', 'bệnh viện tôi có', 'tiếp nhận', 'tại bệnh viện tôi',
+      'quá trình hiến', 'kết quả hiến', 'đã từng hiến', 'trước đây hiến',
+      // Không dấu (normalized)
+      'lich su', 'da hien', 'bao nhieu lan', 'nhung lan hien',
+      'hien mau bao gio', 'lan hien', 'qua trinh hien',
+      'tiep nhan mau', 'danh sach hien', 'so lan hien',
+      'hien mau cua toi', 'toi da hien', 'khi nao hien',
+      'hien gan nhat', 'hien lan cuoi', 'lan cuoi hien',
+      'benh vien nao hien', 'ket qua hien', 'lich su cua toi',
+      'da tung hien', 'truoc day hien', 'qua khu', 'ghi chep',
     ];
-    const lower = message.toLowerCase();
-    return keywords.some((kw) => lower.includes(kw));
-  }
 
-  // Detect xem donor có đang hỏi về điều kiện hiến máu không
-  private detectEligibilityIntent(message: string): boolean {
-    const keywords = [
+    // ── Keywords ELIGIBILITY_CHECK ──
+    const eligibilityKeywords = [
+      // Có dấu (nguyên bản)
       'điều kiện', 'điều kiện hiến máu', 'tôi có thể hiến', 'tôi có được hiến',
       'tôi có đủ điều kiện', 'kiểm tra điều kiện', 'đủ điều kiện', 'được hiến không',
       'hiến máu được không', 'tôi hiến được không', 'mình có được hiến',
       'check điều kiện', 'có thể hiến không', 'có hiến được không',
+      'hôm nay hiến được không', 'mình ổn không nếu hiến', 'có nên hiến không',
+      'khi nào hiến được', 'bao lâu sau mới hiến', 'cho máu được chưa',
+      'sức khỏe đủ hiến', 'có đủ sức hiến', 'đang uống thuốc có hiến được',
+      // Không dấu (normalized)
+      'dieu kien', 'toi co the hien', 'toi co duoc hien',
+      'du dieu kien', 'kiem tra dieu kien', 'duoc hien khong',
+      'hien mau duoc khong', 'toi hien duoc khong', 'minh co duoc hien',
+      'check dieu kien', 'co the hien khong', 'hom nay hien duoc khong',
+      'minh on khong neu hien', 'co nen hien khong', 'khi nao hien duoc',
+      'bao lau sau moi hien', 'cho mau duoc chua', 'suc khoe du hien',
+      'co du suc hien', 'dang uong thuoc co hien duoc',
     ];
-    const lower = message.toLowerCase();
-    return keywords.some((kw) => lower.includes(kw));
+
+    // Match trên cả raw (có dấu) và normalized (không dấu)
+    const matchHistory =
+      historyKeywords.some((kw) => raw.includes(kw)) ||
+      historyKeywords.some((kw) => norm.includes(kw));
+
+    const matchEligibility =
+      eligibilityKeywords.some((kw) => raw.includes(kw)) ||
+      eligibilityKeywords.some((kw) => norm.includes(kw));
+
+    if (matchHistory) return 'DONATION_HISTORY';
+    if (matchEligibility) return 'ELIGIBILITY_CHECK';
+    return null;
   }
 
-  // Format thông tin cá nhân donor để inject vào prompt kiểm tra điều kiện
+  // ─────────────────────────────────────────────
+  // BƯỚC 3: AI classify fallback (nếu fast-path không match)
+  // ─────────────────────────────────────────────
+  private async classifyIntentWithAI(
+    message: string,
+    history: any[],
+  ): Promise<Intent> {
+    const recentContext = history
+      .slice(-2)
+      .map((m) => `${m.role === 'model' ? 'Hana' : 'User'}: ${m.text}`)
+      .join('\n');
+
+    const prompt = `Phân loại tin nhắn sau đây vào đúng 1 trong 3 nhóm.
+Chỉ trả về đúng 1 từ khóa, không giải thích:
+
+- DONATION_HISTORY: hỏi về lịch sử/kết quả/số lần/ngày giờ hiến máu, bệnh viện đã hiến
+- ELIGIBILITY_CHECK: hỏi xem bản thân có đủ điều kiện/được phép/có thể hiến máu không
+- FAQ: mọi câu hỏi khác về hiến máu (quy trình, nhóm máu, lợi ích, chuẩn bị...)
+
+${recentContext ? `Ngữ cảnh hội thoại gần đây:\n${recentContext}\n` : ''}
+Tin nhắn cần phân loại: "${message}"
+Kết quả:`;
+
+    try {
+      // gemini-1.5-flash: 1500 req/ngày free tier — phù hợp cho classify nhẹ
+      const model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      const result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 10, temperature: 0 },
+      });
+      const raw = result.response.text().trim().toUpperCase();
+      console.log(`[Chatbot] AI classify intent: "${raw}" for message: "${message}"`);
+      if (raw.includes('DONATION_HISTORY')) return 'DONATION_HISTORY';
+      if (raw.includes('ELIGIBILITY_CHECK')) return 'ELIGIBILITY_CHECK';
+      return 'FAQ';
+    } catch (err) {
+      console.warn('[Chatbot] AI classify failed, fallback to FAQ:', err);
+      return 'FAQ';
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // Format helpers
+  // ─────────────────────────────────────────────
+
   private formatDonorProfile(donor: any): string {
     const parts: string[] = [];
 
@@ -84,7 +178,6 @@ export class ChatbotService {
     return `[DỮ LIỆU DB - THÔNG TIN CÁ NHÂN NGƯỜI DÙNG]:\n${parts.join('\n')}`;
   }
 
-  // Format dữ liệu lịch sử donor thành chuỗi ngắn gọn để nhét vào prompt
   private formatDonorHistory(records: any[]): string {
     if (!records || records.length === 0) {
       return '[DỮ LIỆU DB]: Người dùng này chưa có lịch sử hiến máu nào trong hệ thống.';
@@ -102,7 +195,6 @@ export class ChatbotService {
     return `[DỮ LIỆU DB - LỊCH SỬ HIẾN MÁU CỦA BẠN (${records.length} lần)]:\n` + lines.join('\n');
   }
 
-  // Format dữ liệu lịch sử hospital thành chuỗi ngắn gọn
   private formatHospitalHistory(records: any[]): string {
     if (!records || records.length === 0) {
       return '[DỮ LIỆU DB]: Bệnh viện này chưa có lịch sử tiếp nhận máu nào trong hệ thống.';
@@ -125,6 +217,9 @@ export class ChatbotService {
     return `[DỮ LIỆU DB - LỊCH SỬ TIẾP NHẬN MÁU CỦA BỆNH VIỆN${note}]:\n${summary}\n` + lines.join('\n');
   }
 
+  // ─────────────────────────────────────────────
+  // MAIN HANDLER
+  // ─────────────────────────────────────────────
   async handleChat(chatDto: ChatDto, userId: number | null, role: string | null) {
     const { history = [], message } = chatDto;
 
@@ -133,11 +228,27 @@ export class ChatbotService {
         throw new Error('Gemini AI is not properly configured. Check GEMINI_API_KEY.');
       }
 
-      // Tìm context DB nếu user hỏi về lịch sử hiến máu
+      // Fast-path keyword match ──
+      let intent: Intent | null = this.detectIntentFastPath(message);
+      const usedFastPath = intent !== null;
+
+      // AI classify fallback nếu fast-path không match ──
+      if (!intent) {
+        intent = await this.classifyIntentWithAI(message, history);
+      }
+
+      console.log(
+        `[Chatbot] intent="${intent}" | via=${usedFastPath ? 'fast-path' : 'AI-classify'} | msg="${message}"`,
+      );
+
+      // Query DB theo intent ──
       let dbContext = '';
-      if (this.detectDonationHistoryIntent(message)) {
+      let donorProfileContext = '';
+
+      if (intent === 'DONATION_HISTORY') {
         if (!userId || !role) {
-          dbContext = '[THÔNG BÁO HỆ THỐNG]: Người dùng chưa đăng nhập. Hãy thông báo thân thiện rằng cần đăng nhập để xem lịch sử hiến máu cá nhân.';
+          dbContext =
+            '[THÔNG BÁO HỆ THỐNG]: Người dùng chưa đăng nhập. Hãy thông báo thân thiện rằng cần đăng nhập để xem lịch sử hiến máu cá nhân.';
         } else if (role === 'DONOR') {
           const donor = await this.donorsRepository.findByUserId(userId);
           if (donor) {
@@ -157,15 +268,14 @@ export class ChatbotService {
         }
       }
 
-      // Tìm thông tin cá nhân nếu donor đăng nhập và hỏi về điều kiện hiến máu
-      let donorProfileContext = '';
-      if (this.detectEligibilityIntent(message) && userId && role === 'DONOR') {
+      if (intent === 'ELIGIBILITY_CHECK' && userId && role === 'DONOR') {
         const donorProfile = await this.donorsRepository.getDonorById(userId);
         if (donorProfile) {
           donorProfileContext = this.formatDonorProfile(donorProfile);
         }
       }
 
+      // Build system instruction ──
       const systemInstruction = `Bạn là trợ lý AI của hệ thống kết nối hiến máu. Tên bạn là "Hana". Nhiệm vụ chính:
 
 ## 1. CHECK_ELIGIBILITY — Kiểm tra điều kiện hiến máu
