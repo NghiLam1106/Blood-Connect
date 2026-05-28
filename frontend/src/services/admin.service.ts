@@ -150,3 +150,23 @@ export async function getDonors(params: {
   const response = await api.get(`/admin/donors?${query.toString()}`);
   return response.data.data;
 }
+
+export interface DonorHistory {
+  id: number;
+  bloodType: string;
+  unitBlood: number;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  donationDate: string;
+  notes: string | null;
+  hospitalName: string;
+}
+
+export interface DonorDetailResponse {
+  donor: DonorItem & { id: number; weight: number | null; dob: string | null; gender: string | null; unitBlood: number | null };
+  histories: DonorHistory[];
+}
+
+export async function getDonorDetail(userId: number): Promise<DonorDetailResponse> {
+  const response = await api.get(`/admin/donors/${userId}`);
+  return response.data.data;
+}

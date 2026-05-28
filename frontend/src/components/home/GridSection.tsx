@@ -1,86 +1,234 @@
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome'
-import FavoriteIcon from '@mui/icons-material/Favorite'
+import React from 'react';
+import { motion, type Variants } from 'framer-motion';
+import { Building2, Sparkles, HeartPulse, ArrowRight } from 'lucide-react';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+
+const steps = [
+  {
+    id: 1,
+    title: 'Bệnh viện yêu cầu',
+    description: 'Bệnh viện tạo yêu cầu máu với nhóm máu và mức độ khẩn cấp.',
+    icon: Building2,
+    color: 'text-primary',
+    bg: 'bg-red-50',
+    gradient: 'from-red-50 to-softpink/50',
+    border: 'border-red-100',
+    glow: 'group-hover:shadow-red-500/20',
+    shadow: 'shadow-red-500/10'
+  },
+  {
+    id: 2,
+    title: 'AI Matching',
+    description: 'AI phân tích dữ liệu để tìm người hiến phù hợp nhanh nhất.',
+    icon: Sparkles,
+    color: 'text-secondary',
+    bg: 'bg-orange-50',
+    gradient: 'from-orange-50 to-orange-100/50',
+    border: 'border-orange-100',
+    glow: 'group-hover:shadow-orange-500/40',
+    shadow: 'shadow-orange-500/20',
+    isAI: true
+  },
+  {
+    id: 3,
+    title: 'Kết nối cứu người',
+    description: 'Thông báo realtime được gửi đến người hiến gần nhất.',
+    icon: HeartPulse,
+    color: 'text-accent',
+    bg: 'bg-blue-50',
+    gradient: 'from-blue-50 to-blue-100/50',
+    border: 'border-blue-100',
+    glow: 'group-hover:shadow-blue-500/20',
+    shadow: 'shadow-blue-500/10'
+  }
+];
+
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+      delayChildren: 0.1
+    }
+  }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1]
+    }
+  }
+};
 
 export function GridSection() {
-  const types = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+  const types = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
   return (
-    <section className="py-12 bg-background">
-      <div className="container mx-auto px-4 grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* Blood Types */}
-        <div className="bg-white rounded-3xl p-8 lg:p-12 border border-red-50 shadow-[0_4px_20px_-4px_rgba(239,68,68,0.05)]">
-          <h3 className="text-xs font-bold text-primary tracking-widest uppercase mb-2">Nhóm máu</h3>
-          <h2 className="text-2xl lg:text-3xl font-extrabold text-dark mb-10">Các nhóm máu của bạn</h2>
+    <div className="flex flex-col w-full bg-background">
+      
+      {/* 1. Process Section (New AI Redesign - Moved to Top) */}
+      <section id="process" className="relative py-16 overflow-hidden font-sans">
+        {/* Background Ornaments */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-[10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-blue-100/30 mix-blend-multiply filter blur-[80px] opacity-60 animate-blob" />
+          <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] rounded-full bg-red-100/40 mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000" />
+          <div className="absolute bottom-[-10%] left-[30%] w-[600px] h-[600px] rounded-full bg-orange-100/30 mix-blend-multiply filter blur-[80px] opacity-50 animate-blob animation-delay-4000" />
+          
+          {/* Subtle Dots Pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] [background-size:30px_30px] opacity-50 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+        </div>
 
-          <div className="grid grid-cols-4 gap-4 mb-8">
-            {types.map(type => (
-              <div key={type} className="bg-white rounded-2xl flex flex-col items-center justify-center py-5 border-2 border-red-50 hover:border-primary cursor-pointer hover:shadow-lg transition-all group">
-                <div className="text-red-200 group-hover:text-primary mb-2 transition-colors">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4C9.3 6.1 6 9.5 6 13.5A6 6 0 1 0 18 13.5C18 9.5 14.7 6.1 12 2.4z" /></svg>
+        <div className="container mx-auto px-4 md:px-6 relative z-10 max-w-6xl">
+          {/* Header Section */}
+          <div className="text-center max-w-3xl mx-auto mb-20 md:mb-32">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="flex flex-col items-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-50 border border-red-100 shadow-sm text-primary font-bold text-sm mb-6 uppercase tracking-wider">
+                <Sparkles size={16} className="text-primary" />
+                <span>Quy trình AI</span>
+              </div>
+              
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 tracking-tight">
+                Quy trình kết nối hiến máu
+              </h2>
+              
+              <p className="text-lg md:text-xl text-gray-500 leading-relaxed max-w-2xl">
+                Hệ thống AI tự động phân tích và kết nối người hiến máu phù hợp chỉ trong vài giây.
+              </p>
+            </motion.div>
+          </div>
+
+          {/* Timeline Section */}
+          <div className="relative">
+            {/* Connector Line (Desktop) */}
+            <div className="hidden lg:block absolute top-[110px] left-[15%] right-[15%] h-1 bg-gradient-to-r from-blue-100 via-red-200 to-orange-100 rounded-full z-0 overflow-hidden">
+              <motion.div 
+                initial={{ x: '-100%' }}
+                whileInView={{ x: '100%' }}
+                viewport={{ once: true }}
+                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                className="w-full h-full bg-gradient-to-r from-transparent via-red-500/30 to-transparent"
+              />
+            </div>
+
+            <motion.div 
+              className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 relative z-10"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+            >
+              {steps.map((step) => (
+                <motion.div
+                  key={step.id}
+                  variants={itemVariants}
+                  className={`group relative flex flex-col items-center text-center ${step.isAI ? 'lg:-translate-y-4' : ''}`}
+                >
+                  {/* Floating Number Badge */}
+                  <div className={`absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-md z-20 ${step.isAI ? 'bg-secondary shadow-orange-500/40 scale-110' : 'bg-dark'}`}>
+                    {step.id}
+                  </div>
+
+                  {/* Main Step Card */}
+                  <motion.div 
+                    whileHover={{ y: -8, scale: step.isAI ? 1.05 : 1.02 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className={`w-full h-full p-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer flex flex-col items-center transition-all duration-300 ease-out ${step.glow} ${step.isAI ? 'border-orange-100/80 shadow-[0_8px_30px_rgba(249,115,22,0.08)] bg-gradient-to-b from-white to-orange-50/20' : ''}`}
+                  >
+                    {/* Icon Circle */}
+                    <div className={`relative w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gradient-to-br ${step.gradient} ${step.border} border-2 shadow-lg ${step.shadow} group-hover:scale-110 transition-transform duration-300 ease-out z-10`}>
+                      <step.icon strokeWidth={2} size={28} className={`${step.color} ${step.isAI ? 'drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]' : ''}`} />
+                      
+                      {/* Glow effect strictly for AI */}
+                      {step.isAI && (
+                        <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-secondary" style={{ animationDuration: '3s' }} />
+                      )}
+                    </div>
+
+                    {/* AI Badge inside Card */}
+                    {step.isAI && (
+                      <div className="mb-2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 text-secondary text-[10px] sm:text-[11px] font-bold tracking-widest uppercase shadow-sm">
+                        AI Powered
+                      </div>
+                    )}
+                    
+                    <h3 className={`text-lg font-extrabold text-dark mb-2 tracking-tight ${step.isAI ? 'text-secondary' : ''}`}>
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm leading-relaxed max-w-[260px]">
+                      {step.description}
+                    </p>
+                  </motion.div>
+                  
+                  {/* Mobile Connector Arrow */}
+                  <div className="lg:hidden mt-8 text-gray-300">
+                    {step.id !== 3 && <ArrowRight size={24} className="rotate-90 text-gray-300" />}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* CTA Button */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+            className="mt-14 flex justify-center"
+          >
+            <button className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-2xl shadow-[0_8px_25px_rgba(239,68,68,0.3)] hover:shadow-[0_15px_35px_rgba(239,68,68,0.4)] hover:-translate-y-1 transition-all duration-300 overflow-hidden">
+              <span className="relative z-10 text-base tracking-wide">Xem chi tiết cách hoạt động</span>
+              <ArrowRight size={20} className="relative z-10 transform group-hover:translate-x-1 transition-transform duration-300" />
+              {/* Button Hover Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-secondary to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </button>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 2. Blood Types Section */}
+      <section className="pt-10 pb-20">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="bg-white rounded-3xl p-8 lg:p-12 border border-red-50 shadow-[0_4px_20px_-4px_rgba(239,68,68,0.05)]">
+            <div className="text-center mb-10">
+              <h3 className="text-xs font-bold text-primary tracking-widest uppercase mb-2">Nhóm máu</h3>
+              <h2 className="text-2xl lg:text-3xl font-extrabold text-dark">Các nhóm máu của bạn</h2>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              {types.map(type => (
+                <div key={type} className="bg-white rounded-2xl flex flex-col items-center justify-center py-5 border-2 border-red-50 hover:border-primary cursor-pointer hover:shadow-lg transition-all group">
+                  <div className="text-red-200 group-hover:text-primary mb-2 transition-colors">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.4C9.3 6.1 6 9.5 6 13.5A6 6 0 1 0 18 13.5C18 9.5 14.7 6.1 12 2.4z" /></svg>
+                  </div>
+                  <span className="font-extrabold text-primary text-xl">{type}</span>
                 </div>
-                <span className="font-extrabold text-primary text-xl">{type}</span>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
 
-          <div className="bg-red-50/50 rounded-2xl p-5 text-sm text-gray-600 font-medium border border-red-50">
-            Hiểu rõ nhóm máu giúp tăng khả năng kết nối và cứu sống nhiều người hơn.
-            <button className="block mt-4 font-bold text-dark hover:text-primary transition-colors text-xs bg-white border border-gray-200 px-5 py-2.5 rounded-xl shadow-sm">Tìm hiểu tương thích nhóm máu →</button>
+            <div className="bg-red-50/50 rounded-2xl p-5 text-sm text-gray-600 font-medium border border-red-50 text-center flex flex-col sm:flex-row items-center justify-between">
+              <span className="mb-4 sm:mb-0">Hiểu rõ nhóm máu giúp tăng khả năng kết nối và cứu sống nhiều người hơn.</span>
+              <button className="font-bold text-dark hover:text-primary transition-colors text-xs bg-white border border-gray-200 px-5 py-2.5 rounded-xl shadow-sm whitespace-nowrap">
+                Tìm hiểu tương thích →
+              </button>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* AI Process */}
-        <div className="bg-white rounded-3xl p-8 lg:p-12 border border-red-50 shadow-[0_4px_20px_-4px_rgba(239,68,68,0.05)]">
-          <h3 className="text-xs font-bold text-secondary tracking-widest uppercase mb-2">Quy trình AI</h3>
-          <h2 className="text-2xl lg:text-3xl font-extrabold text-dark mb-16">Quy trình kết nối hiến máu</h2>
-
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between relative mt-8 gap-y-12 md:gap-y-0 px-4">
-            {/* Line behind */}
-            <div className="hidden md:block absolute top-12 left-16 right-16 h-0.5 bg-gray-100 z-0"></div>
-
-            <div className="relative z-10 flex flex-col items-center text-center max-w-[140px]">
-              <div className="w-24 h-24 bg-red-50 text-primary rounded-full flex items-center justify-center border-4 border-white shadow-lg mb-4">
-                <LocalHospitalIcon fontSize="large" sx={{ fontSize: 40 }} />
-              </div>
-              <div className="absolute -top-3 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold border-4 border-white shadow-sm">1</div>
-              <div>
-                <h4 className="font-bold text-sm text-dark mb-1">Bệnh viện yêu cầu</h4>
-                <p className="text-[11px] text-gray-500 leading-relaxed">Bệnh viện tạo yêu cầu máu với thông tin chi tiết.</p>
-              </div>
-            </div>
-
-            <div className="hidden md:block text-gray-300 transform -translate-y-6">→</div>
-
-            <div className="relative z-10 flex flex-col items-center text-center max-w-[140px]">
-              <div className="w-24 h-24 bg-orange-50 text-secondary rounded-full flex items-center justify-center border-4 border-white shadow-lg mb-4">
-                <AutoAwesomeIcon fontSize="large" sx={{ fontSize: 40 }} />
-              </div>
-              <div className="absolute -top-3 w-8 h-8 bg-secondary text-white rounded-full flex items-center justify-center text-sm font-bold border-4 border-white shadow-sm">2</div>
-              <div>
-                <h4 className="font-bold text-sm text-dark mb-1">AI Matching</h4>
-                <p className="text-[11px] text-gray-500 leading-relaxed">AI phân tích & tìm người hiến phù hợp nhất vài giây.</p>
-              </div>
-            </div>
-
-            <div className="hidden md:block text-gray-300 transform -translate-y-6">→</div>
-
-            <div className="relative z-10 flex flex-col items-center text-center max-w-[140px]">
-              <div className="w-24 h-24 bg-blue-50 text-accent rounded-full flex items-center justify-center border-4 border-white shadow-lg mb-4">
-                <FavoriteIcon fontSize="large" sx={{ fontSize: 40 }} />
-              </div>
-              <div className="absolute -top-3 w-8 h-8 bg-accent text-white rounded-full flex items-center justify-center text-sm font-bold border-4 border-white shadow-sm">3</div>
-              <div>
-                <h4 className="font-bold text-sm text-dark mb-1">Kết nối cứu người</h4>
-                <p className="text-[11px] text-gray-500 leading-relaxed">Thông báo được gửi đến người hiến và kết nối.</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-14 flex justify-center">
-            <button className="font-bold text-dark hover:text-primary transition-colors text-xs bg-white border border-gray-200 px-6 py-3 rounded-xl shadow-sm">Xem chi tiết cách hoạt động →</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
   )
 }

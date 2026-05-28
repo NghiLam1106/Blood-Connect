@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import {
   AppBar,
@@ -41,6 +41,44 @@ export function Header() {
   const avatarColorClass = useAvatarColor(user?.name)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [activeHash, setActiveHash] = useState(location.hash || '')
+
+  useEffect(() => {
+    // If not on home page, just use standard location hash
+    if (location.pathname !== '/') {
+      setActiveHash(location.hash || '')
+      return
+    }
+
+    const handleScroll = () => {
+      const hashLinks = NAV_LINKS.filter(link => link.href.startsWith('/#')).map(l => l.href.substring(2))
+      let current = 'none'
+      
+      for (const id of hashLinks) {
+        const element = document.getElementById(id)
+        if (element) {
+          const rect = element.getBoundingClientRect()
+          // Check if the middle of the screen is currently inside this section
+          const viewportMiddle = window.innerHeight / 2
+          if (rect.top <= viewportMiddle && rect.bottom >= viewportMiddle) {
+            current = `#${id}`
+            break
+          }
+        }
+      }
+      
+      // If we are at the top of the page, select Home
+      if (window.scrollY < 150) {
+        current = ''
+      }
+
+      setActiveHash(current)
+    }
+
+    handleScroll() // Check immediately
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [location.pathname, location.hash])
 
   const handleUserMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget)
   const handleUserMenuClose = () => setAnchorEl(null)
@@ -57,6 +95,16 @@ export function Header() {
     else if (user?.role.toLocaleLowerCase() === 'hospital') navigate('/hospital/dashboard')
     else if (user?.role.toLocaleLowerCase() === 'admin') navigate('/admin/dashboard')
   }
+
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return location.pathname === '/' && (!activeHash || activeHash === '');
+    }
+    if (href.startsWith('/#')) {
+      return location.pathname === '/' && activeHash === href.substring(1);
+    }
+    return location.pathname.startsWith(href);
+  };
 
   return (
     <>
@@ -78,15 +126,20 @@ export function Header() {
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                to={link.href}
-                className="text-sm font-semibold text-gray-700 hover:text-primary transition-colors no-underline"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const active = isActive(link.href);
+              return (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className={`text-sm font-semibold transition-colors no-underline ${
+                    active ? 'text-primary' : 'text-gray-700 hover:text-primary'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Desktop Action Buttons */}
@@ -173,16 +226,23 @@ export function Header() {
         </Box>
         <Divider />
         <List>
-          {NAV_LINKS.map((link) => (
-            <ListItemButton
-              key={link.label}
-              component={Link}
-              to={link.href}
-              onClick={() => setDrawerOpen(false)}
-            >
-              <ListItemText primary={<span className="font-semibold text-gray-700">{link.label}</span>} />
-            </ListItemButton>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const active = isActive(link.href);
+            return (
+              <ListItemButton
+                key={link.label}
+                component={Link}
+                to={link.href}
+                onClick={() => setDrawerOpen(false)}
+                sx={{
+                  backgroundColor: active ? 'rgba(239, 68, 68, 0.08)' : 'transparent',
+                  borderRight: active ? '3px solid #EF4444' : '3px solid transparent',
+                }}
+              >
+                <ListItemText primary={<span className={`font-semibold ${active ? 'text-primary' : 'text-gray-700'}`}>{link.label}</span>} />
+              </ListItemButton>
+            );
+          })}
         </List>
         <Divider />
         <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
