@@ -6,6 +6,7 @@ import { MainLayout } from '../layouts/MainLayout'
 import { paths } from './paths'
 import { PrivateRoute } from './PrivateRoute'
 import { RoleRoute } from './RoleRoute'
+import { Reports } from '../pages/hospital/Reports'
 
 const LoadingFallback = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -110,6 +111,10 @@ export const router = createBrowserRouter([
       {
         path: paths.hospital.donorMatching,
         element: <RoleRoute requiredRole="hospital"><DonorMatching /></RoleRoute>,
+      },
+      {
+        path: paths.hospital.reports,
+        element: <RoleRoute requiredRole="hospital"><Reports /></RoleRoute>,
       },
       // Admin Routes
       {
