@@ -99,7 +99,7 @@ export default function DonorMatching() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div>
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>

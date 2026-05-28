@@ -172,4 +172,96 @@ export class HospitalService {
       notificationId: notification.id,
     };
   }
+
+  async getReportStats(hospitalUserId: number) {
+    const hospital = await this.hospitalRepository.findByUserId(Number(hospitalUserId));
+    if (!hospital) {
+      throw new NotFoundException({
+        status: HttpRequestStatus.NOT_FOUND,
+        message: 'Không tìm thấy bệnh viện'
+      });
+    }
+    const stats = await this.hospitalRepository.getReportStats(hospital.id);
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy thống kê báo cáo thành công',
+      data: stats,
+    };
+  }
+
+  async getNotificationHistory(
+    hospitalUserId: number,
+    page: number,
+    limit: number,
+    isAccept?: string,
+  ) {
+    const hospital = await this.hospitalRepository.findByUserId(Number(hospitalUserId));
+    if (!hospital) {
+      throw new NotFoundException({
+        status: HttpRequestStatus.NOT_FOUND,
+        message: 'Không tìm thấy bệnh viện',
+      });
+    }
+
+    let isAcceptFilter: boolean | null | undefined = undefined;
+    if (isAccept === 'true') isAcceptFilter = true;
+    else if (isAccept === 'false') isAcceptFilter = false;
+    else if (isAccept === 'null') isAcceptFilter = null;
+
+    const safePage = Math.max(1, Number(page) || 1);
+    const safeLimit = Math.min(50, Math.max(1, Number(limit) || 10));
+    const skip = (safePage - 1) * safeLimit;
+
+    const { items, total } = await this.hospitalRepository.getNotificationHistory({
+      hospitalId: hospital.id,
+      skip,
+      take: safeLimit,
+      isAccept: isAcceptFilter,
+    });
+
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy lịch sử yêu cầu thành công',
+      data: {
+        items,
+        total,
+        page: safePage,
+        limit: safeLimit,
+        totalPages: Math.ceil(total / safeLimit),
+      },
+    };
+  }
+
+  async getChartData(hospitalUserId: number, days: number) {
+    const validDays = [7, 30, 90].includes(Number(days)) ? Number(days) : 30;
+    const hospital = await this.hospitalRepository.findByUserId(Number(hospitalUserId));
+    if (!hospital) {
+      throw new NotFoundException({
+        status: HttpRequestStatus.NOT_FOUND,
+        message: 'Không tìm thấy bệnh viện',
+      });
+    }
+    const chartData = await this.hospitalRepository.getChartData(hospital.id, validDays);
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy dữ liệu biểu đồ thành công',
+      data: chartData,
+    };
+  }
+
+  async getBloodTypeDistribution(hospitalUserId: number) {
+    const hospital = await this.hospitalRepository.findByUserId(Number(hospitalUserId));
+    if (!hospital) {
+      throw new NotFoundException({
+        status: HttpRequestStatus.NOT_FOUND,
+        message: 'Không tìm thấy bệnh viện',
+      });
+    }
+    const data = await this.hospitalRepository.getBloodTypeDistribution(hospital.id);
+    return {
+      status: HttpRequestStatus.SUCCESS,
+      message: 'Lấy phân bố nhóm máu thành công',
+      data,
+    };
+  }
 }

@@ -78,6 +78,82 @@ export class HospitalRepository {
     });
   }
 
+  async getReportStats(hospitalId: number) {
+    const [totalRequests, acceptedRequests, pendingRequests, donationStats] = await Promise.all([
+      this.prisma.notification.count({ where: { hospitalId } }),
+      this.prisma.notification.count({ where: { hospitalId, isAccept: true } }),
+      this.prisma.notification.count({ where: { hospitalId, isAccept: null } }),
+      this.prisma.donationHistory.aggregate({
+        where: { hospitalId, status: 'ACCEPTED' },
+        _sum: { unitBlood: true },
+      }),
+    ]);
+    return {
+      totalRequests,
+      acceptedRequests,
+      pendingRequests,
+      totalUnitBlood: donationStats._sum.unitBlood ?? 0,
+      acceptRate: totalRequests > 0 ? Math.round((acceptedRequests / totalRequests) * 100) : 0,
+    };
+  }
+
+  async getNotificationHistory(params: {
+    hospitalId: number;
+    skip: number;
+    take: number;
+    isAccept?: boolean | null;
+  }) {
+    const where: any = { hospitalId: params.hospitalId };
+    if (params.isAccept !== undefined) where.isAccept = params.isAccept;
+    const [items, total] = await Promise.all([
+      this.prisma.notification.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: params.skip,
+        take: params.take,
+        select: {
+          id: true,
+          urgency: true,
+          distance: true,
+          isAccept: true,
+          notes: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.notification.count({ where }),
+    ]);
+    return { items, total };
+  }
+
+  async getChartData(hospitalId: number, days: number) {
+    const since = new Date();
+    since.setDate(since.getDate() - days);
+    const rows = await this.prisma.notification.findMany({
+      where: { hospitalId, createdAt: { gte: since } },
+      select: { createdAt: true, isAccept: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    const map = new Map<string, { requests: number; accepted: number }>();
+    for (const r of rows) {
+      const key = r.createdAt.toISOString().slice(0, 10);
+      const entry = map.get(key) ?? { requests: 0, accepted: 0 };
+      entry.requests++;
+      if (r.isAccept === true) entry.accepted++;
+      map.set(key, entry);
+    }
+    return Array.from(map.entries()).map(([date, v]) => ({ date, ...v }));
+  }
+
+  async getBloodTypeDistribution(hospitalId: number) {
+    const rows = await this.prisma.donationHistory.groupBy({
+      by: ['bloodType'],
+      where: { hospitalId, status: 'ACCEPTED' },
+      _count: { bloodType: true },
+      orderBy: { _count: { bloodType: 'desc' } },
+    });
+    return rows.map(r => ({ bloodType: r.bloodType, count: r._count.bloodType }));
+  }
+
   async updateUserVerified(userId: number, isVerified: boolean) {
     return this.prisma.user.update({
       where: { id: userId },
