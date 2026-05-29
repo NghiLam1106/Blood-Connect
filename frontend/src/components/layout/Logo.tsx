@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import logoRedBridge from '../../assets/logo_RedBridge.png';
 
 interface LogoProps {
@@ -8,7 +9,7 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ className = '', autoHideTextOnMobile = false }) => {
     return (
-        <div className={`flex items-center gap-3 ${className}`}>
+        <Link to="/" className={`flex items-center gap-3 ${className}`}>
             {/* The image should be placed in frontend/src/assets/logo_RedBridge.png */}
             <img
                 src={logoRedBridge}
@@ -31,6 +32,6 @@ export const Logo: React.FC<LogoProps> = ({ className = '', autoHideTextOnMobile
                     HealthTech Startup
                 </span>
             </div>
-        </div>
+        </Link>
     );
 };
