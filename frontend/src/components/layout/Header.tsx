@@ -53,7 +53,7 @@ export function Header() {
     const handleScroll = () => {
       const hashLinks = NAV_LINKS.filter(link => link.href.startsWith('/#')).map(l => l.href.substring(2))
       let current = 'none'
-      
+
       for (const id of hashLinks) {
         const element = document.getElementById(id)
         if (element) {
@@ -66,7 +66,7 @@ export function Header() {
           }
         }
       }
-      
+
       // If we are at the top of the page, select Home
       if (window.scrollY < 150) {
         current = ''
@@ -120,9 +120,7 @@ export function Header() {
       >
         <Toolbar className="container mx-auto flex items-center justify-between px-4 py-2">
           {/* Logo */}
-          <Link to="/" className="no-underline">
-            <Logo autoHideTextOnMobile={true} />
-          </Link>
+          <Logo autoHideTextOnMobile={false} />
 
           {/* Desktop Nav */}
           <nav className="hidden lg:flex items-center gap-6">

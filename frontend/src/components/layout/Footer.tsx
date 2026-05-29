@@ -20,9 +20,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link to="/" className="inline-block mb-4">
-              <Logo />
-            </Link>
+            <Logo />
             <p className="text-sm text-gray-500 leading-relaxed max-w-xs mt-4">
               Kết nối người hiến máu và bệnh viện thông qua công nghệ AI tiên tiến, cứu sống nhiều sinh mạng hơn mỗi ngày.
             </p>

@@ -8,7 +8,6 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import MenuIcon from '@mui/icons-material/Menu'
 import PeopleIcon from '@mui/icons-material/People'
 import PersonIcon from '@mui/icons-material/Person'
-import SettingsIcon from '@mui/icons-material/Settings'
 import WaterDropIcon from '@mui/icons-material/WaterDrop'
 import { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -35,7 +34,7 @@ const ROLE_CONFIGS = {
         bgActive: 'bg-blue-50',
         borderActive: 'border-l-accent',
         menu: [
-            { label: 'Dashboard', path: '/hospital/dashboard', icon: <DashboardIcon /> },
+            { label: 'Yêu cầu máu', path: '/hospital/dashboard', icon: <DashboardIcon /> },
             // { label: 'Tạo yêu cầu', path: '/hospital/requests', icon: <ReceiptIcon /> },
             { label: 'Danh sách người hiến máu', path: '/hospital/matching', icon: <FavoriteIcon /> },
             { label: 'Báo cáo', path: '/hospital/reports', icon: <AssessmentIcon /> },
@@ -50,7 +49,7 @@ const ROLE_CONFIGS = {
             { label: 'Quản lý người hiến máu', path: '/admin/donors', icon: <PeopleIcon /> },
             { label: 'Quản lý bệnh viện', path: '/admin/hospitals', icon: <LocalHospitalIcon /> },
             { label: 'Lưu lượng máu', path: '/admin/blood-collect', icon: <WaterDropIcon /> },
-            { label: 'Cấu hình hệ thống', path: '/admin/settings', icon: <SettingsIcon /> },
+            // { label: 'Cấu hình hệ thống', path: '/admin/settings', icon: <SettingsIcon /> },
         ]
     }
 }
@@ -81,10 +80,8 @@ export function DashboardLayout() {
 
     const SidebarContent = () => (
         <div className="h-full flex flex-col bg-white border-r border-gray-100">
-            <div className="p-6">
-                <Link to="/" className="inline-block no-underline">
-                    <Logo autoHideTextOnMobile={false} />
-                </Link>
+            <div className="p-9">
+                <Logo autoHideTextOnMobile={false} className='hidden sm:flex' />
             </div>
 
             {/* User Info minimal */}
