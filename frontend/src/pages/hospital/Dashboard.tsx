@@ -15,7 +15,7 @@ export default function HospitalDashboard() {
     useStore()
   const [isPending, startTransition] = useTransition()
   const [bloodType, setBloodType] = useState<BloodType>('O+')
-  const [quantity, setQuantity] = useState('2')
+  const [quantity, setQuantity] = useState('1')
   const [urgency, setUrgency] = useState(3)
   const [notes, setNotes] = useState('')
   const [error, setError] = useState('')
@@ -81,8 +81,8 @@ export default function HospitalDashboard() {
       {/* Header */}
       <div className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-dark mb-1">Quản lý Yêu cầu máu</h1>
-          <p className="text-gray-500 font-medium text-sm">Dashboard Bệnh viện • {user.name}</p>
+          <h1 className="text-3xl font-extrabold text-dark mb-1">Yêu cầu máu</h1>
+          <p className="text-gray-500 font-medium text-sm">{user.name}</p>
         </div>
         <div className="hidden sm:flex items-center gap-2 bg-blue-50 text-accent px-4 py-2 rounded-full text-xs font-bold border border-blue-100 shadow-sm">
           <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
