@@ -10,7 +10,7 @@ export class MailProcessor extends WorkerHost {
 
   async process(job: Job<any, any, string>): Promise<any> {
     const { email, otp, name } = job.data;
-
+    console.log('--- [BullModule] Đang kết nối Redis với URL:', job.name);
     switch (job.name) {
       case 'sendOtpEmail':
         await this.mailerService.sendMail({

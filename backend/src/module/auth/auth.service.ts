@@ -110,7 +110,7 @@ export class AuthService {
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
       await this.redis.set(`otp:${email}`, otp, 'EX', 300);
-
+      console.log('--- [BullModule] Đang kết nối Redis với URL:', otp);
       await this.mailQueue.add(
         'sendOtpEmail',
         {
