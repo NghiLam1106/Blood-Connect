@@ -1,13 +1,13 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
-
+import { Resend } from 'resend';
 @Processor('mail_queue')
 export class MailProcessor extends WorkerHost {
   constructor(private readonly mailerService: MailerService) {
     super();
   }
-
+  private readonly resend = new Resend('re_YqrKSRYQ_Ja31ATCjKeTJnAW5PDTpXasF');
   async process(job: Job<any, any, string>): Promise<any> {
     const { email, otp, name } = job.data;
     console.log('--- [BullModule] Đang kết nối Redis với URL:', job.name);
@@ -15,7 +15,8 @@ export class MailProcessor extends WorkerHost {
       case 'sendOtpEmail':
         console.log('--- [MailProcessor] Bắt đầu gửi OTP email cho:', email);
         try {
-          await this.mailerService.sendMail({
+          await this.resend.emails.send({
+            from: 'onboarding@resend.dev',
             to: email,
             subject: 'Mã xác thực OTP',
             html: `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
