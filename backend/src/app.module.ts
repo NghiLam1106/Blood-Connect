@@ -30,24 +30,24 @@ import { UsersModule } from './module/users/users.module';
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => {
-        const redisUrl = config.get<string>('REDIS_URL');
+        // const redisUrl = config.get<string>('REDIS_URL');
 
-        console.log('--- [BullModule] Đang kết nối Redis với URL:', redisUrl);
+        // console.log('--- [BullModule] Đang kết nối Redis với URL:', redisUrl);
 
-        if (redisUrl) {
-          const isExternal = redisUrl.includes('render.com');
+        // if (redisUrl) {
+        //   const isExternal = redisUrl.includes('render.com');
 
-          return {
-            connection: {
-              url: redisUrl,
-              ...(isExternal && {
-                tls: {
-                  rejectUnauthorized: false,
-                },
-              }),
-            },
-          };
-        }
+        //   return {
+        //     connection: {
+        //       url: redisUrl,
+        //       ...(isExternal && {
+        //         tls: {
+        //           rejectUnauthorized: false,
+        //         },
+        //       }),
+        //     },
+        //   };
+        // }
 
         return {
           connection: {
