@@ -64,6 +64,7 @@ import { UsersModule } from './module/users/users.module';
           port: Number(config.get('MAIL_PORT')),
           secure: false,
           requireTLS: true,
+          family: 4,
           auth: {
             user: config.get('MAIL_USER'),
             pass: config.get('MAIL_PASSWORD'),
