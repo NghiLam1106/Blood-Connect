@@ -3,6 +3,7 @@ import { InjectQueue } from '@nestjs/bullmq';
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -79,53 +80,64 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const { nameDonor, email, phone, bloodType, password, role, provinceName, wardName, street, address } = registerDto;
+    try {
+      const { nameDonor, email, phone, bloodType, password, role, provinceName, wardName, street, address } = registerDto;
 
-    const userExists = await this.usersRepository.findByEmail(email);
+      const userExists = await this.usersRepository.findByEmail(email);
 
-    if (userExists) {
-      throw new BadRequestException({
+      if (userExists) {
+        throw new BadRequestException({
+          status: HttpRequestStatus.ERROR,
+          message: 'Email này đã được sử dụng!',
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await this.usersRepository.create({
+        name: nameDonor,
+        email,
+        phone,
+        bloodType,
+        hashedPassword,
+        role,
+        provinceName,
+        wardName,
+        street,
+        address,
+      });
+
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      await this.redis.set(`otp:${email}`, otp, 'EX', 300);
+
+      await this.mailQueue.add(
+        'sendOtpEmail',
+        {
+          email,
+          otp,
+          name: nameDonor,
+        },
+        {
+          attempts: 3,
+          backoff: 5000,
+        },
+      );
+
+      return {
+        status: HttpRequestStatus.SUCCESS,
+        message: 'Đăng ký tài khoản thành công!',
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException({
         status: HttpRequestStatus.ERROR,
-        message: 'Email này đã được sử dụng!',
+        message: error || 'Đã có lỗi xảy ra, vui lòng thử lại!',
       });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await this.usersRepository.create({
-      name: nameDonor,
-      email,
-      phone,
-      bloodType,
-      hashedPassword,
-      role,
-      provinceName,
-      wardName,
-      street,
-      address,
-    });
-
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    await this.redis.set(`otp:${email}`, otp, 'EX', 300);
-
-    await this.mailQueue.add(
-      'sendOtpEmail',
-      {
-        email,
-        otp,
-        name: nameDonor,
-      },
-      {
-        attempts: 3,
-        backoff: 5000,
-      },
-    );
-
-    return {
-      status: HttpRequestStatus.SUCCESS,
-      message: 'Đăng ký tài khoản thành công!',
-    };
   }
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {

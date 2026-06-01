@@ -15,6 +15,7 @@ export const authService = {
   registerDonor: async (data: any) => {
     try {
       const response = await api.post('/auth/register', data);
+      console.log('check', response);
       return response.data;
     } catch (error: any) {
       let message = 'Đăng ký thất bại';
