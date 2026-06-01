@@ -29,11 +29,33 @@ import { UsersModule } from './module/users/users.module';
 
     BullModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        connection: config.get('REDIS_URL')
-          ? { url: config.get('REDIS_URL') }
-          : { host: config.get('REDIS_HOST'), port: config.get('REDIS_PORT') }
-      }),
+      useFactory: (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL');
+
+        console.log('--- [BullModule] Đang kết nối Redis với URL:', redisUrl);
+
+        if (redisUrl) {
+          const isExternal = redisUrl.includes('render.com');
+
+          return {
+            connection: {
+              url: redisUrl,
+              ...(isExternal && {
+                tls: {
+                  rejectUnauthorized: false,
+                },
+              }),
+            },
+          };
+        }
+
+        return {
+          connection: {
+            host: config.get('REDIS_HOST'),
+            port: Number(config.get('REDIS_PORT')),
+          },
+        };
+      },
     }),
 
     MailerModule.forRootAsync({
