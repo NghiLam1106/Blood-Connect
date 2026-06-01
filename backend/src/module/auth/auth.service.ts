@@ -93,7 +93,7 @@ export class AuthService {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-
+      console.log('--- [BullModule] Đang kết nối Redis với URL01:', email);
       await this.usersRepository.create({
         name: nameDonor,
         email,
@@ -106,6 +106,8 @@ export class AuthService {
         street,
         address,
       });
+
+      console.log('--- [BullModule] Đang kết nối Redis với URL:', email);
 
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
