@@ -58,19 +58,25 @@ import { UsersModule } from './module/users/users.module';
 
     MailerModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        transport: {
-          host: config.get('MAIL_HOST'),
-          port: Number(config.get('MAIL_PORT')),
-          secure: false,
-          requireTLS: true,
-          family: 4,
-          auth: {
-            user: config.get('MAIL_USER'),
-            pass: config.get('MAIL_PASSWORD'),
+      useFactory: (config: ConfigService) => {
+        const port = Number(config.get('MAIL_PORT'));
+        const isSecure = port === 465;
+        return {
+          transport: {
+            host: config.get('MAIL_HOST'),
+            port,
+            secure: isSecure,
+            ...(isSecure ? {} : { requireTLS: true }),
+            auth: {
+              user: config.get('MAIL_USER'),
+              pass: config.get('MAIL_PASSWORD'),
+            },
           },
-        },
-      }),
+          defaults: {
+            from: config.get('MAIL_FROM') || config.get('MAIL_USER'),
+          },
+        };
+      },
     }),
 
     RedisModule.forRootAsync({
