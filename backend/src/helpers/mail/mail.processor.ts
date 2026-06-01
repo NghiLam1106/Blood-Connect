@@ -13,6 +13,7 @@ export class MailProcessor extends WorkerHost {
     console.log('--- [BullModule] Đang kết nối Redis với URL:', job.name);
     switch (job.name) {
       case 'sendOtpEmail':
+        console.log('--- [BullModule] Đang kết nối Redis với key:', email);
         await this.mailerService.sendMail({
           to: email,
           subject: 'Mã xác thực OTP',
