@@ -35,15 +35,13 @@ import { UsersModule } from './module/users/users.module';
         console.log('--- [BullModule] Đang kết nối Redis với URL:', redisUrl);
 
         if (redisUrl) {
-          const isExternal = redisUrl.includes('render.com');
-          console.log('--- [BullModule] success');
+          const isTLS = redisUrl.startsWith('rediss://'); // rediss:// = TLS
+          console.log('--- [BullModule] success', isTLS);
           return {
             connection: {
               url: redisUrl,
-              ...(isExternal && {
-                tls: {
-                  rejectUnauthorized: false,
-                },
+              ...(isTLS && {
+                tls: { rejectUnauthorized: false },
               }),
             },
           };
