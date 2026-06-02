@@ -7,7 +7,7 @@ export class MailProcessor extends WorkerHost {
   constructor(private readonly mailerService: MailerService) {
     super();
   }
-  private readonly resend = new Resend('re_YqrKSRYQ_Ja31ATCjKeTJnAW5PDTpXasF');
+  private readonly resend = new Resend(process.env.RESEND_API_KEY);
   async process(job: Job<any, any, string>): Promise<any> {
     const { email, otp, name } = job.data;
     console.log('--- [BullModule] Đang kết nối Redis với URL:', job.name);
@@ -16,7 +16,7 @@ export class MailProcessor extends WorkerHost {
         console.log('--- [MailProcessor] Bắt đầu gửi OTP email cho:', email);
         try {
           await this.resend.emails.send({
-            from: 'onboarding@resend.dev',
+            from: `${process.env.RESEND_EMAIL}`,
             to: email,
             subject: 'Mã xác thực OTP',
             html: `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
@@ -38,7 +38,8 @@ export class MailProcessor extends WorkerHost {
       case 'sendForgotPasswordEmail':
         console.log('--- [MailProcessor] Bắt đầu gửi ForgotPassword email cho:', email);
         try {
-          await this.mailerService.sendMail({
+          await this.resend.emails.send({
+            from: `${process.env.RESEND_EMAIL}`,
             to: email,
             subject: 'Mã OTP xác nhận quên mật khẩu',
             html: `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
