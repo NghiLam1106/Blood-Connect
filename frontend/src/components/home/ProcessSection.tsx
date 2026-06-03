@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion, type Variants } from 'framer-motion';
 import { Building2, Sparkles, HeartPulse, ArrowRight } from 'lucide-react';
 
@@ -74,7 +73,7 @@ export default function ProcessSection() {
         <div className="absolute top-[10%] left-[-5%] w-[500px] h-[500px] rounded-full bg-blue-100/30 mix-blend-multiply filter blur-[80px] opacity-60 animate-blob" />
         <div className="absolute top-[20%] right-[-5%] w-[400px] h-[400px] rounded-full bg-red-100/40 mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000" />
         <div className="absolute bottom-[-10%] left-[30%] w-[600px] h-[600px] rounded-full bg-orange-100/30 mix-blend-multiply filter blur-[80px] opacity-50 animate-blob animation-delay-4000" />
-        
+
         {/* Subtle Dots Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1.5px,transparent_1.5px)] [background-size:30px_30px] opacity-50 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
       </div>
@@ -93,11 +92,11 @@ export default function ProcessSection() {
               <Sparkles size={16} className="text-primary" />
               <span>Quy trình AI</span>
             </div>
-            
+
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-dark mb-6 tracking-tight">
               Quy trình kết nối hiến máu
             </h2>
-            
+
             <p className="text-lg md:text-xl text-gray-500 leading-relaxed max-w-2xl">
               Hệ thống AI tự động phân tích và kết nối người hiến máu phù hợp chỉ trong vài giây.
             </p>
@@ -108,7 +107,7 @@ export default function ProcessSection() {
         <div className="relative">
           {/* Connector Line (Desktop) */}
           <div className="hidden lg:block absolute top-[110px] left-[15%] right-[15%] h-1 bg-gradient-to-r from-blue-100 via-red-200 to-orange-100 rounded-full z-0 overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ x: '-100%' }}
               whileInView={{ x: '100%' }}
               viewport={{ once: true }}
@@ -117,7 +116,7 @@ export default function ProcessSection() {
             />
           </div>
 
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 lg:grid-cols-3 gap-12 lg:gap-8 relative z-10"
             variants={containerVariants}
             initial="hidden"
@@ -136,7 +135,7 @@ export default function ProcessSection() {
                 </div>
 
                 {/* Main Step Card */}
-                <motion.div 
+                <motion.div
                   whileHover={{ y: -8, scale: step.isAI ? 1.05 : 1.02 }}
                   transition={{ duration: 0.3, ease: "easeOut" }}
                   className={`w-full h-full p-6 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] cursor-pointer flex flex-col items-center transition-all duration-300 ease-out ${step.glow} ${step.isAI ? 'border-orange-100/80 shadow-[0_8px_30px_rgba(249,115,22,0.08)] bg-gradient-to-b from-white to-orange-50/20' : ''}`}
@@ -144,7 +143,7 @@ export default function ProcessSection() {
                   {/* Icon Circle */}
                   <div className={`relative w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-gradient-to-br ${step.gradient} ${step.border} border-2 shadow-lg ${step.shadow} group-hover:scale-110 transition-transform duration-300 ease-out z-10`}>
                     <step.icon strokeWidth={2} size={28} className={`${step.color} ${step.isAI ? 'drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]' : ''}`} />
-                    
+
                     {/* Glow effect strictly for AI */}
                     {step.isAI && (
                       <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-secondary" style={{ animationDuration: '3s' }} />
@@ -157,7 +156,7 @@ export default function ProcessSection() {
                       AI Powered
                     </div>
                   )}
-                  
+
                   <h3 className={`text-lg font-extrabold text-dark mb-2 tracking-tight ${step.isAI ? 'text-secondary' : ''}`}>
                     {step.title}
                   </h3>
@@ -165,7 +164,7 @@ export default function ProcessSection() {
                     {step.description}
                   </p>
                 </motion.div>
-                
+
                 {/* Mobile Connector Arrow */}
                 <div className="lg:hidden mt-8 text-gray-300">
                   {step.id !== 3 && <ArrowRight size={24} className="rotate-90 text-gray-300" />}
@@ -176,7 +175,7 @@ export default function ProcessSection() {
         </div>
 
         {/* CTA Button */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

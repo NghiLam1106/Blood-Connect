@@ -16,8 +16,6 @@ import {
   MenuItem,
 } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import CloseIcon from '@mui/icons-material/Close'
 import { useStore } from '../../store/useStore'
 import { Logo } from './Logo'

@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom'
 import FavoriteIcon from '@mui/icons-material/Favorite'
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
 import { useStore } from '../../store/useStore'
 
 export function HeroSection() {
-  const navigate = useNavigate()
   const { setAuthModalView } = useStore()
   return (
     <section className="relative pt-12 pb-20 overflow-hidden bg-background">

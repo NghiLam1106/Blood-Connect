@@ -1,7 +1,4 @@
-import DiamondIcon from '@mui/icons-material/Diamond'
 import FavoriteIcon from '@mui/icons-material/Favorite'
-import MilitaryTechIcon from '@mui/icons-material/MilitaryTech'
-import StarsIcon from '@mui/icons-material/Stars'
 
 import { useStore } from '../../store/useStore'
 

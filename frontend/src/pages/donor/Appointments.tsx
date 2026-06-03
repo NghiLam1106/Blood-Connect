@@ -1,5 +1,3 @@
-import React from 'react';
-
 export default function Appointments() {
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm">

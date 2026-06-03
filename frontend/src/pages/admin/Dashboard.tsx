@@ -1,4 +1,3 @@
-import React from 'react'
 import { DashboardStats } from '../../components/admin/DashboardStats'
 import { DemandChart } from '../../components/admin/DemandChart'
 import { RecentTraffic } from '../../components/admin/RecentTraffic'
