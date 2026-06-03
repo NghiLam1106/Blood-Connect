@@ -1,8 +1,6 @@
 import { useMemo, useState, useTransition } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Alert, CircularProgress, Tab, Tabs } from '@mui/material'
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline'
-import LocalHospitalIcon from '@mui/icons-material/LocalHospital'
+import { Alert, CircularProgress } from '@mui/material'
 import { useStore } from '../../store/useStore'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import { authService } from '../../services/auth.service'
@@ -17,7 +15,7 @@ interface LoginProps {
 export default function Login({ asModal = false, onClose, onNavigate }: LoginProps) {
   const navigate = useNavigate()
   const login = useStore((s) => s.login)
-  const [tab, setTab] = useState(0)
+  const [tab] = useState(0)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [form, setForm] = useState({ email: '', password: '' })
@@ -48,8 +46,8 @@ export default function Login({ asModal = false, onClose, onNavigate }: LoginPro
         }
         if (responseData?.refreshToken) {
           storage.setRefreshToken(responseData.refreshToken)
-        }   
-             
+        }
+
         let normalizedRole = currentRole;
         if (responseData?.user?.role) {
           const rawRole = responseData.user.role.toLowerCase();
