@@ -25,6 +25,10 @@ export const useBloodRequest = () => {
 
   const handleBloodRequest = useCallback(
     (data: BloodRequestPayload) => {
+      // Deduplicate: nếu alert hiện tại đã là notification này → bỏ qua
+      const currentAlert = useStore.getState().activeAlert;
+      if (currentAlert?.notificationId === data.notificationId) return;
+
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
         data.hospitalAddress,
       )}`;

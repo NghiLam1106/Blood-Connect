@@ -4,15 +4,15 @@ import LocationOnIcon from '@mui/icons-material/LocationOn'
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import SearchIcon from '@mui/icons-material/Search'
 import {
-  Avatar,
-  Card,
-  CardContent,
-  Chip,
-  CircularProgress,
-  Typography
+    Avatar,
+    Card,
+    CardContent,
+    Chip,
+    CircularProgress,
+    Typography
 } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useSocket } from '../../hooks/useSocket'
 import { selectDonor } from '../../services/hospital.service'
 import type { MatchedDonor } from '../../store/useStore'
@@ -41,14 +41,20 @@ export function MatchingResults({
   const { updateDonorStatus } = useStore()
   const [loadingDonorId, setLoadingDonorId] = useState<number | null>(null)
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null)
+  // Track donorUserId đã hiện toast để tránh trùng khi socket reconnect
+  const shownResponseIds = useRef<Set<number>>(new Set())
 
   const showToast = (text: string, type: 'success' | 'error') => {
     setToastMessage({ text, type })
     setTimeout(() => setToastMessage(null), 4000)
   }
 
-  // Lắng nghe phản hồi donor real-time và hiển thị toast
-  useSocket('donor-response', useCallback((data: { action: 'accept' | 'reject'; donorName: string }) => {
+  // Lắng nghe phản hồi donor real-time và hiển thị toast (có deduplicate)
+  useSocket('donor-response', useCallback((data: { action: 'accept' | 'reject'; donorName: string; donorUserId: number }) => {
+    // Deduplicate: nếu đã hiện toast cho donor này → bỏ qua
+    if (shownResponseIds.current.has(data.donorUserId)) return
+    shownResponseIds.current.add(data.donorUserId)
+
     const msg = data.action === 'accept'
       ? `✅ ${data.donorName} đã chấp nhận yêu cầu!`
       : `❌ ${data.donorName} đã từ chối yêu cầu.`
