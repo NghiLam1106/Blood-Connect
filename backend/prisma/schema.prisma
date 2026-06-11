@@ -42,6 +42,7 @@ model Donors {
   weight       Float?
   unitBlood    Int?
   dob          DateTime?
+  age          Int?
   gender       Gender    @default(MALE)
   status       Status    @default(UNAVAILABLE)
   responseRate Decimal   @default(0) @db.Decimal(5, 2)

@@ -61,7 +61,12 @@ export class HospitalService {
       id: donor.id,
       distance: donor.distance ?? 9999,
       lastDonation: convertLastDonationDays(donor.lastDonation),
-      responseRate: Number(donor.responseRate)
+      responseRate: Number(donor.responseRate),
+      weight: donor.weight,
+      age: donor.age,
+      gender: donor.gender,
+      bloodType: donor.bloodType ?? null,
+      requiredBloodType: bloodType ?? null,
     }));
 
     try {
