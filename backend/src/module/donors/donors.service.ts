@@ -20,13 +20,13 @@ export class DonorsService {
   ) { }
 
   async updateDonor(userId: number, body: UpdateDonorsDto) {
-    const { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street } = body;
+    const { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street, lastDonation } = body;
     let data: any;
     if (address) {
       const coordinates = await this.geocodingService.getCoordinates(address);
-      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street }, { lat: coordinates.lat, lng: coordinates.lon });
+      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street, lastDonation }, { lat: coordinates.lat, lng: coordinates.lon });
     } else {
-      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street });
+      data = await this.donorsRepository.updateDonor(userId, { weight, unitBlood, address, bloodType, name, avatar, status, dob, gender, provinceName, wardName, street, lastDonation });
     }
     return { message: 'Cập nhật thông tin người hiến máu thành công!', status: HttpRequestStatus.SUCCESS, data };
   }

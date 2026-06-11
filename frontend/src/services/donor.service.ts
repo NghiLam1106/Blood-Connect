@@ -13,6 +13,7 @@ export interface UpdateDonorProfilePayload {
   weight?: number
   unitBlood?: number
   status?: string
+  lastDonation?: string
 }
 
 export async function updateDonorProfile(userId: string | number, payload: UpdateDonorProfilePayload) {

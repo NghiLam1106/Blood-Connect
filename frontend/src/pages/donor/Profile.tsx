@@ -11,7 +11,7 @@ import { getDonorProfile, updateDonorProfile } from '../../services/donor.servic
 import { useStore } from '../../store/useStore'
 import { getAgeFromDOB, getMaxDonation, getSuggestedAmount, getValidOptions } from '../../utils/bloodDonation'
 
-const DONATION_INTERVAL_DAYS = 56
+const DONATION_INTERVAL_DAYS = 84
 
 type SuggestedBloodVolume = 250 | 350 | 450
 type DonorGender = 'MALE' | 'FEMALE'
@@ -75,6 +75,7 @@ export default function Profile() {
     bloodType: user?.bloodType ?? '',
     weight: typeof user?.weight === 'number' && user.weight > 0 ? user.weight : null,
     unitBlood: typeof user?.unitBlood === 'number' && user.unitBlood > 0 ? user.unitBlood : null,
+    lastDonation: formatDateForInput(user?.lastDonation),
   })
   const [dobError, setDobError] = useState<string | null>(null)
   const [healthChecks, setHealthChecks] = useState({
@@ -108,6 +109,7 @@ export default function Profile() {
       bloodType: user.bloodType ?? '',
       weight: typeof user.weight === 'number' && user.weight > 0 ? user.weight : null,
       unitBlood: typeof user.unitBlood === 'number' && user.unitBlood > 0 ? user.unitBlood : null,
+      lastDonation: formatDateForInput(user.lastDonation),
     })
   }, [user])
 
@@ -282,6 +284,7 @@ export default function Profile() {
         bloodType: profileForm.bloodType,
         weight: profileForm.weight,
         unitBlood: profileForm.unitBlood,
+        lastDonation: profileForm.lastDonation || undefined,
       })
       updateUser(response)
       setProfileSuccess('Cập nhật thông tin thành công!')
@@ -350,6 +353,18 @@ export default function Profile() {
                 <option value="MALE">Nam</option>
                 <option value="FEMALE">Nữ</option>
               </select>
+            </label>
+
+            <label className="space-y-2 md:col-span-2">
+              <span className="text-sm font-bold text-dark">Lần hiến máu cuối</span>
+              <input
+                type="date"
+                value={profileForm.lastDonation}
+                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setProfileForm((p) => ({ ...p, lastDonation: e.target.value }))}
+                className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-primary focus:bg-white"
+              />
+              <p className="text-xs text-gray-400">Dùng để hệ thống tính ngày bạn có thể hiến tiếp theo.</p>
             </label>
 
             <div className="space-y-2 md:col-span-2">
@@ -482,7 +497,7 @@ export default function Profile() {
             <div className="rounded-2xl bg-orange-50 p-4"><p className="text-xs font-bold uppercase tracking-wider text-gray-400">Trạng thái</p><p className="mt-2 text-2xl font-extrabold text-dark">{isAvailable ? 'Sẵn sàng' : 'Tạm dừng'}</p></div>
             <div className="rounded-2xl border border-gray-100 p-4"><p className="text-xs font-bold uppercase tracking-wider text-gray-400">Cân nặng</p><p className="mt-2 text-xl font-extrabold text-dark">{user.weight ? `${user.weight} kg` : 'Chưa cập nhật'}</p><p className={`mt-2 text-xs font-semibold ${user.weight && user.weight >= 45 ? 'text-success' : 'text-yellow-600'}`}>{user.weight && user.weight >= 45 ? 'Đủ điều kiện cân nặng (>=45kg)' : 'Cần tối thiểu 45kg để hiến máu'}</p></div>
             <div className="rounded-2xl border border-gray-100 p-4"><p className="text-xs font-bold uppercase tracking-wider text-gray-400">Ngày hiến tiếp theo có thể</p><p className="mt-2 text-xl font-extrabold text-dark">{nextEligibleDate ? formatDate(nextEligibleDate.toISOString()) : 'Sẵn sàng'}</p><span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${isEligibleNow ? 'bg-success/10 text-success' : 'bg-yellow-100 text-yellow-700'}`}>{isEligibleNow ? 'Đã đủ điều kiện' : 'Chưa đủ điều kiện'}</span></div>
-            <div className="rounded-2xl border border-gray-100 p-4 sm:col-span-2">{user.lastDonation ? (isEligibleNow ? <div className="rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm font-semibold text-success">Bạn đủ điều kiện hiến máu! Đặt lịch ngay.</div> : <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-700">Còn {remainingDays} ngày nữa bạn có thể hiến.</div>) : <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">Đăng ký lần hiến đầu tiên.</div>}</div>
+            <div className="rounded-2xl border border-gray-100 p-4 sm:col-span-2">{user.lastDonation ? (isEligibleNow ? <div className="rounded-xl border border-success/20 bg-success/10 px-4 py-3 text-sm font-semibold text-success">Bạn đủ điều kiện hiến máu!</div> : <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-700">Còn {remainingDays} ngày nữa bạn có thể hiến.</div>) : <div className="rounded-xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm font-semibold text-primary">Đăng ký lần hiến đầu tiên.</div>}</div>
           </div>
         </div>
       </div>
