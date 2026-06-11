@@ -2,7 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from "../../../../src/common/prisma/prisma.service";
 import { BloodGroup } from '../../../enums/bloodTypes.enum';
 import { toGMT7ISOString } from "../../../helpers/Date/getNowGMT7";
+import { calculateAge } from '../../../helpers/age/calculateAge';
 import { UpdateDonorsDto } from '../dto/updateDonors.dto';
+
 
 @Injectable()
 export class DonorsRepository {
@@ -27,6 +29,7 @@ export class DonorsRepository {
           bloodType: data.bloodType,
           status: data.status,
           dob: data.dob ? new Date(data.dob) : undefined,
+          age: data.dob ? calculateAge(new Date(data.dob)) : undefined,
           gender: data.gender,
           unitBlood: data.unitBlood,
         },
