@@ -32,6 +32,7 @@ export class DonorsRepository {
           age: data.dob ? calculateAge(new Date(data.dob)) : undefined,
           gender: data.gender,
           unitBlood: data.unitBlood,
+          lastDonation: data.lastDonation ? new Date(data.lastDonation) : undefined,
         },
       }),
     ]);

@@ -53,10 +53,10 @@ export class CreateDonorsDto {
   @IsEnum(Gender, { message: 'Giới tính phải là MALE hoặc FEMALE' })
   gender!: Gender;
 
-  // @ApiProperty({ description: 'Ngày hiến máu gần nhất' })
-  // @IsNotEmpty({ message: 'Ngày hiến máu gần nhất không được để trống' })
-  // @IsDate({ message: 'Ngày hiến máu gần nhất phải là ngày' })
-  // lastDonation!: Date;
+  @ApiProperty({ description: 'Ngày hiến máu gần nhất (ISO 8601)', required: false })
+  @IsOptional()
+  @IsDateString()
+  lastDonation?: string;
 
   // @ApiProperty({ description: 'Tỷ lệ phản hồi' })
   // @IsNotEmpty({ message: 'Tỷ lệ phản hồi không được để trống' })
