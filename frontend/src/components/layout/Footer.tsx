@@ -79,7 +79,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-100 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-gray-400">© 2026 RedBridge AI. All rights reserved.</p>
+          <p className="text-sm text-gray-400">© 2026 RedBridge. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/privacy" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Chính sách bảo mật</Link>
             <Link to="/terms" className="text-sm text-gray-400 hover:text-gray-600 no-underline">Điều khoản</Link>

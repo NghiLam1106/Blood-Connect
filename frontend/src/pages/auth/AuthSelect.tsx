@@ -40,7 +40,7 @@ export default function AuthSelect({ asModal = false, onNavigate }: AuthSelectPr
             </svg>
           </div>
         )}
-        <h1 className={`${asModal ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 mb-2`}>Tham gia RedBridge AI</h1>
+        <h1 className={`${asModal ? 'text-2xl' : 'text-3xl'} font-bold text-gray-900 mb-2`}>Tham gia RedBridge</h1>
         <p className="text-gray-500 text-base">Bạn muốn đăng ký với tư cách nào?</p>
       </div>
 

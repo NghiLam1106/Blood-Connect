@@ -21,7 +21,7 @@ export function HeroSection() {
           </h1>
 
           <p className="text-gray-500 text-lg mb-10 max-w-lg leading-relaxed">
-            RedBridge AI giúp kết nối người cần máu với người hiến phù hợp theo thời gian thực, đúng nhóm máu, đúng nơi, đúng lúc.
+            RedBridge giúp kết nối người cần máu với người hiến phù hợp theo thời gian thực, đúng nhóm máu, đúng nơi, đúng lúc.
           </p>
 
           <div className="flex flex-wrap gap-4 mb-10">

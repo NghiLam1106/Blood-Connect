@@ -10,7 +10,7 @@ export function StoryCTASection() {
           <h3 className="font-extrabold text-primary text-xl mb-4">Câu chuyện<br />truyền cảm hứng</h3>
           <p className="italic text-gray-600 text-sm mb-4 leading-relaxed relative">
             <span className="text-4xl text-gray-200 absolute -top-4 -left-2 tracking-tighter">"</span>
-            Nhờ RedBridge AI, tôi đã tìm được người hiến máu phù hợp chỉ trong 20 phút. Nền tảng thật sự tuyệt vời!
+            Nhờ RedBridge, tôi đã tìm được người hiến máu phù hợp chỉ trong 20 phút. Nền tảng thật sự tuyệt vời!
           </p>
           <p className="text-xs font-bold text-dark">— Bệnh nhân chợ Rẫy</p>
         </div>
