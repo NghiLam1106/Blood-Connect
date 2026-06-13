@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PrismaService } from '../../common/prisma/prisma.service';
@@ -9,7 +10,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 
 @Module({
-  imports: [JwtModule],
+  imports: [JwtModule, BullModule.registerQueue({ name: 'mail_queue' })],
   controllers: [AdminController],
   providers: [
     AdminService,

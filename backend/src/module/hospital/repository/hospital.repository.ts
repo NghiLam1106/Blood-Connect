@@ -161,4 +161,11 @@ export class HospitalRepository {
       select: { id: true, isVerified: true },
     });
   }
+
+  async findUserByUserId(userId: number) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, name: true },
+    });
+  }
 }

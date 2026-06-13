@@ -1,4 +1,6 @@
+import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
+import { Queue } from 'bullmq';
 import { DonationHistoryRepository } from '../donation-history/repository/donationHistory.repository';
 import { DonorsRepository } from '../donors/repository/donors.respository';
 import { HospitalRepository } from '../hospital/repository/hospital.repository';
@@ -7,6 +9,7 @@ import { NotificationRepository } from '../notification/notification.repository'
 @Injectable()
 export class AdminService {
   constructor(
+    @InjectQueue('mail_queue') private readonly mailQueue: Queue,
     private readonly donorsRepository: DonorsRepository,
     private readonly hospitalRepository: HospitalRepository,
     private readonly donationHistoryRepository: DonationHistoryRepository,
@@ -203,7 +206,19 @@ export class AdminService {
   }
 
   async verifyHospital(userId: number, isVerified: boolean) {
-    return this.hospitalRepository.updateUserVerified(userId, isVerified);
+    const result = await this.hospitalRepository.updateUserVerified(userId, isVerified);
+
+    const user = await this.hospitalRepository.findUserByUserId(userId);
+    if (user) {
+      const jobName = isVerified ? 'sendHospitalVerifiedEmail' : 'sendHospitalRevokedEmail';
+      await this.mailQueue.add(
+        jobName,
+        { email: user.email, name: user.name },
+        { attempts: 3, backoff: 5000 },
+      );
+    }
+
+    return result;
   }
 
   async getDonors(params: {
