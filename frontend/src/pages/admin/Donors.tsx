@@ -153,7 +153,7 @@ export default function AdminDonors() {
     <div className="max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-dark mb-1">Quản lý Donor</h1>
+        <h1 className="text-3xl font-extrabold text-dark mb-1">Quản lý người hiến máu</h1>
         <p className="text-gray-500 font-medium text-sm">
           Xem và quản lý danh sách người hiến máu trong hệ thống
         </p>

@@ -133,7 +133,7 @@ export default function FeaturesSection() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 border border-red-100 shadow-sm text-red-600 font-medium text-sm mb-6 transition-all hover:bg-red-100 cursor-default">
               <Sparkles size={16} className="text-red-500" />
-              <span>RedBridge AI Features</span>
+              <span>RedBridge Features</span>
             </div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 mb-6 tracking-tight">

@@ -22,7 +22,7 @@ export function FaqList() {
     <>
       <div className="text-center max-w-2xl mx-auto mb-10">
         <h1 className="text-4xl font-extrabold text-dark mb-4 tracking-tight">Hỏi đáp <span className="text-primary">thường gặp</span></h1>
-        <p className="text-gray-500">Mọi thắc mắc của bạn về quá trình hiến máu và hệ thống RedBridge AI đều được giải đáp tại đây.</p>
+        <p className="text-gray-500">Mọi thắc mắc của bạn về quá trình hiến máu và hệ thống RedBridge đều được giải đáp tại đây.</p>
       </div>
 
       {/* Search */}
