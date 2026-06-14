@@ -345,10 +345,10 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
         {/* ─── Step 1: OTP ─── */}
         {activeStep >= 1 && (
           <div className="space-y-4 text-center">
-            <div className="bg-blue-50 rounded-2xl p-3 text-xs font-semibold text-blue-700">{otpInfo}</div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+            {/* <div className="bg-blue-50 rounded-2xl p-3 text-xs font-semibold text-blue-700">{otpInfo}</div> */}
+            {/* <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
               💡 Dev mode: Nhập <strong>123456</strong> để xác thực.
-            </div>
+            </div> */}
             <OTPInput value={otpCode} onChange={setOtpCode} />
             <button
               onClick={handleStep2}
