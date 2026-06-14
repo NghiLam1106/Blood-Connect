@@ -25,6 +25,7 @@ export const paths = {
     dashboard: '/hospital/dashboard',
     bloodRequests: '/hospital/requests',
     donorMatching: '/hospital/matching',
+    donorDetail: '/hospital/donors/:donorUserId',
     reports: '/hospital/reports',
   },
   admin: {

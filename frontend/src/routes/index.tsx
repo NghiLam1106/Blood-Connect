@@ -3,10 +3,10 @@ import { lazy, Suspense } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { MainLayout } from '../layouts/MainLayout'
+import { Reports } from '../pages/hospital/Reports'
 import { paths } from './paths'
 import { PrivateRoute } from './PrivateRoute'
 import { RoleRoute } from './RoleRoute'
-import { Reports } from '../pages/hospital/Reports'
 
 const LoadingFallback = () => (
   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
@@ -41,6 +41,7 @@ const DonorAppointments = Loadable(lazy(() => import('../pages/donor/Appointment
 // Hospital Dashboard pages
 const HospitalDashboard = Loadable(lazy(() => import('../pages/hospital/Dashboard')))
 const DonorMatching = Loadable(lazy(() => import('../pages/hospital/DonorMatching')))
+const HospitalDonorDetail = Loadable(lazy(() => import('../pages/hospital/HospitalDonorDetail')))
 
 // Admin Dashboard pages
 const AdminDashboard = Loadable(lazy(() => import('../pages/admin/Dashboard')))
@@ -111,6 +112,10 @@ export const router = createBrowserRouter([
       {
         path: paths.hospital.donorMatching,
         element: <RoleRoute requiredRole="hospital"><DonorMatching /></RoleRoute>,
+      },
+      {
+        path: paths.hospital.donorDetail,
+        element: <RoleRoute requiredRole="hospital"><HospitalDonorDetail /></RoleRoute>,
       },
       {
         path: paths.hospital.reports,
