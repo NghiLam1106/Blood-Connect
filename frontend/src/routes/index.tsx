@@ -37,6 +37,7 @@ const DonorDashboard = Loadable(lazy(() => import('../pages/donor/Dashboard')))
 const DonorProfile = Loadable(lazy(() => import('../pages/donor/Profile')))
 const DonorHistory = Loadable(lazy(() => import('../pages/donor/DonationHistory')))
 const DonorAppointments = Loadable(lazy(() => import('../pages/donor/Appointments')))
+const DonorHospitalDetail = Loadable(lazy(() => import('../pages/donor/DonorHospitalDetail')))
 
 // Hospital Dashboard pages
 const HospitalDashboard = Loadable(lazy(() => import('../pages/hospital/Dashboard')))
@@ -103,6 +104,10 @@ export const router = createBrowserRouter([
       {
         path: paths.donor.appointments,
         element: <RoleRoute requiredRole="donor"><DonorAppointments /></RoleRoute>,
+      },
+      {
+        path: paths.donor.hospitalDetail,
+        element: <RoleRoute requiredRole="donor"><DonorHospitalDetail /></RoleRoute>,
       },
       // Hospital Routes
       {
