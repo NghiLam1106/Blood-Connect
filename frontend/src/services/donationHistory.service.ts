@@ -11,7 +11,7 @@ export interface DonationHistory {
   donor: {
     id: number;
     bloodType: string;
-    user: { name: string };
+    user: { id: number; name: string };
   };
 }
 
