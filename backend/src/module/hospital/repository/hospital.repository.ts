@@ -118,6 +118,21 @@ export class HospitalRepository {
           isAccept: true,
           notes: true,
           createdAt: true,
+          donor: {
+            select: {
+              id: true,
+              bloodType: true,
+              gender: true,
+              age: true,
+              userId: true,
+              user: {
+                select: {
+                  name: true,
+                  avatar: true,
+                },
+              },
+            },
+          },
         },
       }),
       this.prisma.notification.count({ where }),

@@ -51,6 +51,17 @@ export interface NotificationHistoryItem {
   isAccept: boolean | null;
   notes: string | null;
   createdAt: string;
+  donor: {
+    id: number;
+    bloodType: string | null;
+    gender: string | null;
+    age: number | null;
+    userId: number;
+    user: {
+      name: string;
+      avatar: string | null;
+    };
+  } | null;
 }
 
 export interface NotificationHistoryResponse {
