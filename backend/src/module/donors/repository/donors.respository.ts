@@ -11,7 +11,14 @@ export class DonorsRepository {
   constructor(private readonly prisma: PrismaService) { }
 
   async findByUserId(userId: number) {
-    return this.prisma.donors.findUnique({ where: { userId } });
+    return this.prisma.donors.findUnique({
+      where: { userId },
+      include: {
+        user: {
+          select: { email: true, name: true },
+        },
+      },
+    });
   }
 
   async updateDonor(userId: number, data: UpdateDonorsDto, coordinates?: { lat: number, lng: number }): Promise<any> {

@@ -1,5 +1,7 @@
+import { InjectQueue } from "@nestjs/bullmq";
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import axios from "axios";
+import { Queue } from "bullmq";
 import { BloodGroup } from "../../enums/bloodTypes.enum";
 import { HttpRequestStatus } from "../../enums/httpRequest.enum";
 import { getCompatibleDonors } from "../../helpers/blood/bloodType";
@@ -16,6 +18,7 @@ import { HospitalRepository } from "./repository/hospital.repository";
 @Injectable()
 export class HospitalService {
   constructor(
+    @InjectQueue('mail_queue') private readonly mailQueue: Queue,
     private readonly donorsRepository: DonorsRepository,
     private readonly hospitalRepository: HospitalRepository,
     private readonly notificationGateway: NotificationGateway,
@@ -167,6 +170,27 @@ export class HospitalService {
       'blood-request',
       { ...payload, notificationId: notification.id },
     );
+
+    // Gửi email thông báo cho donor (bất đồng bộ qua BullMQ)
+    const donorWithUser = donor as any;
+    const donorEmail = donorWithUser?.user?.email;
+    const donorName = donorWithUser?.user?.name;
+    if (donorEmail) {
+      await this.mailQueue.add(
+        'sendBloodRequestEmail',
+        {
+          email: donorEmail,
+          donorName: donorName ?? 'Người hiến máu',
+          hospitalName: hospital.user.name,
+          hospitalAddress: hospital.user.address,
+          distance: distance,
+          urgency: urgency,
+          notes: notes ?? null,
+          unitBlood: donor.unitBlood,
+        },
+        { attempts: 3, backoff: 5000 },
+      );
+    }
 
     return {
       status: HttpRequestStatus.SUCCESS,
