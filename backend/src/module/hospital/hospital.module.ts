@@ -1,3 +1,4 @@
+import { BullModule } from "@nestjs/bullmq";
 import { Module } from "@nestjs/common";
 import { JwtModule } from "@nestjs/jwt";
 import { PrismaService } from "../../common/prisma/prisma.service";
@@ -8,9 +9,10 @@ import { HospitalService } from "./hospital.service";
 import { HospitalRepository } from "./repository/hospital.repository";
 
 @Module({
-  imports: [JwtModule, NotificationModule],
+  imports: [JwtModule, NotificationModule, BullModule.registerQueue({ name: 'mail_queue' })],
   controllers: [HospitalController],
   providers: [HospitalService, PrismaService, DonorsRepository, HospitalRepository],
   exports: [HospitalService],
 })
 export class HospitalModule { }
+

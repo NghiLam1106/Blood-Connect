@@ -73,73 +73,73 @@ export class MailProcessor extends WorkerHost {
             to: [{ email }],
             subject: 'Tài khoản bệnh viện đã được xác thực - Red Bridge',
             htmlContent: `
-<!DOCTYPE html>
-<html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-        <tr>
-          <td style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);padding:32px 40px;text-align:center;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr><td align="center">
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:12px;">
-                    <circle cx="24" cy="24" r="24" fill="rgba(255,255,255,0.15)"/>
-                    <path d="M24 10 C24 10 14 22 14 29 C14 34.5 18.5 39 24 39 C29.5 39 34 34.5 34 29 C34 22 24 10 24 10Z" fill="white"/>
-                    <path d="M19 29 Q24 24 29 29" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
-                  </svg>
-                  <span style="color:white;font-size:26px;font-weight:700;vertical-align:middle;letter-spacing:0.5px;">Red Bridge</span>
-              </td></tr>
-              <tr><td align="center" style="padding-top:6px;">
-                <span style="color:rgba(255,255,255,0.75);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Hệ thống kết nối hiến máu</span>
-              </td></tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td align="center" style="padding:28px 40px 0;">
-            <div style="display:inline-block;background:#eafaf1;border:1.5px solid #27ae60;border-radius:999px;padding:8px 24px;">
-              <span style="color:#1e8449;font-weight:700;font-size:14px;">✔ Tài khoản đã được xác thực</span>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:28px 40px 32px;">
-            <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">Xin chào, ${name}!</h2>
-            <p style="margin:0 0 16px;font-size:15px;color:#444;line-height:1.7;">
-              Chúng tôi vui mừng thông báo rằng tài khoản bệnh viện của bạn trên hệ thống
-              <strong style="color:#c0392b;">Red Bridge</strong> đã được
-              <strong style="color:#1e8449;">xác thực thành công</strong>.
-            </p>
-            <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.7;">
-              Bạn có thể đăng nhập và bắt đầu sử dụng hệ thống để kết nối với các người hiến máu ngay bây giờ.
-            </p>
-            <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
-              <tr>
-                <td style="background:linear-gradient(135deg,#27ae60,#2ecc71);border-radius:8px;">
-                  <a href="${process.env.FRONTEND_URL ?? 'http://localhost:5173'}/" style="display:inline-block;padding:14px 36px;color:white;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:0.3px;">Đăng nhập ngay →</a>
-                </td>
-              </tr>
-            </table>
-            <div style="background:#fafafa;border-left:4px solid #27ae60;border-radius:0 8px 8px 0;padding:14px 18px;">
-              <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
-                🔒 Nếu bạn không yêu cầu xác thực này hoặc cần hỗ trợ, vui lòng liên hệ với quản trị viên hệ thống.
-              </p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="background:#f8f9fa;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
-            <p style="margin:0 0 4px;font-size:12px;color:#999;">© 2026 Red Bridge · Hệ thống kết nối hiến máu</p>
-            <p style="margin:0;font-size:12px;color:#bbb;">Email này được gửi tự động, vui lòng không reply trực tiếp.</p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`,
+              <!DOCTYPE html>
+              <html lang="vi">
+              <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+              <body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+                  <tr><td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                      <tr>
+                        <td style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);padding:32px 40px;text-align:center;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr><td align="center">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:12px;">
+                                  <circle cx="24" cy="24" r="24" fill="rgba(255,255,255,0.15)"/>
+                                  <path d="M24 10 C24 10 14 22 14 29 C14 34.5 18.5 39 24 39 C29.5 39 34 34.5 34 29 C34 22 24 10 24 10Z" fill="white"/>
+                                  <path d="M19 29 Q24 24 29 29" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                </svg>
+                                <span style="color:white;font-size:26px;font-weight:700;vertical-align:middle;letter-spacing:0.5px;">Red Bridge</span>
+                            </td></tr>
+                            <tr><td align="center" style="padding-top:6px;">
+                              <span style="color:rgba(255,255,255,0.75);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Hệ thống kết nối hiến máu</span>
+                            </td></tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding:28px 40px 0;">
+                          <div style="display:inline-block;background:#eafaf1;border:1.5px solid #27ae60;border-radius:999px;padding:8px 24px;">
+                            <span style="color:#1e8449;font-weight:700;font-size:14px;">✔ Tài khoản đã được xác thực</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:28px 40px 32px;">
+                          <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">Xin chào, ${name}!</h2>
+                          <p style="margin:0 0 16px;font-size:15px;color:#444;line-height:1.7;">
+                            Chúng tôi vui mừng thông báo rằng tài khoản bệnh viện của bạn trên hệ thống
+                            <strong style="color:#c0392b;">Red Bridge</strong> đã được
+                            <strong style="color:#1e8449;">xác thực thành công</strong>.
+                          </p>
+                          <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.7;">
+                            Bạn có thể đăng nhập và bắt đầu sử dụng hệ thống để kết nối với các người hiến máu ngay bây giờ.
+                          </p>
+                          <table cellpadding="0" cellspacing="0" style="margin:0 0 28px;">
+                            <tr>
+                              <td style="background:linear-gradient(135deg,#27ae60,#2ecc71);border-radius:8px;">
+                                <a href="${process.env.FRONTEND_URL ?? 'http://localhost:5173'}/" style="display:inline-block;padding:14px 36px;color:white;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:0.3px;">Đăng nhập ngay →</a>
+                              </td>
+                            </tr>
+                          </table>
+                          <div style="background:#fafafa;border-left:4px solid #27ae60;border-radius:0 8px 8px 0;padding:14px 18px;">
+                            <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+                              🔒 Nếu bạn không yêu cầu xác thực này hoặc cần hỗ trợ, vui lòng liên hệ với quản trị viên hệ thống.
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background:#f8f9fa;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
+                          <p style="margin:0 0 4px;font-size:12px;color:#999;">© 2026 Red Bridge · Hệ thống kết nối hiến máu</p>
+                          <p style="margin:0;font-size:12px;color:#bbb;">Email này được gửi tự động, vui lòng không reply trực tiếp.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                </table>
+              </body>
+              </html>`,
           });
           console.log(`--- [MailProcessor] Đã gửi mail xác thực bệnh viện thành công cho: ${email}`);
         } catch (err) {
@@ -156,66 +156,66 @@ export class MailProcessor extends WorkerHost {
             to: [{ email }],
             subject: 'Thông báo thu hồi xác thực tài khoản - Red Bridge',
             htmlContent: `
-<!DOCTYPE html>
-<html lang="vi">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
-    <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-        <tr>
-          <td style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);padding:32px 40px;text-align:center;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr><td align="center">
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:12px;">
-                    <circle cx="24" cy="24" r="24" fill="rgba(255,255,255,0.15)"/>
-                    <path d="M24 10 C24 10 14 22 14 29 C14 34.5 18.5 39 24 39 C29.5 39 34 34.5 34 29 C34 22 24 10 24 10Z" fill="white"/>
-                    <path d="M19 29 Q24 24 29 29" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
-                  </svg>
-                  <span style="color:white;font-size:26px;font-weight:700;vertical-align:middle;letter-spacing:0.5px;">Red Bridge</span>
-              </td></tr>
-              <tr><td align="center" style="padding-top:6px;">
-                <span style="color:rgba(255,255,255,0.75);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Hệ thống kết nối hiến máu</span>
-              </td></tr>
-            </table>
-          </td>
-        </tr>
-        <tr>
-          <td align="center" style="padding:28px 40px 0;">
-            <div style="display:inline-block;background:#fdf2f2;border:1.5px solid #e74c3c;border-radius:999px;padding:8px 24px;">
-              <span style="color:#c0392b;font-weight:700;font-size:14px;">⚠ Xác thực tài khoản đã bị thu hồi</span>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="padding:28px 40px 32px;">
-            <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">Xin chào, ${name}!</h2>
-            <p style="margin:0 0 16px;font-size:15px;color:#444;line-height:1.7;">
-              Chúng tôi xin thông báo rằng quyền xác thực tài khoản bệnh viện của bạn trên hệ thống
-              <strong style="color:#c0392b;">Red Bridge</strong> đã bị
-              <strong style="color:#c0392b;">thu hồi</strong>.
-            </p>
-            <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.7;">
-              Tài khoản của bạn hiện <strong>không thể đăng nhập</strong> vào hệ thống. Nếu bạn cho rằng đây là nhầm lẫn hoặc cần được hỗ trợ, vui lòng liên hệ với quản trị viên.
-            </p>
-            <div style="background:#fdf2f2;border-left:4px solid #e74c3c;border-radius:0 8px 8px 0;padding:14px 18px;">
-              <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
-                📩 Cần hỗ trợ? Hãy liên hệ với quản trị viên hệ thống để được giải quyết sớm nhất.
-              </p>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td style="background:#f8f9fa;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
-            <p style="margin:0 0 4px;font-size:12px;color:#999;">© 2026 Red Bridge · Hệ thống kết nối hiến máu</p>
-            <p style="margin:0;font-size:12px;color:#bbb;">Email này được gửi tự động, vui lòng không reply trực tiếp.</p>
-          </td>
-        </tr>
-      </table>
-    </td></tr>
-  </table>
-</body>
-</html>`,
+              <!DOCTYPE html>
+              <html lang="vi">
+              <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+              <body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+                  <tr><td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                      <tr>
+                        <td style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);padding:32px 40px;text-align:center;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr><td align="center">
+                                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:12px;">
+                                  <circle cx="24" cy="24" r="24" fill="rgba(255,255,255,0.15)"/>
+                                  <path d="M24 10 C24 10 14 22 14 29 C14 34.5 18.5 39 24 39 C29.5 39 34 34.5 34 29 C34 22 24 10 24 10Z" fill="white"/>
+                                  <path d="M19 29 Q24 24 29 29" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                                </svg>
+                                <span style="color:white;font-size:26px;font-weight:700;vertical-align:middle;letter-spacing:0.5px;">Red Bridge</span>
+                            </td></tr>
+                            <tr><td align="center" style="padding-top:6px;">
+                              <span style="color:rgba(255,255,255,0.75);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Hệ thống kết nối hiến máu</span>
+                            </td></tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td align="center" style="padding:28px 40px 0;">
+                          <div style="display:inline-block;background:#fdf2f2;border:1.5px solid #e74c3c;border-radius:999px;padding:8px 24px;">
+                            <span style="color:#c0392b;font-weight:700;font-size:14px;">⚠ Xác thực tài khoản đã bị thu hồi</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:28px 40px 32px;">
+                          <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">Xin chào, ${name}!</h2>
+                          <p style="margin:0 0 16px;font-size:15px;color:#444;line-height:1.7;">
+                            Chúng tôi xin thông báo rằng quyền xác thực tài khoản bệnh viện của bạn trên hệ thống
+                            <strong style="color:#c0392b;">Red Bridge</strong> đã bị
+                            <strong style="color:#c0392b;">thu hồi</strong>.
+                          </p>
+                          <p style="margin:0 0 28px;font-size:15px;color:#444;line-height:1.7;">
+                            Tài khoản của bạn hiện <strong>không thể đăng nhập</strong> vào hệ thống. Nếu bạn cho rằng đây là nhầm lẫn hoặc cần được hỗ trợ, vui lòng liên hệ với quản trị viên.
+                          </p>
+                          <div style="background:#fdf2f2;border-left:4px solid #e74c3c;border-radius:0 8px 8px 0;padding:14px 18px;">
+                            <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+                              📩 Cần hỗ trợ? Hãy liên hệ với quản trị viên hệ thống để được giải quyết sớm nhất.
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background:#f8f9fa;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
+                          <p style="margin:0 0 4px;font-size:12px;color:#999;">© 2026 Red Bridge · Hệ thống kết nối hiến máu</p>
+                          <p style="margin:0;font-size:12px;color:#bbb;">Email này được gửi tự động, vui lòng không reply trực tiếp.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                </table>
+              </body>
+              </html>`,
           });
           console.log(`--- [MailProcessor] Đã gửi mail thu hồi xác thực bệnh viện thành công cho: ${email}`);
         } catch (err) {
@@ -224,8 +224,134 @@ export class MailProcessor extends WorkerHost {
         }
         break;
 
+      case 'sendBloodRequestEmail':
+        console.log('--- [MailProcessor] Bắt đầu gửi email yêu cầu máu cho:', email);
+        try {
+          const { donorName, hospitalName, hospitalAddress, distance, urgency, notes, unitBlood } = job.data;
+          const urgencyLabel = urgency === 1 ? 'Khẩn cấp mức 1' : urgency === 2 ? 'Khẩn cấp mức 2' : 'Khẩn cấp mức 3';
+          const urgencyColor = urgency === 1 ? '#e67e22' : urgency === 2 ? '#e74c3c' : '#c0392b';
+          const distanceText = distance != null ? `${Number(distance).toFixed(1)} km` : 'Không xác định';
+
+          await this.brevo.transactionalEmails.sendTransacEmail({
+            sender: { email: senderEmail, name: 'Red Bridge' },
+            to: [{ email }],
+            subject: '🩸 Yêu cầu hiến máu khẩn cấp - Red Bridge',
+            htmlContent: `
+              <!DOCTYPE html>
+              <html lang="vi">
+              <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+              <body style="margin:0;padding:0;background:#f4f4f4;font-family:'Segoe UI',Arial,sans-serif;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:32px 0;">
+                  <tr><td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                      <!-- Header -->
+                      <tr>
+                        <td style="background:linear-gradient(135deg,#c0392b 0%,#e74c3c 100%);padding:32px 40px;text-align:center;">
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr><td align="center">
+                              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin-right:12px;">
+                                <circle cx="24" cy="24" r="24" fill="rgba(255,255,255,0.15)"/>
+                                <path d="M24 10 C24 10 14 22 14 29 C14 34.5 18.5 39 24 39 C29.5 39 34 34.5 34 29 C34 22 24 10 24 10Z" fill="white"/>
+                                <path d="M19 29 Q24 24 29 29" stroke="#e74c3c" stroke-width="2" fill="none" stroke-linecap="round"/>
+                              </svg>
+                              <span style="color:white;font-size:26px;font-weight:700;vertical-align:middle;letter-spacing:0.5px;">Red Bridge</span>
+                            </td></tr>
+                            <tr><td align="center" style="padding-top:6px;">
+                              <span style="color:rgba(255,255,255,0.75);font-size:13px;letter-spacing:1px;text-transform:uppercase;">Hệ thống kết nối hiến máu</span>
+                            </td></tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <!-- Badge khẩn cấp -->
+                      <tr>
+                        <td align="center" style="padding:28px 40px 0;">
+                          <div style="display:inline-block;background:#fff0f0;border:1.5px solid ${urgencyColor};border-radius:999px;padding:8px 24px;">
+                            <span style="color:${urgencyColor};font-weight:700;font-size:14px;">🔔 YÊU CẦU KHẨN CẤP &nbsp;·&nbsp; ${urgencyLabel}</span>
+                          </div>
+                        </td>
+                      </tr>
+                      <!-- Body -->
+                      <tr>
+                        <td style="padding:28px 40px 32px;">
+                          <h2 style="margin:0 0 12px;font-size:22px;color:#1a1a2e;font-weight:700;">Xin chào, ${donorName}!</h2>
+                          <p style="margin:0 0 20px;font-size:15px;color:#444;line-height:1.7;">
+                            <strong style="color:#c0392b;">${hospitalName}</strong> đang gấp cần máu để thực hiện ca phẫu thuật. Bạn là một trong những người hiến máu phù hợp gần nhất.
+                          </p>
+
+                          <!-- Thông tin chi tiết -->
+                          <table width="100%" cellpadding="0" cellspacing="0" style="background:#fafafa;border-radius:10px;overflow:hidden;margin-bottom:24px;">
+                            <tr>
+                              <td style="padding:16px 20px;border-bottom:1px solid #f0f0f0;">
+                                <span style="font-size:13px;color:#888;display:block;margin-bottom:4px;">🏥 Bệnh viện</span>
+                                <span style="font-size:15px;color:#1a1a2e;font-weight:600;">${hospitalName}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:16px 20px;border-bottom:1px solid #f0f0f0;">
+                                <span style="font-size:13px;color:#888;display:block;margin-bottom:4px;">📍 Địa chỉ</span>
+                                <span style="font-size:15px;color:#1a1a2e;">${hospitalAddress ?? 'Không có thông tin địa chỉ'}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:16px 20px;border-bottom:1px solid #f0f0f0;">
+                                <span style="font-size:13px;color:#888;display:block;margin-bottom:4px;">📏 Khoảng cách</span>
+                                <span style="font-size:15px;color:#c0392b;font-weight:600;">Cách bạn ${distanceText}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding:16px 20px;${notes ? 'border-bottom:1px solid #f0f0f0;' : ''}">
+                                <span style="font-size:13px;color:#888;display:block;margin-bottom:4px;">🩸 Mức độ khẩn cấp</span>
+                                <span style="font-size:15px;font-weight:600;color:${urgencyColor};">${urgencyLabel}</span>
+                              </td>
+                            </tr>
+                            ${notes ? `
+                            <tr>
+                              <td style="padding:16px 20px;">
+                                <span style="font-size:13px;color:#888;display:block;margin-bottom:4px;">📝 Ghi chú</span>
+                                <span style="font-size:15px;color:#444;">${notes}</span>
+                              </td>
+                            </tr>` : ''}
+                          </table>
+
+                          <!-- CTA Button -->
+                          <table cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+                            <tr>
+                              <td style="background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:8px;">
+                                <a href="${process.env.FRONTEND_URL ?? 'http://localhost:5173'}" style="display:inline-block;padding:14px 36px;color:white;font-weight:700;font-size:15px;text-decoration:none;letter-spacing:0.3px;">Mở ứng dụng để phản hồi →</a>
+                              </td>
+                            </tr>
+                          </table>
+
+                          <div style="background:#fff8f8;border-left:4px solid #e74c3c;border-radius:0 8px 8px 0;padding:14px 18px;">
+                            <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+                              ❤️ Mỗi đơn vị máu của bạn có thể cứu sống một con người. Cảm ơn bạn đã sẵn sàng giúp đỡ!
+                            </p>
+                          </div>
+                        </td>
+                      </tr>
+                      <!-- Footer -->
+                      <tr>
+                        <td style="background:#f8f9fa;border-top:1px solid #eee;padding:20px 40px;text-align:center;">
+                          <p style="margin:0 0 4px;font-size:12px;color:#999;">© 2026 Red Bridge · Hệ thống kết nối hiến máu</p>
+                          <p style="margin:0;font-size:12px;color:#bbb;">Email này được gửi tự động, vui lòng không reply trực tiếp.</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td></tr>
+                </table>
+              </body>
+              </html>`,
+          });
+          console.log(`--- [MailProcessor] Đã gửi email yêu cầu máu thành công cho: ${email}`);
+        } catch (err) {
+          console.error('--- [MailProcessor] LỖI gửi email yêu cầu máu:', err);
+          throw err;
+        }
+        break;
+
       default:
         break;
+
     }
   }
 }
