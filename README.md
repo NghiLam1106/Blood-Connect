@@ -1,6 +1,6 @@
-# 🩸 Blood-Connect
+# 🩸 Red Bridge
 
-**Blood-Connect** là một nền tảng hỗ trợ kết nối những người hiến máu với các trung tâm y tế, bệnh viện cần máu. Dự án tích hợp các công nghệ web hiện đại từ giao diện người dùng, hệ thống API mạnh mẽ đến mô hình ML (AI) hỗ trợ gợi ý và tối ưu hóa việc thông báo cho người hiến máu phù hợp nhất dựa trên mức độ khẩn cấp, khoảng cách địa lý, và lịch sử hiến máu.
+**Red Bridge** là một nền tảng hỗ trợ kết nối những người hiến máu với các trung tâm y tế, bệnh viện cần máu. Dự án tích hợp các công nghệ web hiện đại từ giao diện người dùng, hệ thống API mạnh mẽ đến mô hình ML (AI) hỗ trợ gợi ý và tối ưu hóa việc thông báo cho người hiến máu phù hợp nhất dựa trên mức độ khẩn cấp, khoảng cách địa lý, và lịch sử hiến máu.
 
 ---
 
