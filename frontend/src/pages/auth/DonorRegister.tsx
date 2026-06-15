@@ -92,7 +92,7 @@ export default function DonorRegister({ asModal = false, onClose, onNavigate }: 
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState('')
   const [otpCode, setOtpCode] = useState('')
-  const [otpInfo, setOtpInfo] = useState('')
+  const [, setOtpInfo] = useState('')
   const [pendingUser, setPendingUser] = useState<any>(null)
 
   const go = (path: string) => {
