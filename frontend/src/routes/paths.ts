@@ -20,11 +20,13 @@ export const paths = {
     history: '/donor/history',
     appointments: '/donor/appointments',
     notifications: '/donor/notifications',
+    hospitalDetail: '/donor/hospital/:hospitalId',
   },
   hospital: {
     dashboard: '/hospital/dashboard',
     bloodRequests: '/hospital/requests',
     donorMatching: '/hospital/matching',
+    donorDetail: '/hospital/donors/:donorUserId',
     reports: '/hospital/reports',
   },
   admin: {

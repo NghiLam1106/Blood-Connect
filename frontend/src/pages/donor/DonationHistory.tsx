@@ -6,10 +6,12 @@ import PendingIcon from '@mui/icons-material/Pending'
 import { Chip, CircularProgress } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { paths } from '../../routes/paths'
 import {
-  getDonorDonationHistory,
-  type DonationHistoryForDonor,
-  type DonationStatus,
+    getDonorDonationHistory,
+    type DonationHistoryForDonor,
+    type DonationStatus,
 } from '../../services/donationHistory.service'
 import { useStore } from '../../store/useStore'
 
@@ -45,6 +47,7 @@ const FILTERS: { key: FilterType; label: string }[] = [
 
 export default function DonationHistory() {
   const { user } = useStore()
+  const navigate = useNavigate()
   const [histories, setHistories] = useState<DonationHistoryForDonor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -182,7 +185,16 @@ export default function DonationHistory() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
                       transition={{ delay: index * 0.04 }}
-                      className={`rounded-2xl p-4 border flex items-center gap-4 transition-all ${
+                      onClick={() =>
+                        navigate(
+                          paths.donor.hospitalDetail.replace(
+                            ':hospitalId',
+                            String(history.hospital.id)
+                          )
+                        )
+                      }
+                      style={{ cursor: 'pointer' }}
+                      className={`rounded-2xl p-4 border flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.005] ${
                         history.status === 'ACCEPTED'
                           ? 'bg-green-50/40 border-green-100'
                           : history.status === 'REJECTED'

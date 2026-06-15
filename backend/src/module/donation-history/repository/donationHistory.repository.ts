@@ -34,6 +34,7 @@ export class DonationHistoryRepository {
           include: {
             user: {
               select: {
+                id: true,
                 name: true,
               }
             }

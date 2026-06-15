@@ -6,6 +6,7 @@ import PendingIcon from '@mui/icons-material/Pending'
 import { Chip, CircularProgress } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   getHospitalDonationHistory,
   updateDonationStatus,
@@ -46,6 +47,7 @@ const FILTERS: { key: FilterType; label: string }[] = [
 
 export default function DonorMatching() {
   const { user } = useStore()
+  const navigate = useNavigate()
   const [histories, setHistories] = useState<DonationHistory[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -228,13 +230,18 @@ export default function DonorMatching() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 8 }}
                       transition={{ delay: index * 0.04 }}
-                      className={`rounded-2xl p-4 border flex items-center gap-4 transition-all ${
+                    className={`rounded-2xl p-4 border flex items-center gap-4 transition-all cursor-pointer ${
                         history.status === 'ACCEPTED'
-                          ? 'bg-green-50/40 border-green-100'
+                          ? 'bg-green-50/40 border-green-100 hover:shadow-md'
                           : history.status === 'REJECTED'
-                          ? 'bg-red-50/20 border-red-100'
+                          ? 'bg-red-50/20 border-red-100 hover:shadow-md'
                           : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-sm'
                       }`}
+                      onClick={() => {
+                        // Không navigate nếu đang xử lý action
+                        if (loadingId !== null) return
+                        navigate(`/hospital/donors/${history.donor?.user?.id}`)
+                      }}
                     >
                       {/* Index */}
                       <div className="w-10 h-10 rounded-xl bg-blue-50 text-accent flex items-center justify-center text-sm font-extrabold shrink-0">
@@ -266,7 +273,7 @@ export default function DonorMatching() {
 
                       {/* Actions */}
                       {isPending && (
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handleAction(history.id, 'ACCEPTED')}
                             disabled={isProcessing || loadingId !== null}
