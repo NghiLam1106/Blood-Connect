@@ -11,10 +11,10 @@ import { useNavigate } from 'react-router-dom'
 import { BloodTypeChart } from '../../components/hospital/BloodTypeChart'
 import { TrendChart } from '../../components/hospital/TrendChart'
 import {
-    getHospitalReports,
-    getNotificationHistory,
-    type HospitalReportStats,
-    type NotificationHistoryItem,
+  getHospitalReports,
+  getNotificationHistory,
+  type HospitalReportStats,
+  type NotificationHistoryItem,
 } from '../../services/hospital.service'
 import { useStore } from '../../store/useStore'
 
@@ -265,7 +265,7 @@ export function Reports() {
         setHistoryMeta({ total: res.data.total, page: res.data.page, totalPages: res.data.totalPages })
       })
       .catch(() => setHistoryError('Không thể tải lịch sử yêu cầu.'))
-      .finally(() => setHistoryLoading(false))
+      .finally(() => setTimeout(() => setHistoryLoading(false), 200))
   }, [user?.id, page, filter])
 
   const handleFilterChange = (val: FilterType) => {

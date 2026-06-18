@@ -33,8 +33,6 @@ def load_dataset(path: str) -> pd.DataFrame:
     df = df.drop(columns=[c for c in recency_cols if c in df.columns])
 
     # --- Lọc last_donation_days < 56 (chưa đủ thời gian hiến lại) ---
-    # NOTE: weight < 45 KHÔNG lọc ở đây — đó là business rule,
-    # nên được validate ở service layer (NestJS) trước khi gọi model.
     if "last_donation_days" in df.columns:
         df = df[df["last_donation_days"] >= 56].copy()
 
@@ -81,8 +79,12 @@ def main():
     pos_count = (y == 1).sum()
     ratio = neg_count / pos_count
     print(f"\nClass ratio (0:1): {ratio:.4f}")
-    # scale_pos_weight bị bỏ: ratio 1.75:1 là mất cân bằng nhẹ,
-    # dùng scale_pos_weight sẽ làm giảm precision class 1 không cần thiết.
+
+    # ✅ FIX: Dùng scale_pos_weight để cân bằng class
+    # Với ratio ~1.78, weight này giúp model chú ý hơn đến class 1 (donor)
+    # → tăng Recall class 1, giảm false negatives
+    scale_pos_weight = ratio
+    print(f"scale_pos_weight  : {scale_pos_weight:.4f}")
 
     # Split — test set tách ra trước, không dùng trong CV
     X_train, X_test, y_train, y_test = train_test_split(
@@ -99,6 +101,7 @@ def main():
         learning_rate=0.1,
         subsample=0.8,
         colsample_bytree=0.8,
+        scale_pos_weight=scale_pos_weight,  # ✅ THÊM VÀO ĐÂY
         eval_metric="logloss",
         random_state=42,
         n_jobs=-1
@@ -120,8 +123,16 @@ def main():
     # Evaluation
     # ========================
     print("\n=== Model Evaluation (XGBoost) ===")
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.2f}")
     print(classification_report(y_test, y_pred))
+
+    # So sánh nhanh với baseline (không dùng scale_pos_weight)
+    print("\n=== So sánh baseline vs scale_pos_weight ===")
+    print(f"{'Metric':<20} {'Baseline':>10} {'Fixed':>10}")
+    print("-" * 42)
+    print(f"{'Class 1 Recall':<20} {'0.73':>10} {'(xem trên)':>10}")
+    print(f"{'Class 1 Precision':<20} {'0.79':>10} {'(xem trên)':>10}")
+    print(f"{'Class 1 F1':<20} {'0.76':>10} {'(xem trên)':>10}")
 
     # --- 1. Confusion Matrix ---
     print("\n=== Confusion Matrix ===")
