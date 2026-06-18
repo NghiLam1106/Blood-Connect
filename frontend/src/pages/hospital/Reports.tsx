@@ -370,7 +370,7 @@ export function Reports() {
             </thead>
             <tbody className="divide-y divide-gray-50">
               {historyLoading ? (
-                Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+                Array.from({ length: 14 }).map((_, i) => <SkeletonRow key={i} />)
               ) : history.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-10 text-gray-400 text-sm">

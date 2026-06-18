@@ -62,7 +62,7 @@ export function RequestForm({
             <AddCircleOutlineIcon />
           </div>
           <h2 className="text-lg font-extrabold text-dark">
-            Tạo yêu cầu AI Matching
+            Tạo yêu cầu
           </h2>
         </div>
 
@@ -152,7 +152,7 @@ export function RequestForm({
             ) : (
               <SearchIcon fontSize="small" sx={{ fontWeight: 'bold' }} />
             )}
-            {(isPending || isSearching) ? 'AI Đang Quét Người Hiến...' : 'Kích Hoạt AI Matching'}
+            {(isPending || isSearching) ? 'AI Đang Quét Người Hiến...' : 'Tìm kiếm'}
           </button>
         </div>
       </CardContent>
