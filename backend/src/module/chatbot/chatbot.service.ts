@@ -223,6 +223,11 @@ Kết quả:`;
   async handleChat(chatDto: ChatDto, userId: number | null, role: string | null) {
     const { history = [], message } = chatDto;
 
+    const today = new Date();
+    const todayStr = today.toLocaleDateString('vi-VN', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+    });
+
     try {
       if (!this.genAI) {
         throw new Error('Gemini AI is not properly configured. Check GEMINI_API_KEY.');
@@ -276,7 +281,11 @@ Kết quả:`;
       }
 
       // Build system instruction ──
-      const systemInstruction = `Bạn là trợ lý AI của hệ thống kết nối hiến máu. Tên bạn là "Hana". Nhiệm vụ chính:
+      const systemInstruction = `
+## THÔNG TIN HỆ THỐNG
+Ngày hiện tại: ${todayStr}
+(Luôn dùng ngày này khi tính toán thời gian. KHÔNG dựa vào knowledge cutoff của AI model.)
+Bạn là trợ lý AI của hệ thống kết nối hiến máu. Tên bạn là "Hana". Nhiệm vụ chính:
 
 ## 1. CHECK_ELIGIBILITY — Kiểm tra điều kiện hiến máu
 ${donorProfileContext
@@ -324,7 +333,7 @@ ${dbContext}`
 - Không bịa thông tin y tế. Nếu không chắc, nói thẳng và hướng dẫn tìm thêm
 - Cuối mỗi câu trả lời về FAQ, đề xuất 1–2 câu hỏi liên quan người dùng có thể hỏi tiếp`;
 
-      const MODELS = ['gemini-2.5-flash', 'gemini-3.5-flash'];
+      const MODELS = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-3.0-flash'];
 
       const formattedHistory = history.map((msg) => ({
         role: msg.role === 'model' ? 'model' : 'user',
@@ -333,7 +342,8 @@ ${dbContext}`
 
       let lastError: any;
       for (const modelName of MODELS) {
-        try {
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
           const model = this.genAI.getGenerativeModel({
             model: modelName,
             systemInstruction: systemInstruction,
@@ -341,9 +351,15 @@ ${dbContext}`
           const chatSession = model.startChat({ history: formattedHistory });
           const result = await chatSession.sendMessage(message);
           return { response: result.response.text() };
-        } catch (err) {
+        } catch (err: any) {
           console.warn(`[Chatbot] Model ${modelName} failed, trying next...`, err);
+          if (err.status === 503 && attempt < 2) {
+            await new Promise(r => setTimeout(r, 1000 * (attempt + 1))); // 1s, 2s
+            continue;
+          }
           lastError = err;
+          break;
+        }
         }
       }
       throw lastError;
