@@ -28,6 +28,14 @@ export default function HospitalDashboard() {
     if (!isAuthenticated) navigate('/auth/login')
   }, [isAuthenticated, navigate])
 
+  useEffect(() => {
+    return () => {
+      // Cleanup khi rời trang
+      setMatchedDonors([])
+      setSearchDone(false)
+    }
+  }, [])
+
   const handleSearch = () => {
     setError('')
     if (!quantity || Number(quantity) < 1) {
