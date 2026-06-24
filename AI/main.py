@@ -64,10 +64,10 @@ class BatchPredictionRequest(BaseModel):
 # =========================
 URGENCY_THRESHOLDS = {
     1: 0.30,
-    2: 0.45,
-    3: 0.55,
-    4: 0.65,
-    5: 0.75,
+    2: 0.40,
+    3: 0.50,
+    4: 0.60,
+    5: 0.70,
 }
 
 # Ngưỡng cân nặng tối thiểu theo quy định hiến máu (kg)
@@ -82,7 +82,7 @@ MAX_DISTANCE_KM = 20
 # =========================
 def encode_recency(last_donation_days: Optional[int]) -> Optional[dict]:
   if last_donation_days is None:
-      cat = "recent"  # lần đầu hiến máu, chưa có lịch sử
+      cat = "inactive"  # lần đầu hiến máu, chưa có hồ sơ → xếp inactive
   elif last_donation_days < 84:
       return None     # chưa đủ 84 ngày phục hồi → loại
   elif last_donation_days < 120:
@@ -135,7 +135,7 @@ def prepare_features_batch(donors_raw: list):
         if recency is None:
             skipped.append({
                 **d,
-                "reason": f"Chưa đủ 56 ngày kể từ lần hiến gần nhất ({last_days} ngày)"
+                "reason": f"Chưa đủ 84 ngày kể từ lần hiến gần nhất ({last_days} ngày)"
             })
             continue
 
@@ -151,10 +151,10 @@ def prepare_features_batch(donors_raw: list):
             "weight"            : int(d["weight"]),
             "distance_km"       : float(d["distance_km"]),
             "response_rate"     : float(d["response_rate"]),
+            "last_donation_days": int(last_days) if last_days is not None else 9999,  # sentinel cho người lần đầu hiến
             "recency_recent"    : bool(recency["recency_recent"]),
             "recency_moderate"  : bool(recency["recency_moderate"]),
             "recency_inactive"  : bool(recency["recency_inactive"]),
-            "last_donation_days": int(last_days) if last_days is not None else 0,
             "gender_Female"     : bool(gender_enc["gender_Female"]),
             "gender_Male"       : bool(gender_enc["gender_Male"]),
             "gender_Other"      : bool(gender_enc["gender_Other"]),
@@ -181,17 +181,16 @@ def prepare_features_batch(donors_raw: list):
     return df, valid_donors, skipped
 
 
-def get_donors_to_notify(predictions: list, urgency: int) -> list:
+def filter_by_matching_score(scored_donors: list, urgency: int) -> list:
+    """Lọc donor theo matching_score >= threshold tương ứng với urgency."""
     if urgency not in URGENCY_THRESHOLDS:
         raise ValueError("urgency phải từ 1 đến 5")
 
     threshold = URGENCY_THRESHOLDS[urgency]
-    eligible  = [
-        (donor_id, prob)
-        for donor_id, prob in predictions
-        if prob >= threshold
+    return [
+        d for d in scored_donors
+        if d["matching_score"] >= threshold
     ]
-    return sorted(eligible, key=lambda x: x[1], reverse=True)
 
 
 # Bảng tương thích nhóm máu: BLOOD_COMPAT[donor][recipient]
@@ -218,10 +217,9 @@ def get_blood_compatibility_score(donor_blood: Optional[str], required_blood: Op
     return BLOOD_COMPAT.get(donor_blood, {}).get(required_blood, 0.0)
 
 
-def compute_matching_scores(donors_raw: list, notify_ids: set, probs: dict) -> list:
-    filtered = [d for d in donors_raw if d["id"] in notify_ids]
-
-    for d in filtered:
+def compute_matching_scores(donors_raw: list, probs: dict) -> list:
+    """Tính matching_score cho tất cả valid donors (chưa lọc threshold)."""
+    for d in donors_raw:
         prob              = probs[d["id"]]
         distance_score    = max(0.0, 1.0 - d["distance_km"] / MAX_DISTANCE_KM)
         blood_compat      = get_blood_compatibility_score(
@@ -239,7 +237,7 @@ def compute_matching_scores(donors_raw: list, notify_ids: set, probs: dict) -> l
             4,
         )
 
-    return sorted(filtered, key=lambda x: x["matching_score"], reverse=True)
+    return sorted(donors_raw, key=lambda x: x["matching_score"], reverse=True)
 
 
 # =========================
@@ -276,11 +274,9 @@ def predict(request: BatchPredictionRequest):
             for donor, prob in zip(valid_donors, raw_probs)
         }
 
-        predictions = list(prob_map.items())
-        notify_list = get_donors_to_notify(predictions, request.urgency)
-        notify_ids  = {did for did, _ in notify_list}
+        all_scored = compute_matching_scores(valid_donors, prob_map)
 
-        ranked = compute_matching_scores(valid_donors, notify_ids, prob_map)
+        ranked = filter_by_matching_score(all_scored, request.urgency)
 
         return {
             "urgency"              : request.urgency,

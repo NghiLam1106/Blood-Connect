@@ -21,6 +21,9 @@ from xgboost import XGBClassifier
 # ========================
 # 1. Load dataset
 # ========================
+# Dataset thực tế chỉ có 7 cột:
+# age, gender, weight, distance_km, response_rate, last_donation_days, label
+# => Không cần xử lý urgency / id / recency_* (không tồn tại trong dataset này).
 def load_dataset(path: str) -> pd.DataFrame:
     file_path = Path(path)
     if not file_path.exists():
@@ -29,28 +32,16 @@ def load_dataset(path: str) -> pd.DataFrame:
     df = pd.read_csv(file_path)
     df.columns = [col.strip() for col in df.columns]
 
-    if "label" not in df.columns:
-        raise ValueError("Dataset phải có cột 'label'")
+    required_cols = {"label", "last_donation_days", "gender",
+                      "age", "weight", "distance_km", "response_rate"}
+    missing_required = required_cols - set(df.columns)
+    if missing_required:
+        raise ValueError(f"Dataset phải có các cột: {missing_required}")
 
-    # --- Bỏ các cột không dùng nếu có ---
-    for col in ["urgency", "id"]:
-        if col in df.columns:
-            df = df.drop(columns=[col])
-
-    # --- Loại recency columns nếu còn sót trong dataset ---
-    recency_cols = ["recency_recent", "recency_moderate", "recency_inactive"]
-    df = df.drop(columns=[c for c in recency_cols if c in df.columns])
-
-    # --- last_donation_days: dataset v5 đã lọc sẵn >= 56, giữ nguyên ---
     # NOTE: weight < 45 KHÔNG lọc ở đây — đó là business rule,
     # được validate ở service layer (NestJS/main.py) trước khi gọi model.
-    if "last_donation_days" not in df.columns:
-        raise ValueError("Dataset phải có cột 'last_donation_days'")
 
     # --- Encode gender → one-hot (Male / Female / Other) ---
-    if "gender" not in df.columns:
-        raise ValueError("Dataset phải có cột 'gender'")
-
     gender_dummies = pd.get_dummies(df["gender"], prefix="gender")
     for col in ["gender_Female", "gender_Male", "gender_Other"]:
         if col not in gender_dummies.columns:
@@ -64,17 +55,54 @@ def load_dataset(path: str) -> pd.DataFrame:
     df = df.dropna().reset_index(drop=True)
     df["label"] = df["label"].astype(int)
 
+    # --- Lọc + encode recency từ last_donation_days ---
+    df = add_recency_features(df)
+
     # --- Sắp xếp cột khớp với thứ tự inference trong main.py ---
     ordered_features = [
         "age", "weight", "distance_km", "response_rate",
         "last_donation_days",
+        "recency_recent", "recency_moderate", "recency_inactive",
         "gender_Female", "gender_Male", "gender_Other",
     ]
-    missing = [c for c in ordered_features if c not in df.columns]
-    if missing:
-        raise ValueError(f"Thiếu cột sau khi xử lý: {missing}")
-
     df = df[ordered_features + ["label"]]
+    return df
+
+
+# ========================
+# 1c. Phân loại "độ gần đây" của lần hiến máu cuối (recency)
+# ========================
+# Ngưỡng nghiệp vụ (đồng bộ với main.py / encode_recency):
+#   < 84 ngày   -> chưa đủ thời gian phục hồi, KHÔNG đủ điều kiện hiến -> loại khỏi dataset
+#   84 - 119    -> "recent"
+#   120 - 364   -> "moderate"
+#   >= 365      -> "inactive"
+RECENCY_RECENT_DAYS = 84
+RECENCY_MODERATE_DAYS = 120
+RECENCY_INACTIVE_DAYS = 365
+
+
+def add_recency_features(df: pd.DataFrame) -> pd.DataFrame:
+    days = df["last_donation_days"]
+
+    before = len(df)
+    df = df[days >= RECENCY_RECENT_DAYS].copy()
+    dropped = before - len(df)
+    if dropped:
+        print(f"Loại {dropped} dòng có last_donation_days < {RECENCY_RECENT_DAYS} (không đủ điều kiện hiến).")
+
+    days = df["last_donation_days"]
+    conditions = [
+        days < RECENCY_MODERATE_DAYS,
+        (days >= RECENCY_MODERATE_DAYS) & (days < RECENCY_INACTIVE_DAYS),
+        days >= RECENCY_INACTIVE_DAYS,
+    ]
+    choices = ["recent", "moderate", "inactive"]
+    category = np.select(conditions, choices, default="recent")
+
+    df["recency_recent"] = category == "recent"
+    df["recency_moderate"] = category == "moderate"
+    df["recency_inactive"] = category == "inactive"
     return df
 
 
@@ -104,7 +132,6 @@ def oversample_minority(
         print("⚠ Một trong hai class rỗng — bỏ qua oversample.")
         return df
 
-    # n_pos_target / (n_pos_target + n_neg) = target_ratio
     n_pos_target = int(round(n_neg * target_ratio / (1 - target_ratio)))
     n_to_add = n_pos_target - n_pos
 
@@ -114,11 +141,8 @@ def oversample_minority(
 
     print(f"Oversample class 1: {n_pos} -> {n_pos_target} (+{n_to_add} mẫu bootstrap)")
 
-    numeric_cols = [
-        c for c in ["age", "weight", "distance_km", "response_rate", "last_donation_days"]
-        if c in pos.columns
-    ]
-    int_cols = [c for c in ["age", "weight", "last_donation_days"] if c in numeric_cols]
+    numeric_cols = ["age", "weight", "distance_km", "response_rate", "last_donation_days"]
+    int_cols = ["age", "weight", "last_donation_days"]
 
     sampled = pos.sample(n=n_to_add, replace=True, random_state=random_state).reset_index(drop=True)
 
@@ -132,16 +156,11 @@ def oversample_minority(
             sampled[col] = sampled[col].round(4)
 
     # Clip về khoảng giá trị hợp lý
-    if "age" in sampled.columns:
-        sampled["age"] = sampled["age"].clip(lower=18)
-    if "weight" in sampled.columns:
-        sampled["weight"] = sampled["weight"].clip(lower=40)
-    if "distance_km" in sampled.columns:
-        sampled["distance_km"] = sampled["distance_km"].clip(lower=0)
-    if "response_rate" in sampled.columns:
-        sampled["response_rate"] = sampled["response_rate"].clip(0, 1)
-    if "last_donation_days" in sampled.columns:
-        sampled["last_donation_days"] = sampled["last_donation_days"].clip(lower=0)
+    sampled["age"] = sampled["age"].clip(lower=18)
+    sampled["weight"] = sampled["weight"].clip(lower=42)
+    sampled["distance_km"] = sampled["distance_km"].clip(lower=0)
+    sampled["response_rate"] = sampled["response_rate"].clip(0, 1)
+    sampled["last_donation_days"] = sampled["last_donation_days"].clip(lower=84)
 
     new_pos = pd.concat([pos, sampled], ignore_index=True)
     new_df = pd.concat([new_pos, neg], ignore_index=True)
@@ -197,8 +216,8 @@ def main():
     print("Shape  :", data.shape)
     print("Label dist:", data["label"].value_counts().to_dict())
 
-    # Tính mean age từ dataset GỐC (trước oversample) để age_default phản ánh đúng dữ liệu thật
-    age_default = int(round(data["age"].mean())) if "age" in data.columns else 30
+    # Mean age từ dataset GỐC (trước oversample) để age_default phản ánh đúng dữ liệu thật
+    age_default = int(round(data["age"].mean()))
     print(f"\nAge default (mean, dữ liệu gốc): {age_default}")
 
     # --- Oversample class Donate (label=1) lên 60:40, giữ toàn bộ dữ liệu gốc ---
@@ -287,7 +306,7 @@ def main():
     plt.tight_layout()
     plt.savefig("confusion_matrix.png", dpi=150)
     plt.close()
-    print(f"\n(Đã lưu: {'confusion_matrix.png'})")
+    print(f"\n(Đã lưu: confusion_matrix.png)")
 
     # ========================
     # ROC Curves — cả 3 model
@@ -309,7 +328,7 @@ def main():
     plt.tight_layout()
     plt.savefig("roc_curve.png", dpi=150)
     plt.close()
-    print(f"(Đã lưu: {'roc_curve.png'})")
+    print(f"(Đã lưu: roc_curve.png)")
 
     # ========================
     # Feature Importance — best model
@@ -330,7 +349,7 @@ def main():
     plt.tight_layout()
     plt.savefig("feature_importance.png", dpi=150)
     plt.close()
-    print(f"(Đã lưu: {'feature_importance.png'})")
+    print(f"(Đã lưu: feature_importance.png)")
 
     # ========================
     # Save model tốt nhất
