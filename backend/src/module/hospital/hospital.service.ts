@@ -104,7 +104,7 @@ export class HospitalService {
     } catch (error: any) {
       throw new BadRequestException({
         status: HttpRequestStatus.ERROR,
-        message: "Lỗi khi gửi donor"
+        message: "Lỗi khi gửi yêu cầu"
       });
     }
   }
